@@ -1,5 +1,9 @@
+# files
 *.pyc
-__pycache__
 *.db
+*.log
+
+# directories
 .idea
+__pycache__
 opaart
