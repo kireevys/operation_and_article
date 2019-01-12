@@ -1,9 +1,12 @@
 import logging
 from app.config import db_log, application_log
 
+full_path = '/home/kiryu/repos/kireevys/operation_and_article/app/logs/'
+db_log, application_log = full_path + db_log, full_path + application_log
+
 
 def setup_logger(logger_name, log_file, level=logging.INFO,
-                 format='[%(module)s] [LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s'):
+                 format='[%(filename)s/%(module)s] [LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s'):
     """
     Функция настраивает логгер который пишет в переданный файл
     :param logger_name:

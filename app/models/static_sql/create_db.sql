@@ -3,7 +3,8 @@ CREATE
 		warehouse (id_ws INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		code text NOT NULL,
 		name text NOT NULL UNIQUE,
-		id_higher number);
+		level number not null,
+		id_higher integer);
 
 CREATE
 	INDEX ws_higher_idx on
@@ -13,14 +14,16 @@ CREATE
 	TABLE
 		contractor (id_contr INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		name text NOT NULL UNIQUE,
-		inn number NOT NULL,
+		level number not null,
+		inn integer NOT NULL,
 		address text NOT NULL);
 
 CREATE
 	TABLE
 		opstatus_tbl(id_status INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		name number,
-		stat_order number);
+		name integer,
+		stat_order integer,
+		on_delete integer check(on_delete between 0 and 1));
 
 CREATE
 	TABLE
@@ -32,14 +35,14 @@ CREATE
 		operation (id_op INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		opdate DATE,
 		code text NOT NULL,
-		id_status number NOT NULL,
-		optype number NOT NULL,
-		id_ws number NOT NULL,
-		id_contr number NOT NULL,
-		opsumm number NOT NULL,
-		gm_res number,
-		doccount number,
-		id_rack number,
+		id_status integer NOT NULL,
+		optype integer NOT NULL,
+		id_ws integer NOT NULL,
+		id_contr integer NOT NULL,
+		opsumm integer NOT NULL,
+		gm_res integer,
+		doccount integer,
+		id_rack integer,
 		FOREIGN KEY(id_status) REFERENCES opstatus_tab(id_status),
 		FOREIGN KEY(optype) REFERENCES optype(id_type),
 		FOREIGN KEY(id_ws) REFERENCES warehouse(id_ws),
@@ -65,8 +68,8 @@ CREATE
 		article (id_art INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		code text NOT NULL,
 		name text not NULL UNIQUE,
-		price number NOT NULL,
-		unit number,
+		price integer NOT NULL,
+		unit integer,
 		FOREIGN KEY (unit) REFERENCES unit_tab(id_unit));
 
 CREATE
@@ -76,12 +79,12 @@ CREATE
 CREATE
 	TABLE
 		op_art (id_opart INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		id_op number NOT NULL,
-		id_art number NOT NULL,
-		price number NOT NULL,
-		quantity number NOT NULL check(quantity > 0),
-		summ number check(summ = quantity * price),
-		FOREIGN KEY(id_op) REFERENCES operation(id_op),
+		id_op integer NOT NULL,
+		id_art integer NOT NULL,
+		price integer NOT NULL,
+		quantity integer NOT NULL check(quantity > 0),
+		summ integer check(summ = quantity * price),
+		FOREIGN KEY(id_op) REFERENCES operation(id_op) ON DELETE CASCADE,
 		FOREIGN KEY(id_art) REFERENCES article(id_art));
 
 CREATE
