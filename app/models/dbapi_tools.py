@@ -31,11 +31,6 @@ class DBTools(Base):
     Класс содержит методы для работы со справочниками
     """
 
-    @staticmethod
-    def add_warehouse(level, name, id_higher=None):
-        new_ws = Warehouse(level=level, name=name, id_higher=id_higher)
-        new_ws.insert()
-
     def get_ws(self, **kwargs):
         result = self.select_expression('warehouse', **kwargs)
         ws_list = []
@@ -45,6 +40,6 @@ class DBTools(Base):
 
 
 if __name__ == '__main__':
-    test = DBTools()
-    l = test.get_ws(level=1)
-    print(l)
+    new_contr = Warehouse(0, 'Сеть ММ')
+    new_contr.insert()
+    print(new_contr)

@@ -3,7 +3,7 @@ CREATE
 		warehouse (id_ws INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		code text NOT NULL,
 		name text NOT NULL UNIQUE,
-		level number not null,
+		level integer not null,
 		id_higher integer);
 
 CREATE
@@ -14,7 +14,7 @@ CREATE
 	TABLE
 		contractor (id_contr INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		name text NOT NULL UNIQUE,
-		level number not null,
+		level integer not null,
 		inn integer NOT NULL,
 		address text NOT NULL);
 

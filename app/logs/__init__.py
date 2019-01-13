@@ -3,10 +3,10 @@ from app.config import db_log, application_log
 
 full_path = '/home/kiryu/repos/kireevys/operation_and_article/app/logs/'
 db_log, application_log = full_path + db_log, full_path + application_log
-
+end = '||'
 
 def setup_logger(logger_name, log_file, level=logging.INFO,
-                 format='[%(filename)s/%(module)s] [LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s'):
+                 format='%(name)-6s: [%(module)s/%(funcName)-20s |LINE:%(lineno)-3d]# %(levelname)-8s [%(asctime)s]:  %(message)-90s ||'):
     """
     Функция настраивает логгер который пишет в переданный файл
     :param logger_name:
@@ -33,6 +33,6 @@ def setup_logger(logger_name, log_file, level=logging.INFO,
 
 db_logger = setup_logger('db', db_log)
 test_logger = setup_logger('test', application_log)
-debug_logger = setup_logger('debug', 'debug.log')
+debug_logger = setup_logger('debug', f'{full_path}debug.log')
 
-debug_logger.info('Loggers activated')
+# debug_logger.info('Loggers activated')
