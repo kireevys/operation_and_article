@@ -1,6 +1,6 @@
 # Database
-
-db_path = '../op_and_art.db'
+import os
+db_path = 'op_and_art.db'
 
 # Logging
 db_log = 'database_logs.log'

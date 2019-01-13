@@ -1,7 +1,7 @@
 import sqlite3
 from app.config import db_path
 from app.logs import db_logger, debug_logger
-from app.models.tables import *
+from app.models.tables import Contractor, Warehouse, Base
 
 
 def execute_sql_file(sql_path):
@@ -40,6 +40,9 @@ class DBTools(Base):
 
 
 if __name__ == '__main__':
-    new_contr = Warehouse(0, 'Сеть ММ')
-    new_contr.insert()
-    print(new_contr)
+    ws2 = Contractor().select_expression(id_contr=1)[0]
+    print(ws2.id_contr)
+    ws1 = Contractor().select_expression(id_contr=2)[0]
+    ws1.delete_data()
+    ws1 = Contractor().select_expression(id_contr=2)
+    print(ws1)

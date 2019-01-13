@@ -1,5 +1,5 @@
 update {{table}}
     set
-    {{data}}
+    {{set_expression}}
     where
     {{where_expression}};
