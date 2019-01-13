@@ -1,4 +1,3 @@
-from app.config import db_path
 from app.models.dbapi_tools import execute_sql_file
 from app.models.tables import Base
 from sqlite3 import OperationalError

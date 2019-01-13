@@ -61,7 +61,8 @@ CREATE
 CREATE
 	TABLE
 		unit_tab (id_unit INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		name text UNIQUE NOT NULL);
+		name text UNIQUE NOT NULL,
+		fullname text UNIQUE NOT NULL);
 
 CREATE
 	TABLE
@@ -94,5 +95,7 @@ CREATE
 CREATE
 	INDEX opart_art_idx on
 	op_art(id_art);
+
+
 
 COMMIT;

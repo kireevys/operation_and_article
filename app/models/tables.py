@@ -66,10 +66,12 @@ class Contractor(Base):
 class OpStatus(Base):
     __tablename__ = 'opstatus_tbl'
 
-    def __init__(self, name, stat_order, on_delete=1):
-        self.name = name
-        self.stat_order = stat_order
-        self.on_delete = on_delete
+    def __init__(self, name=None, stat_order=None, on_delete=1):
+        # Columns
+        self.id_status = Column('id_status', primary=True)
+        self.name = Column('name', name)
+        self.stat_order = Column('stat_order', stat_order)
+        self.on_delete = Column('on_delete', on_delete)
 
     def insert(self):
         self.insert_data()
@@ -78,59 +80,52 @@ class OpStatus(Base):
 class Unit(Base):
     __tablename__ = 'unit_tab'
 
-    def __int__(self, name):
-        self.name = name
+    def __int__(self, name=None):
+        self.id_unit = Column('id_unit', primary=True)
+        self.name = Column('name', name)
 
     def insert(self):
-        self.insert_data(table_name=self.__tablename__,
-                         name=self.name)
+        self.insert_data()
 
 
 class Articles(Base):
     __tablename__ = 'article'
 
-    def __init__(self, code, name, price, unit, ):
-        self.code = code
-        self.name = name
-        self.price = price
-        self.unit = unit
+    def __init__(self, code=None, name=None, price=None, unit=None, ):
+        self.id_art = Column('id_art', primary=True)
+        self.code = Column('code', code)
+        self.name = Column('name', name)
+        self.price = Column('price', price)
+        self.unit = Column('unit', unit)
 
     def insert(self):
-        self.insert_data(table_name=self.__tablename__,
-                         code=self.code,
-                         name=self.name,
-                         price=self.price,
-                         unit=self.unit)
+        self.insert_data()
 
 
 class OpType(Base):
     __tablename__ = 'optype'
 
     def __init__(self, name):
-        self.name = name
+        self.id_type = Column('id_type', primary=True)
+        self.name = Column('name', name)
 
     def insert(self):
-        self.insert_data(table_name=self.__tablename__,
-                         name=self.name)
+        self.insert_data()
 
 
 class OpArt(Base):
     __tablename__ = 'op_art'
 
-    def __init__(self, id_op, id_art, price, quantity):
-        self.id_op = id_op
-        self.id_art = id_art
-        self.price = price
-        self.quantity = quantity
-        self.summ = price * quantity
+    def __init__(self, id_op=None, id_art=None, price=None, quantity=None):
+        self.id_opart = Column('id_opart', primary=True)
+        self.id_op = Column('id_op', id_op)
+        self.id_art = Column('id_art', id_art)
+        self.price = Column('price', price)
+        self.quantity = Column('quantity', quantity)
+        self.summ = Column('summ', price * quantity)
 
     def insert(self):
-        self.insert_data(self.__tablename__,
-                         id_op=self.id_op,
-                         id_art=self.id_art,
-                         price=self.price,
-                         quantity=self.quantity,
-                         summ=self.summ)
+        self.insert_data()
 
 
 class Operation(Base):
@@ -139,24 +134,17 @@ class Operation(Base):
     opsumm = 0
     doccount = 0
 
-    def __init__(self, opdate, code, optype, id_ws, id_contr, gm_res, id_rack):
-        self.opdate = opdate
-        self.code = code
-        self.optype = optype
-        self.id_ws = id_ws
-        self.id_contr = id_contr
-        self.gm_res = gm_res
-        self.id_rack = id_rack
+    def __init__(self, opdate=None, code=None, optype=None, id_status=None, id_ws=None, id_contr=None, gm_res=None,
+                 id_rack=None):
+        self.id_op = Column('id_op', primary=True)
+        self.opdate = Column('opdate', opdate)
+        self.code = Column('code', code)
+        self.optype = Column('optype', optype)
+        self.id_ws = Column('id_ws', id_ws)
+        self.id_contr = Column('id_contr', id_contr)
+        self.gm_res = Column('gm_res', gm_res)
+        self.id_rack = Column('id_rack', id_rack)
+        self.id_status = Column('id_status', id_status)
 
     def insert(self):
-        self.insert_data(self.__tablename__,
-                         opdate=self.opdate,
-                         code=self.code,
-                         optype=self.optype,
-                         id_status=self.id_status,
-                         id_ws=self.id_ws,
-                         id_contr=self.id_contr,
-                         opsumm=self.opsumm,
-                         gm_res=self.gm_res,
-                         doccount=self.doccount,
-                         id_rack=self.id_rack)
+        self.insert_data()
