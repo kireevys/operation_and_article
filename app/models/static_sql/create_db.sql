@@ -155,4 +155,11 @@ INSERT INTO unit_tab (fullname, name) values ('шт','штука');
 
 INSERT INTO unit_tab (fullname, name) values ('бут','бутылка');
 
-COMMIT;
+insert into article (code, name, price, unit) values ('1', 'Шоколадка', 34, 4);
+insert into article (code, name, price, unit) values ('2', 'Чай', 32, 4);
+insert into article (code, name, price, unit) values ('3', 'Печеньки', 34, 4);
+insert into article (code, name, price, unit) values ('4', 'Кофе', 200, 4);
+insert into article (code, name, price, unit) values ('5', 'Молоко', 44.9, 4);
+insert into article (code, name, price, unit) values ('6', 'Сок', 54.5, 4);
+insert into article (code, name, price, unit) values ('7', 'Зефир', 23.7, 4);
+insert into article (code, name, price, unit) values ('8', 'Чтототам', 999.99, 4);

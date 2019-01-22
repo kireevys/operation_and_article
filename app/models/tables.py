@@ -101,6 +101,12 @@ class Articles(Base):
         self.price = Column('price', price)
         self.unit = Column('unit', unit)
 
+        self.row = (self.id_art,
+                    self.code,
+                    self.name,
+                    self.price,
+                    self.unit)
+
     def insert(self):
         self.insert_data()
 
@@ -119,14 +125,13 @@ class OpType(Base):
 class OpArt(Base):
     __tablename__ = 'op_art'
 
-    def __init__(self, id_op=None, id_art=None, price=None, quantity=None):
+    def __init__(self, id_op=None, id_art=None, price=0, quantity=0):
         self.id_opart = Column('id_opart', primary=True)
         self.id_op = Column('id_op', id_op)
         self.id_art = Column('id_art', id_art)
         self.price = Column('price', price)
         self.quantity = Column('quantity', quantity)
         self.summ = Column('summ', price * quantity)
-
         self.row = (self.id_opart,
                     self.id_op,
                     self.id_art,
@@ -171,3 +176,13 @@ class Operation(Base):
 
     def insert(self):
         self.insert_data()
+
+    def get_my_opsum(self):
+        my_opsum = 0
+        my_arts = OpArt(id_op=self.id_op.value)
+        my_arts = my_arts.select_expression(id_op=self.id_op.value)
+        for i in my_arts:
+            my_opsum += i.summ.value
+        self.opsumm.value = my_opsum
+        return my_opsum
+

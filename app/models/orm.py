@@ -125,12 +125,11 @@ class Base(TableRow):
         db_logger.info(self)
         template = self.get_template('insert_into.sql')
         row_dict = self.to_dict_without_primary()
-        values = self.values_to_sql_type(row_dict)
-        sql = template.render(tablename=self.__tablename__, fields=list(row_dict.keys()),
-                              value=values)
+        sql = template.render(tablename=self.__tablename__, fields=list(row_dict.keys()))
         debug_logger.info(sql)
+        debug_logger.info(row_dict)
         try:
-            self.get_new_session().execute(sql)
+            self.get_new_session().execute(sql, row_dict)
         except IntegrityError as error:
             db_logger.error(f'Дубль по уникальному полю: {error}')
             raise
@@ -143,7 +142,8 @@ class Base(TableRow):
         where = self.kwargs_to_predicate_exp('and', **id_field)
         sql = template.render(table=self.__tablename__, where_expression=where)
         db_logger.info(sql)
-        self.get_new_session().execute(sql)
+        db_logger.info(id_field)
+        self.get_new_session().execute(sql, id_field)
         db_logger.info(f'{self} deleted')
         self.conn.commit()
 
@@ -182,10 +182,12 @@ class Base(TableRow):
         data = self.kwargs_to_predicate_exp('and', **kwargs)
         sql = template.render(table=self.__tablename__, data=data)
         db_logger.info(sql)
-        result = self.get_new_session().execute(sql).fetchall()
+        db_logger.info(kwargs)
+        result = self.get_new_session().execute(sql, kwargs).fetchall()
         result_list = []
         for result_row in result:
             result_list.append(self.__construct__(result_row))
+        db_logger.info(result_list)
         return result_list
 
     def update_data(self):
@@ -197,7 +199,7 @@ class Base(TableRow):
         set_statement = self.kwargs_to_predicate_exp(',', **all_field)
         sql = template.render(table=self.__tablename__, set_expression=set_statement, where_expression=where)
         db_logger.info(sql)
-        self.get_new_session().execute(sql)
+        self.get_new_session().execute(sql, all_field)
         db_logger.info(f'{self} updated')
         self.conn.commit()
 
@@ -207,6 +209,6 @@ class Base(TableRow):
         expression = str()
         pack = zip(fields, values)
         for value, field in pack:
-            expression = (f'{expression} {field} = {value} {separator}')
+            expression = (f'{expression} {field} = :{field} {separator}')
         expression = expression[:-len(separator)]
         return expression
