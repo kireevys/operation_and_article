@@ -15,7 +15,9 @@ class Warehouse(Base):
         self.id_higher = Column('id_higher')
         self.level = Column('level')
         self.name = Column('name')
-        self.row = [self.id_ws, self.code, self.id_higher, self.level, self.name]
+        self.row = (self.id_ws, self.code, self.id_higher, self.level, self.name)
+
+        # Set value
         self.level.value = level
         self.code.value = self.generate_code()
         self.name.value = name
@@ -46,6 +48,7 @@ class Contractor(Base):
         self.level = Column('level', 0)  # Не помню, зачем он был нужен
         self.inn = Column('inn')
         self.address = Column('address')
+
         self.row = (self.id_contr, self.name, self.level, self.inn, self.address)
         self.name.value = name
         self.inn.value = inn
@@ -124,18 +127,22 @@ class OpArt(Base):
         self.quantity = Column('quantity', quantity)
         self.summ = Column('summ', price * quantity)
 
+        self.row = (self.id_opart,
+                    self.id_op,
+                    self.id_art,
+                    self.price,
+                    self.quantity,
+                    self.summ)
+
     def insert(self):
         self.insert_data()
 
 
 class Operation(Base):
     __tablename__ = 'operation'
-    id_status = 0
-    opsumm = 0
-    doccount = 0
 
     def __init__(self, opdate=None, code=None, optype=None, id_status=None, id_ws=None, id_contr=None, gm_res=None,
-                 id_rack=None):
+                 id_rack=None, opsumm=0, doccount=None):
         self.id_op = Column('id_op', primary=True)
         self.opdate = Column('opdate', opdate)
         self.code = Column('code', code)
@@ -145,6 +152,22 @@ class Operation(Base):
         self.gm_res = Column('gm_res', gm_res)
         self.id_rack = Column('id_rack', id_rack)
         self.id_status = Column('id_status', id_status)
+        self.opsumm = Column('opsumm', opsumm)
+        self.id_status = Column('id_status', id_status)
+        self.doccount = Column('doccount', doccount)
+
+        self.row = (self.id_op,
+                    self.opdate,
+                    self.code,
+                    self.optype,
+                    self.id_ws,
+                    self.id_contr,
+                    self.gm_res,
+                    self.id_rack,
+                    self.id_status,
+                    self.opsumm,
+                    self.id_status,
+                    self.doccount)
 
     def insert(self):
         self.insert_data()

@@ -1,5 +1,4 @@
 # Database
-import os
 db_path = 'op_and_art.db'
 
 # Logging

@@ -13,7 +13,7 @@ def execute_sql_file(sql_path):
         # и выполняем
         for line in sql_file:
             query = f'{query} {line}'
-            if line.endswith(';\n'):
+            if line.strip().endswith(';'):
                 try:
                     debug_logger.info(query)
                     cursor.execute(query)
