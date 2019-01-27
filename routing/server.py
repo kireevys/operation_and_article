@@ -1,5 +1,4 @@
 from routing import app
-from routing.forms import AuthForm
 import json
 from flask import request
 
@@ -11,6 +10,7 @@ def index():
 
 @app.route('/test', methods=['POST'])
 def test():
-    form = AuthForm()
-    print(form)
-    return 'ok', 200
+    form = request
+    rq = form.form.to_dict()
+    rq['test'] = 'ss'
+    return json.dumps(rq), 200

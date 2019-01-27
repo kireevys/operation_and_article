@@ -10,7 +10,7 @@ App.login.win = Ext.extend(Ext.Window, {
   layout: 'fit',
   closable: false,
 
-  initComponent: function() {
+  initComponent: function () {
     Ext.applyIf(this, {
       items: this.buildItems(),
     });
@@ -19,7 +19,7 @@ App.login.win = Ext.extend(Ext.Window, {
 
   },
 
-  buildItems: function() {
+  buildItems: function () {
     winItemArr = [
 
       new App.login.win.form({
@@ -40,7 +40,7 @@ App.login.win.form = Ext.extend(Ext.form.FormPanel, {
   baseCls: "x-plain",
   // labelWidth: 150,
 
-  initComponent: function() {
+  initComponent: function () {
     Ext.applyIf(this, {
       items: this.buildItems(),
       buttons: this.buildButtons(),
@@ -49,7 +49,7 @@ App.login.win.form = Ext.extend(Ext.form.FormPanel, {
     App.login.win.form.superclass.initComponent.call(this);
   },
 
-  buildButtons: function() {
+  buildButtons: function () {
     var me = this;
     return [{
       xtype: 'button',
@@ -58,44 +58,48 @@ App.login.win.form = Ext.extend(Ext.form.FormPanel, {
       width: 50,
       height: 25,
       renderTo: Ext.getBody(),
-      handler: function() {
+      handler: function () {
         var form = me.getForm();
-        
+
         var inputValues = form.getFieldValues();
-        if (inputValues['userField'] && inputValues['passwordField']){
-            var jsonValues = Ext.util.JSON.encode(inputValues);
-            form.submit({
-                url: 'test'
-            });
+        if (inputValues['userField'] && inputValues['passwordField']) {
+          Ext.Ajax.request({
+            url: '/test',
+            method: 'POST',
+            params: inputValues,
+            success: function(form, action){
+              console.log(form);
+            }
+          });
         }
       }
     }]
   },
 
-  buildItems: function() {
+  buildItems: function () {
 
     panelItem = [{
-        xtype: 'textfield',
-        id: 'userField',
-        fieldLabel: 'Username',
-        allowBlank: false,
-        padding: '10',
-        autoScroll: true
-      },
-      {
-        xtype: 'textfield',
-        id: 'passwordField',
-        fieldLabel: 'Password',
-        inputType: 'password',
-        allowBlank: false,
-      }
+      xtype: 'textfield',
+      id: 'userField',
+      fieldLabel: 'Username',
+      allowBlank: false,
+      padding: '10',
+      autoScroll: true
+    },
+    {
+      xtype: 'textfield',
+      id: 'passwordField',
+      fieldLabel: 'Password',
+      inputType: 'password',
+      allowBlank: false,
+    }
     ]
     return panelItem
   }
 
 });
 
-Ext.onReady(function() {
+Ext.onReady(function () {
   var mainWindow = new App.login.win();
   mainWindow.show();
 });
