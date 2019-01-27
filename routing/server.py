@@ -1,6 +1,16 @@
 from routing import app
+from routing.forms import AuthForm
+import json
+from flask import request
 
 
-@app.route('/test', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    return 'good', 200
+    return app.send_static_file('index.html'), 200
+
+
+@app.route('/test', methods=['POST'])
+def test():
+    form = AuthForm()
+    print(form)
+    return 'ok', 200
