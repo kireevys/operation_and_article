@@ -1,6 +1,5 @@
 Ext.ns('App.login.win');
 Ext.ns('App.login.win.form');
-Ext.ns('App.login.win.test');
 
 App.login.win = Ext.extend(Ext.Window, {
   title: 'Auth',
@@ -67,7 +66,7 @@ App.login.win.form = Ext.extend(Ext.form.FormPanel, {
             url: '/test',
             method: 'POST',
             params: inputValues,
-            success: function(form, action){
+            success: function (form, action) {
               console.log(form);
             }
           });
