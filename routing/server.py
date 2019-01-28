@@ -14,3 +14,7 @@ def test():
     rq = form.form.to_dict()
     rq['test'] = 'ss'
     return json.dumps(rq), 200
+
+@app.route('/tt')
+def index2():
+    return app.send_static_file('index2.html'), 200
