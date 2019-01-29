@@ -1,7 +1,7 @@
 import logging
 from config import db_log, application_log
 
-full_path = '/home/kiryu/repos/kireevys/operation_and_article/application/logs/'
+full_path = 'logs/'
 db_log, application_log = full_path + db_log, full_path + application_log
 end = '||'
 

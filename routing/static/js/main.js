@@ -1,8 +1,12 @@
+// TODO: Раскидать нэймспейсы
 Ext.ns('App.main');
 Ext.ns('App.main.panel');
+Ext.ns('App.main.panel.addOperation');
 
+// Вьюпорт - корневой объект
 App.main = Ext.extend(Ext.Viewport, {
     title: 'Operation and article',
+    // Весь экран, не закрываемый, первый дочерний объект занимает все пространство
     maximized: true,
     closable: false,
     layout: 'fit',
@@ -17,7 +21,8 @@ App.main = Ext.extend(Ext.Viewport, {
 
     buildItems: function () {
         panels = [
-
+            // Дочерний объект - таб панель
+            // TODO: Навести порядок в именах
             new App.main.panel({
                 ref: 'panel',
                 parent: this
@@ -27,12 +32,13 @@ App.main = Ext.extend(Ext.Viewport, {
     },
 });
 
+// Панелька с вкладками
 App.main.panel = Ext.extend(Ext.TabPanel, {
     activeTab: 0,
-
+    // Инициализация ВКЛАДОК
     initComponent: function () {
         Ext.applyIf(this, {
-            items: this.buildItems()
+            items: this.buildItems(),
         });
 
         App.main.panel.superclass.initComponent.call(this);
@@ -40,66 +46,58 @@ App.main.panel = Ext.extend(Ext.TabPanel, {
 
     buildItems: function () {
         panelItem = [
-
+            // Вкладки - любой объект, заголовки передаются в ярлычки
             new App.main.panel.opGrid({
                 ref: 'opGrid',
                 parent: this
             })
         ]
         return panelItem;
-    }
-
-});
-
-var myData = {
-    records: [
-        { name: "Rec 0", column1: "0", column2: "0" },
-        { name: "Rec 1", column1: "1", column2: "1" },
-        { name: "Rec 2", column1: "2", column2: "2" },
-        { name: "Rec 3", column1: "3", column2: "3" },
-        { name: "Rec 4", column1: "4", column2: "4" },
-        { name: "Rec 5", column1: "5", column2: "5" },
-        { name: "Rec 6", column1: "6", column2: "6" },
-        { name: "Rec 7", column1: "7", column2: "7" },
-        { name: "Rec 8", column1: "8", column2: "8" },
-        { name: "Rec 9", column1: "9", column2: "9" }
-    ]
-};
-
-var fields = [
-    { name: 'name', mapping: 'name' },
-    { name: 'column1', mapping: 'column1' },
-    { name: 'column2', mapping: 'column2' }
-];
-
-var firstGridStore = new Ext.data.JsonStore({
-    fields: fields,
-    data: myData,
-    root: 'records'
-});
-
-var col = new Ext.grid.ColumnModel({
-    columns: [
-        { id: 'id_op_column', width: 70, hideable: false, header: "id_op", dataIndex: 'name' },
-        { header: "opnumber", dataIndex: 'column1' },
-        { header: "test", dataIndex: 'column2' }
-    ],
-    defaults: {
-        sortable: true,
-        menuDisabled: false
     },
 
-    defaultWidth: 150
+
 });
 
+
+// Табличка операций
+// TODO: Перетащить к операциям
 App.main.panel.opGrid = Ext.extend(Ext.grid.GridPanel, {
-    ddGroup: 'secondGridDDGroup',
+
+    ddGroup: 'firstGridDDGroup',
+    title: 'Operation',
+    // Данные с бэка
     store: firstGridStore,
+    // Модель столбцов
     colModel: col,
-    title: 'test',
-    forceFit: true
+    // Кнопочка, которая должна вызывать окно добавления операций
+    // Но пока она просто вызывает окна.
+    // Много окон
+    buttons: [
+        {
+            xtype: 'button',
+            text: 'add operation',
+            parent: function () {
+                return this;
+            },
+            handler: function () {
+                new App.main.panel.addOperation({
+                    ref: 'addOperation',
+                    parent: this.parent()
+                });
+            }
+        },
+    ]
 });
 
+// Вот этих окон
+App.main.panel.addOperation = Ext.extend(Ext.Window, {
+    title: 'Add op',
+    width: 350,
+    height: 135,
+    layout: 'fit',
+});
+
+// Если готовы - показываем вьюпорт
 Ext.onReady(function () {
     var main = new App.main();
     main.show();

@@ -46,8 +46,8 @@ class OperationTools(Operation):
                               quantity=quantity)
             new_opart.insert()
 
-
-if __name__ == '__main__':
-    op = OperationTools()
-    op.add_op_art(id_op=1, **{'1': 3, '2': 10, '8': 50})
-    print(op.get_my_opsum())
+    def get_all_operation(self):
+        op_all = self.select_expression()
+        di = [k.to_dict() for k in op_all]
+        js = dict(data=di)
+        return js

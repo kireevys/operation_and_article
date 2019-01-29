@@ -188,6 +188,33 @@
             });
         });
     </script>
+    <!--     <script type="text/javascript">
+        Ext.onReady(function () {
+
+            new Ext.Window({
+                initHidden: false,
+                width: 700,
+                title: 'WindowTitle',
+                items: [
+                    new Ext.TabPanel({
+                        items: [
+                            new Ext.Panel({ title: 'Title1' }),
+                            new Ext.Panel({ title: 'Title2' })
+                        ],
+                        plugins: {
+                            init: function (component) {
+                                component.on({
+                                    beforetabchange: function (t, c, n) {
+                                        Ext.MessageBox.confirm('MessageBoxTitle', 'Confirm message.', Ext.emptyFn, component);
+                                    }
+                                });
+                            }
+                        }
+                    })
+                ]
+            });
+        }); 
+    </script> -->
 
     <div id="panel"></div>
 

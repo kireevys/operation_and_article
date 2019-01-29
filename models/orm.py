@@ -3,9 +3,6 @@ from jinja2 import Template
 from config import db_path as config_path_db
 from logs import db_logger, debug_logger
 import re
-import os
-
-os.chdir('/home/kiryu/repos/kireevys/operation_and_article/application')
 
 
 class Column(object):
@@ -105,17 +102,6 @@ class Base(TableRow):
         template = Template(sql)
         return template
 
-    def _sync_myself(self):
-        """
-        Функция делает выборку к базе по ключевым полям
-        и синхронизует текущий объект с БД
-        :return:
-        """
-        d = self.to_dict_without_primary()
-        new_me = self.select_expression(**d)[0]
-        for old, new in zip(self.row, new_me.row):
-            old = new
-
     def get_new_session(self):
         self.conn = connect(self.db_path)
         session = self.conn.cursor()
@@ -150,7 +136,7 @@ class Base(TableRow):
     @staticmethod
     def parse_constraint_fail(error):
         error_text = error.__repr__()[:-3]
-        return re.findall('UNIQUE constraint failed: (\S+)',
+        return re.findall(r'UNIQUE constraint failed: (\S+)',
                           error_text)
 
     @staticmethod
@@ -204,11 +190,13 @@ class Base(TableRow):
         self.conn.commit()
 
     def kwargs_to_predicate_exp(self, separator, **kwargs):
+        if len(kwargs) == 0:
+            return '1 = 1'
         values = list(kwargs.keys())
         fields = self.values_to_sql_type(kwargs)
         expression = str()
         pack = zip(fields, values)
         for value, field in pack:
-            expression = (f'{expression} {field} = :{field} {separator}')
+            expression = f'{expression} {field} = :{field} {separator}'
         expression = expression[:-len(separator)]
         return expression
