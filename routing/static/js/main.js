@@ -47,8 +47,8 @@ App.main.panel = Ext.extend(Ext.TabPanel, {
     buildItems: function () {
         panelItem = [
             // Вкладки - любой объект, заголовки передаются в ярлычки
-            new App.main.panel.opGrid({
-                ref: 'opGrid',
+            new App.main.panel.opPanel({
+                ref: 'opPanel',
                 parent: this
             })
         ]
@@ -58,17 +58,75 @@ App.main.panel = Ext.extend(Ext.TabPanel, {
 
 });
 
+App.main.panel.opPanel = Ext.extend(Ext.Panel, {
+    // items: [
+    //     App.main.panel.opGrid,
+    //     App.main.panel.opArt
+    // ],
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems(),
+        });
+
+        App.main.panel.opPanel.superclass.initComponent.call(this);
+    },
+    buildItems: function () {
+        panelItem = [
+            // Вкладки - любой объект, заголовки передаются в ярлычки
+            new App.main.panel.opGrid({
+                ref: 'opGrid',
+                parent: this
+            }),
+            new App.main.panel.opArt({
+                ref: 'opArt',
+                parent: this
+            })
+        ]
+        return panelItem;
+    },
+
+    title: 'Operation'
+})
 
 // Табличка операций
 // TODO: Перетащить к операциям
 App.main.panel.opGrid = Ext.extend(Ext.grid.GridPanel, {
-
-    ddGroup: 'firstGridDDGroup',
     title: 'Operation',
+    height: 500,
+    layout: 'vbox',
+    layoutConfig: {
+        padding: '5',
+        align: 'left'
+    },
     // Данные с бэка
-    store: firstGridStore,
+    store: operationStore,
     // Модель столбцов
-    colModel: col,
+    colModel: operationColumns,
+    listeners: {
+        // Событие, считывающее id_op при нажатии строку
+        // Далее id должен уходить на бэк, получать данне о товарах в операции
+        // И грузить товары в стор нижнего грида
+        cellclick(grid, rowIndex, columnIndex, e) {
+            var record = grid.getStore().getAt(rowIndex);
+            currentIdOp = record.get('id_op');
+            Ext.Ajax.request({
+                url: 'get_op_art/' + currentIdOp,
+                success: function (response, options) {
+                    // Преобразуем ответ к требуемому JsonStore формату
+                    var test = Ext.decode(response.responseText);
+                    var jsonDate = { records: test['data'] }
+                    // Создание инкапсулированного объекта данных
+                    var store = new Ext.data.JsonStore({
+                        fields: opArtFields,
+                        root: 'records',
+                        data: jsonDate,
+                    });
+                    // Отдадим данные во внешний объект
+                    opArtStore.data = store.data
+                }
+            });
+        }
+    },
     // Кнопочка, которая должна вызывать окно добавления операций
     // Но пока она просто вызывает окна.
     // Много окон
@@ -87,6 +145,30 @@ App.main.panel.opGrid = Ext.extend(Ext.grid.GridPanel, {
             }
         },
     ]
+});
+
+
+
+App.main.panel.opArt = Ext.extend(Ext.grid.GridPanel, {
+    title: 'Operation Articles',
+    // Данные с бэка
+    store: opArtStore,
+    // Модель столбцов
+    colModel: operationsArticleColumns,
+    height: 500,
+    layout: 'vbox',
+    layoutConfig: {
+        padding: '5',
+        align: 'left'
+    },
+    listeners: {
+        // Событие, считывающее id_op при нажатии строку
+        // Далее id должен уходить на бэк, получать данне о товарах в операции
+        // И грузить товары в стор нижнего грида
+        cellclick(grid, rowIndex, columnIndex, e) {
+            alert(currentIdOp);
+        }
+    },
 });
 
 // Вот этих окон

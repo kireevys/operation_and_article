@@ -1,9 +1,9 @@
 from routing.server import app
-from logick.operation_logick import OperationTools
+from models.tables import OpArt
 
 # if __name__ == '__main__':
-#     op = OperationTools()
-#     op.add_operation()
+#     op = OpArt(id_op=1, id_art=1,quantity=10)
+#     op.insert()
 
 
 if __name__ == '__main__':

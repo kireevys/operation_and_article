@@ -26,5 +26,11 @@ def index2():
 def send_operation():
     op = OperationTools()
     s = op.get_all_operation()
-    print(s)
     return json.dumps(s), 200
+
+@app.route('/get_op_art/<id_op>')
+def send_op_art(id_op):
+    op = OperationTools()
+    all_art = op.get_all_opart(id_op)
+    return json.dumps(all_art), 200
+    
