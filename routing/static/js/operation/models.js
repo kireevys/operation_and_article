@@ -43,7 +43,17 @@ var operationColumns = new Ext.grid.ColumnModel({
 // Store
 var operationStore = new Ext.data.JsonStore({
     fields: operationsFields,
+
+    proxy: new Ext.data.HttpProxy({
+        url: 'getop',
+        method: 'GET'
+    }),
+    autoLoad: true,
+    root: 'data'
 });
+
+
+
 
 var opToolbar = new Ext.Toolbar({
     height: 40,
@@ -88,23 +98,23 @@ opToolbar.addOp = Ext.extend(Ext.Window, {
 });
 
 opToolbar.addOp.opForm = Ext.extend(Ext.form.FormPanel, {
-    style:{
-        "padding":"7px 0px 10px 0px"
+    style: {
+        "padding": "7px 0px 10px 0px"
     },
-    labelAlign:'right',
+    labelAlign: 'right',
     baseCls: "x-plain",
     // labelWidth: 150,
 
-    initComponent: function() {
+    initComponent: function () {
         Ext.applyIf(this, {
             items: this.buildItems(),
         });
-        
+
         opToolbar.addOp.opForm.superclass.initComponent.call(this);
     },
 
-    buildItems: function() {
-        panelItem = [            {    
+    buildItems: function () {
+        panelItem = [{
             xtype: 'textfield',
             id: 'user-field',
             fieldLabel: 'Username',
@@ -128,10 +138,10 @@ opToolbar.addOp.opForm = Ext.extend(Ext.form.FormPanel, {
             height: 25,
             region: 'center',
         }
-    ]
+        ]
         return panelItem
     }
-    
+
 });
 
 
