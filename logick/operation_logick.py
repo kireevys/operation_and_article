@@ -49,12 +49,12 @@ class OperationTools(Operation):
     def get_all_operation(self):
         op_all = self.select_expression()
         di = [k.to_dict() for k in op_all]
-        js = dict(data=di)
+        js = dict(operation=di)
         return js
 
     def get_all_opart(self, id_op):
         op_art = OpArt()
         result = op_art.select_expression(id_op=id_op)
         di = [k.to_dict() for k in result]
-        js = dict(data=di)
+        js = dict(opart=di)
         return js
