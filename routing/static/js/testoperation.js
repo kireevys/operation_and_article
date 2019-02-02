@@ -98,9 +98,33 @@ var operationsArticleColumns = new Ext.grid.ColumnModel({
 
 
 //Внешний объект данных, заполняется в реквесте
-var opArtStore = new Ext.data.JsonStore({
-    fields: opArtFields,
-    root: 'records'
+opArtStore = Ext.extend(Ext.data.JsonStore, {
+    url: '/get_op_art/1',
+    method: '',
+    constructor: function () {
+        Ext.apply( {
+            proxy: this.buildProxy(),
+        });
+
+        opArtStore.superclass.constructor.call(this);
+    },
+
+    load: function () {
+        opArtStore.superclass.call(this, options);
+    },
+    buildProxy: function () {
+        var me = this;
+
+        return new Ext.data.HttpProxy(me.buildConnection());
+    },
+
+    buildConnection: function () {
+        var me = this;
+        return new Ext.data.Connection({
+            url: me.url,
+            method: 'GET',
+        });
+    }
 });
 
 // Выполняем запрос операций к серверу

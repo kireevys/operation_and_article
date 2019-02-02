@@ -1,42 +1,63 @@
-var grid = new Ext.grid.GridPanel({
-    // A groupingStore is required for a GroupingView
-    store: new Ext.data.GroupingStore({
-        autoDestroy: true,
-        reader: reader,
-        data: xg.dummyData,
-        sortInfo: {field: 'company', direction: 'ASC'},
-        groupOnSort: true,
-        remoteGroup: true,
-        groupField: 'industry'
-    }),
-    colModel: new Ext.grid.ColumnModel({
-        columns:[
-            {id:'company',header: 'Company', width: 60, dataIndex: 'company'},
-            // groupable, groupName, groupRender are also configurable at column level
-            {header: 'Price', renderer: Ext.util.Format.usMoney, dataIndex: 'price', groupable: false},
-            {header: 'Change', dataIndex: 'change', renderer: Ext.util.Format.usMoney},
-            {header: 'Industry', dataIndex: 'industry'},
-            {header: 'Last Updated', renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange'}
-        ],
-        defaults: {
-            sortable: true,
-            menuDisabled: false,
-            width: 20
-        }
-    }),
+App = Ext.extend(Ext.Viewport, {
+    title: 'Operation and article',
+    // Весь экран, не закрываемый, первый дочерний объект занимает все пространство
+    maximized: true,
+    closable: false,
+    layout: 'fit',
 
-    view: new Ext.grid.GroupingView({
-        forceFit: true,
-        // custom grouping text template to display the number of items per group
-        groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
-    }),
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems()
+        });
 
-    frame:true,
-    width: 700,
-    height: 450,
-    collapsible: true,
-    animCollapse: false,
-    title: 'Grouping Example',
-    iconCls: 'icon-grid',
-    renderTo: document.body
+        App.superclass.initComponent.call(this);
+    },
+
+    buildItems: function () {
+        panels = [
+            // Дочерний объект - таб панель
+            // TODO: Навести порядок в именах
+            new App.panel({
+                ref: 'panel',
+                parent: this
+            })
+        ]
+        return panels;
+    },
+});
+
+App.panel = Ext.extend(Ext.TabPanel, {
+    width: 300,
+    height: 330,
+    padding: 10,
+    title: 'Приложение Ext JS 4',
+    // layout: {
+    //     type: 'vbox',
+    //     align: 'stretch'
+    // },
+    initComponent: function () {
+        Ext.apply(this, {
+            items: [{
+                xtype: 'button',
+                title: 'Первая панель',
+                height: 100
+            }, {
+                xtype: 'panel',
+                title: 'Вторая панель',
+                height: 80
+            }, {
+                xtype: 'panel',
+                title: 'Третья панель',
+                height: 100
+            }]
+        });
+
+        App.panel.superclass.initComponent.call(this);
+    },
+
+});
+
+Ext.onReady(function () {
+    var main = new App.panel();
+    main.show();
 });
