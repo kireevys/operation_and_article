@@ -113,6 +113,18 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             root: 'operation'
         });
         return operationStore;
+    },
+
+    listeners: {
+        // Событие, считывающее id_op при нажатии строку
+        // Далее id должен уходить на бэк, получать данне о товарах в операции
+        // И грузить товары в стор нижнего грида
+        cellclick(grid, rowIndex, columnIndex, e) {
+            var record = grid.getStore().getAt(rowIndex);
+            currentIdOp = record.get('id_op');
+            // Запросим товары по операции в грид опТоваров
+            this.parent.opArtGrid.loadOp({id_op: currentIdOp});
+        }
     }
 });
 
