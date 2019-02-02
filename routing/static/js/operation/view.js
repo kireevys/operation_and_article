@@ -175,32 +175,6 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
                 }
             }),
 
-            // initComponent: function () {
-            //     operationStore.superclass.initComponent.call(this);
-            //     this.on('exception', operationStore.superclass.onException, this);
-            // },
-            // load: function (options) {
-            //     var id_op = options.id_op;
-            //     options = options || {};
-
-            //     options.params = Ext.applyIf(options.params || {}, {
-            //         id: 'httpReq',
-            //         version: '1.1',
-            //         method: this.method,
-            //     });
-
-            //     options.params.params = { id_op: id_op } || {};
-
-            //     if (this.baseParams) {
-            //         Ext.apply(options.params.params, this.baseParams);
-            //     }
-            //     var param = options.params;
-            //     options.params = { body: Ext.encode(param) };
-
-            //     operationStore.superclass.call(this, options)
-            // },
-
-
             onException: function (proxy, type, action, options, response, args) {
                 var responseJson = {};
 
@@ -221,6 +195,6 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
 
     loadOp: function (op) {
         var loadOption = op
-        this.store.load({params: loadOption});
+        this.store.load({ params: loadOption });
     },
 });
