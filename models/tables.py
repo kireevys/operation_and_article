@@ -2,6 +2,7 @@ from models.orm import Column, Base
 from sqlite3 import IntegrityError
 
 from logs import db_logger, debug_logger
+import datetime
 
 
 class Warehouse(Base):
@@ -25,7 +26,6 @@ class Warehouse(Base):
 
     def insert(self):
         self.insert_data()
-        self._sync_myself()
 
     def generate_code(self):
         """
@@ -61,7 +61,6 @@ class Contractor(Base):
         except IntegrityError as e:
             error_field = self.parse_constraint_fail(e)
             db_logger.error(error_field)
-        self._sync_myself()
         debug_logger.info(f'{self} new row')
         return True
 
@@ -114,9 +113,13 @@ class Articles(Base):
 class OpType(Base):
     __tablename__ = 'optype'
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         self.id_type = Column('id_type', primary=True)
         self.name = Column('name', name)
+        self.row = (
+            self.id_type,
+            self.name
+        )
 
     def insert(self):
         self.insert_data()
@@ -125,13 +128,13 @@ class OpType(Base):
 class OpArt(Base):
     __tablename__ = 'op_art'
 
-    def __init__(self, id_op=None, id_art=None, price=0, quantity=0):
+    def __init__(self, id_op=None, id_art=None, price=None, quantity=0):
         self.id_opart = Column('id_opart', primary=True)
         self.id_op = Column('id_op', id_op)
         self.id_art = Column('id_art', id_art)
-        self.price = Column('price', price)
+        self.price = Column('price', self.get_art_price())
         self.quantity = Column('quantity', quantity)
-        self.summ = Column('summ', price * quantity)
+        self.summ = Column('summ', self.price.value * quantity)
         self.row = (self.id_opart,
                     self.id_op,
                     self.id_art,
@@ -141,12 +144,31 @@ class OpArt(Base):
 
     def insert(self):
         self.insert_data()
+        self.update_my_operation_opsumm()
+
+    def update_data(self, **kwargs):
+        self.update_data(**kwargs)
+        self.update_my_operation_opsumm()
+
+    def update_my_operation_opsumm(self):
+        op = Operation()
+        op = op.select_expression(id_op=self.id_op.value)[0]
+        op.opsumm.value = op.get_my_opsum()
+        op.update_data()
+
+    def get_art_price(self):
+        if self.id_art.value is None:
+            return 0
+        art = Articles()
+        art = art.select_expression(id_art=self.id_art.value)[0]
+        return art.price.value
 
 
 class Operation(Base):
     __tablename__ = 'operation'
 
-    def __init__(self, opdate=None, code=None, optype=None, id_status=None, id_ws=None, id_contr=None, gm_res=None,
+    def __init__(self, opdate=datetime.datetime.now().date(), code=None, optype=None, id_status=None, id_ws=None,
+                 id_contr=None, gm_res=None,
                  id_rack=None, opsumm=0, doccount=None):
         self.id_op = Column('id_op', primary=True)
         self.opdate = Column('opdate', opdate)
@@ -164,15 +186,14 @@ class Operation(Base):
         self.row = (self.id_op,
                     self.opdate,
                     self.code,
+                    self.id_status,
                     self.optype,
                     self.id_ws,
                     self.id_contr,
-                    self.gm_res,
-                    self.id_rack,
-                    self.id_status,
                     self.opsumm,
-                    self.id_status,
-                    self.doccount)
+                    self.gm_res,
+                    self.doccount,
+                    self.id_rack)
 
     def insert(self):
         self.insert_data()
@@ -185,4 +206,3 @@ class Operation(Base):
             my_opsum += i.summ.value
         self.opsumm.value = my_opsum
         return my_opsum
-

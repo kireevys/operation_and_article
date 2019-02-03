@@ -114,45 +114,45 @@ INSERT INTO optype (name) values ('На аптеке');
 INSERT INTO optype (name) values ('Складская');
 INSERT INTO optype (name) values ('Приход');
 
-INSERT INTO warehouse (name, code, id_higher, level) values ('Сеть ММ', '100000', null, 1);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Сеть МК', '200000', null, 1);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Сеть МА', '300000', null, 1);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Сеть ГМ', '400000', null, 1);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Краснодар ММ', '110000', 1, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Кореновск ММ', '120000', 1, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Краснодар МК', '210000', 2, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Кореновск МК', '220000', 2, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Краснодар МА', '310000', 3, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Кореновск МА', '320000', 3, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Краснодар ГМ', '410000', 4, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Кореновск ГМ', '420000', 4, 2);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Рис', '420001', 1, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Апельсин', '420002', 1, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Перкресток', '420003', 1, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Табрис', '420004', 1, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Органик', '420005', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Натура', '420006', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Красота', '420007', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Леди', '420008', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Айболит', '420009', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Красный крест', '420010', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Доктор', '420011', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Здоровье', '420013', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Миллениум', '420012', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Салют', '420014', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Ола', '420015', 4, 3);
-INSERT INTO warehouse (name, code, id_higher, level) values ('Привет', '420016', 4, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (1, 'Сеть ММ', '100000', null, 1);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (2, 'Краснодар ММ', '110000', 1, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (3, 'Рис', '420001', 2, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (4, 'Апельсин', '420002', 2, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (5, 'Кореновск ММ', '120000', 1, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (6, 'Перкресток', '420003', 5, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (7, 'Табрис', '420004', 5, 3);
+
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (8, 'Сеть МК', '200000', null, 1);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (11, 'Краснодар МК', '210000', 8, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (12, 'Кореновск МК', '220000', 8, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (17, 'Органик', '420005', 11, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (18, 'Натура', '420006', 11, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (19, 'Красота', '420007', 12, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (20, 'Леди', '420008', 12, 3);
+
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (9, 'Сеть МА', '300000', null, 1);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (13, 'Краснодар МА', '310000', 9, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (14, 'Кореновск МА', '320000', 9, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (21, 'Айболит', '420009', 13, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (22, 'Красный крест', '420010', 13, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (23, 'Доктор', '420011', 14, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (24, 'Здоровье', '420013', 14, 3);
+
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (10, 'Сеть ГМ', '400000', null, 1);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (15, 'Краснодар ГМ', '410000', 10, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (16, 'Кореновск ГМ', '420000', 10, 2);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (25, 'Миллениум', '420012', 15, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (26, 'Салют', '420014', 15, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (27, 'Ола', '420015', 16, 3);
+INSERT INTO warehouse (id_ws, name, code, id_higher, level) values (28, 'Привет', '420016', 16, 3);
+
 INSERT INTO CONTRACTOR (name, code, inn, address ) values ('Рога и копыта', '0001', 6449013711, 'У дедушки');
 INSERT INTO CONTRACTOR (name, code, inn, address ) values ('Копыта и Рога', '0002', 6449077777, 'У бабушки');
 
 INSERT INTO unit_tab (fullname, name) values ('кг', 'килограмм');
-
 INSERT INTO unit_tab (fullname, name) values ('л','литр');
-
 INSERT INTO unit_tab (fullname, name) values ('уп','упаковка');
-
 INSERT INTO unit_tab (fullname, name) values ('шт','штука');
-
 INSERT INTO unit_tab (fullname, name) values ('бут','бутылка');
 
 insert into article (code, name, price, unit) values ('1', 'Шоколадка', 34, 4);

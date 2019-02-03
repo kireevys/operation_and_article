@@ -3,6 +3,7 @@ import json
 from flask import request
 from logick.operation_logick import OperationTools
 from werkzeug.datastructures import ImmutableMultiDict
+from models.tables import OpType, Contractor, Warehouse
 
 
 @app.route('/')
@@ -39,3 +40,30 @@ def send_op_art():
     all_art = op.get_all_opart(id_op)
     print(all_art)
     return json.dumps(all_art), 200
+
+
+@app.route('/get_optypes')
+def get_optypes():
+    optype = OpType()
+    types = optype.select_expression()
+    types = optype.db_obj_to_dict(*types)
+    result = dict(optype=types)
+    return json.dumps(result), 200
+
+
+@app.route('/get_contractors')
+def get_contractors():
+    contr = Contractor()
+    contrs = contr.select_expression()
+    contrs = contr.db_obj_to_dict(*contrs)
+    resp = dict(contractors=contrs)
+    return json.dumps(resp), 200
+
+
+@app.route('/get_warehouses', methods=['POST'])
+def get_warehouses():
+    warehouse = Warehouse()
+    warehouses = warehouse.select_expression()
+    warehouses = warehouse.db_obj_to_dict(*warehouses)
+    resp = dict(warehouses=warehouses)
+    return json.dumps(resp), 200

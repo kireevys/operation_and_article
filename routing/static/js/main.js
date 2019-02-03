@@ -44,5 +44,5 @@ App.tab = Ext.extend(Ext.TabPanel, {
 
 Ext.onReady(function () {
     var appRun = new App();
-    appRun.show();
+    // appRun.show();
 });

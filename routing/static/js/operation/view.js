@@ -31,7 +31,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         Ext.apply(this, {
             colModel: this.buildColModel(),
             tbar: this.buildToolBar(),
-            store: this.buildStore()
+            store: this.buildStore(),
         }),
             this.store.load();
         App.tab.operationPanel.operation.superclass.initComponent.call(this);
@@ -70,14 +70,11 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             layout: 'anchor',
             buttons: [
                 {
-                    // xtype: 'button', // default for Toolbars, same as 'tbbutton'
-                    text: 'Add operation',
+                    xtype: 'button', // default for Toolbars, same as 'tbbutton'
+                    text: 'Create operation',
                     anchor: '100% 95%',
                     handler: function () {
-                        var adder = new opToolbar.addOp({
-                            ref: 'addOperation',
-                            parent: this
-                        });
+                        var adder = new addop();
                         adder.show();
                     }
                 }
@@ -123,13 +120,149 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             var record = grid.getStore().getAt(rowIndex);
             currentIdOp = record.get('id_op');
             // Запросим товары по операции в грид опТоваров
-            this.parent.opArtGrid.loadOp({id_op: currentIdOp});
+            this.parent.opArtGrid.loadOp({ id_op: currentIdOp });
         }
     }
 });
 
+addop = Ext.extend(Ext.Window, {
+    title: 'creating of operation',
+    modal: true,
+    width: 500,
+    height: 350,
+    layout: 'fit',
+
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems()
+        }),
+            addop.superclass.initComponent.call(this);
+    },
+
+    buildItems: function () {
+        // add form to array
+        var arr = [
+            new addOpForm({
+                ref: 'addOpForm',
+                parent: this
+            })
+        ];
+        return arr;
+    },
+});
+
+addOpForm = Ext.extend(Ext.form.FormPanel, {
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems(),
+            buttons: this.buildButtons()
+        });
+        addOpForm.superclass.initComponent.call(this);
+    },
+
+    buildItems: function () {
+        var testData = [
+            [1, 'JavaScript'],
+            [2, 'PHP'],
+            [3, 'RUBY']
+        ];
+
+        var comboOptypes = Ext.extend(Ext.form.ComboBox, {
+            typeAhead: true,
+            triggerAction: 'all',
+            // lazyRender: true,
+            mode: 'local',
+            valueField: 'id_type',
+            displayField: 'name',
+            fieldLabel: 'Тип операции',
+
+            initComponent: function () {
+                Ext.applyIf(this, {
+                    store: this.buildStore(),
+                });
+                comboOptypes.superclass.initComponent.call(this);
+                this.store.load()
+            },
+
+            buildStore: function () {
+                var optypeStore = new Ext.data.JsonStore({
+                    fields: [
+                        'id_type',
+                        'name',],
+                    proxy: new Ext.data.HttpProxy({
+                        api: {
+                            read: {
+                                url: 'get_optypes',
+                                method: 'GET'
+                            }
+                        }
+                    }),
+                    root: 'optype',
+                });
+                return optypeStore;
+            },
+        });
+
+        var ws_tree = new Ext.tree.TreePanel({
+            title: 'Warehouse',
+            autoScroll: true,
+            height: 150,
+            loader: new Ext.tree.TreeLoader({ url: 'get_warehouses', method: 'GET' }),
+            root: {
+                text: 'Страны СНГ',
+                expanded: false,
+            }
+            //     children:
+            //         [{
+            //             text: "Россия",
+            //             children: [{
+            //                 text: "Москва",
+            //                 leaf: true
+            //             }, {
+            //                 text: "Санкт-Петербург",
+            //                 leaf: true
+            //             }, {
+            //                 text: "Волгоград",
+            //                 leaf: true
+            //             }],
+            //             leaf: false,
+            //             "expanded": true
+            //         },
+            //         {
+            //             text: "Украина",
+            //             leaf: false
+            //         },
+            //         {
+            //             text: "Белоруссия"
+            //         }]
+
+        })
+
+        var itemArr = [
+            new comboOptypes({
+                ref: 'comboOptypes',
+                parent: this
+            }),
+            ws_tree,
+        ];
+        return itemArr;
+    },
+
+    buildButtons: function () {
+        var buttonsArr = [
+            {
+                xtype: 'button',
+                id: 'apply',
+                text: 'done',
+                disabled: true
+            }
+        ];
+        return buttonsArr;
+    }
+});
+
 App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
-    title: 'Operation Articles',
+    title: 'Articles in operation',
     flex: 2,
 
     initComponent: function () {
@@ -176,7 +309,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
     },
 
     buildStore: function () {
-        var operationStore = /* Ext.extend( */ new Ext.data.JsonStore({
+        var operationStore = new Ext.data.JsonStore({
             fields: this.buildFields(),
             proxy: new Ext.data.HttpProxy({
                 api: {

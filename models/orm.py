@@ -71,6 +71,11 @@ class TableRow(object):
         debug_logger.info(f'{new_ws}')
         return new_ws
 
+    @staticmethod
+    def db_obj_to_dict(*args):
+        di = [k.to_dict() for k in args]
+        return di
+
     def __repr__(self):
         table_str = f'<{self.__tablename__.title()}: '
 
@@ -181,6 +186,8 @@ class Base(TableRow):
         template = self.get_template('update_exp.sql')
         id_field = self.row[0].to_dict()
         all_field = self.to_dict_without_primary()
+        # Добавляем к общему словарю последний элемент - тот, что будет в предикате
+        all_field.update(**id_field)
         where = self.kwargs_to_predicate_exp('and', **id_field)
         set_statement = self.kwargs_to_predicate_exp(',', **all_field)
         sql = template.render(table=self.__tablename__, set_expression=set_statement, where_expression=where)

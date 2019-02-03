@@ -1,1 +1,1 @@
-select * from op_art oa where oa.id_op = 1;
+select * from operation;
