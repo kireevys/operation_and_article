@@ -30,7 +30,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     initComponent: function () {
         Ext.apply(this, {
             colModel: this.buildColModel(),
-            tbar: this.buildToolBar(),
+            tbar: this.buildToolBar().top,
+            bbar: this.buildToolBar().right,
             store: this.buildStore(),
         }),
             this.store.load();
@@ -81,7 +82,29 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                 }
             ]
         });
-        return opToolbar;
+
+        var operationControl = Ext.extend(Ext.Toolbar, {
+            height: 40,
+            layout: 'anchor',
+            buttons: [
+                {
+                    xtype: 'button', // default for Toolbars, same as 'tbbutton'
+                    text: 'Create operation',
+                    anchor: '100% 95%',
+                    handler: function () {
+                        var adder = new addop();
+                        adder.show();
+                    }
+                }
+            ]
+        });
+        return {
+            top: opToolbar,
+            right: new operationControl({
+                ref: 'opToolbar',
+                parent: this
+            })
+        };
     },
 
     buildFields: function () {
