@@ -65,5 +65,6 @@ def get_warehouses():
     warehouse = Warehouse()
     warehouses = warehouse.select_expression()
     warehouses = warehouse.db_obj_to_dict(*warehouses)
+    print(warehouses)
     resp = dict(warehouses=warehouses)
     return json.dumps(resp), 200

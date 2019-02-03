@@ -134,7 +134,7 @@ class OpArt(Base):
         self.id_art = Column('id_art', id_art)
         self.price = Column('price', self.get_art_price())
         self.quantity = Column('quantity', quantity)
-        self.summ = Column('summ', self.price.value * quantity)
+        self.summ = Column('summ', round(self.price.value * quantity, 3))
         self.row = (self.id_opart,
                     self.id_op,
                     self.id_art,
@@ -204,5 +204,5 @@ class Operation(Base):
         my_arts = my_arts.select_expression(id_op=self.id_op.value)
         for i in my_arts:
             my_opsum += i.summ.value
-        self.opsumm.value = my_opsum
+        self.opsumm.value = round(my_opsum, 3)
         return my_opsum

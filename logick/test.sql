@@ -1,1 +1,1 @@
-select * from operation;
+select * from op_art;

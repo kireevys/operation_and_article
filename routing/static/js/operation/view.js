@@ -25,7 +25,7 @@ App.tab.operationPanel = Ext.extend(Ext.Panel, {
 
 App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     title: 'Operations',
-    flex: 1,
+    flex: 3,
 
     initComponent: function () {
         Ext.apply(this, {
@@ -42,24 +42,25 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     buildColModel: function () {
         var operationColumns = new Ext.grid.ColumnModel({
             columns: [
-                { header: "id_op", dataIndex: 'id_op', id: 'id_op', width: 40, hideable: false },
+                // TODO: Сделать вывод названий - добавить джойны на бэк
+                { header: "id_op", dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
                 { header: 'code', dataIndex: 'code' },
-                { header: 'doccount', dataIndex: 'doccount' },
-                { header: 'gm_res', dataIndex: 'gm_res' },
-                { header: 'id_contr', dataIndex: 'id_contr' },
-                { header: 'id_rack', dataIndex: 'id_rack' },
                 { header: 'id_status', dataIndex: 'id_status' },
+                { header: 'optype', dataIndex: 'optype' },
+                { header: 'id_contr', dataIndex: 'id_contr' },
                 { header: 'id_ws', dataIndex: 'id_ws' },
                 { header: 'opdate', dataIndex: 'opdate' },
                 { header: 'opsumm', dataIndex: 'opsumm' },
-                { header: 'optype', dataIndex: 'optype' },
+                { header: 'id_rack', dataIndex: 'id_rack' },
+                { header: 'doccount', dataIndex: 'doccount' },
+                { header: 'gm_res', dataIndex: 'gm_res' },
             ],
             defaults: {
                 sortable: true,
                 menuDisabled: false
             },
 
-            defaultWidth: 70
+            defaultWidth: 80
         });
         return operationColumns;
     },
@@ -283,7 +284,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
                 { header: 'id_art', dataIndex: 'id_art' },
                 { header: 'price', dataIndex: 'price' },
                 { header: 'quantity', dataIndex: 'quantity' },
-                { header: 'summ', dataIndex: 'id_rack' }
+                { header: 'summ', dataIndex: 'summ' }
             ],
             defaults: {
                 sortable: true,
