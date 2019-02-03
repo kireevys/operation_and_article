@@ -160,9 +160,14 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
         });
         addOpForm.superclass.initComponent.call(this);
     },
+    formData: {
+        optype: null,
+        ws: null,
+    },
 
     buildItems: function () {
         var comboOptypes = Ext.extend(Ext.form.ComboBox, {
+            id: 'comboOptypes',
             typeAhead: true,
             triggerAction: 'all',
             // lazyRender: true,
@@ -220,6 +225,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                         // Запросим товары по операции в грид опТоваров
                         var selector = Ext.get('selWs').dom;
                         selector.setAttribute('value', selNodeText);
+                        selector.data = { 'id_ws': node.attributes.id_ws }
                     }
 
                 }
@@ -239,12 +245,112 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             ]
         })
 
+        var comboCA = Ext.extend(Ext.form.ComboBox, {
+            id: 'comboCA',
+            typeAhead: true,
+            triggerAction: 'all',
+            // lazyRender: true,
+            mode: 'local',
+            valueField: 'id_type',
+            displayField: 'name',
+            fieldLabel: 'Conractor',
+
+            initComponent: function () {
+                Ext.applyIf(this, {
+                    store: this.buildStore(),
+                });
+                comboCA.superclass.initComponent.call(this);
+                this.store.load()
+            },
+
+            buildStore: function () {
+                var caStore = new Ext.data.JsonStore({
+                    fields: [
+                        'id_contr',
+                        'name',],
+                    proxy: new Ext.data.HttpProxy({
+                        api: {
+                            read: {
+                                url: 'get_contractors',
+                                method: 'GET'
+                            }
+                        }
+                    }),
+                    root: 'contractors',
+                });
+                return caStore;
+            },
+        });
+
+        var opdateField = Ext.extend(Ext.form.DateField, {
+            fieldLabel: 'opdate',
+            format: 'd.m.Y',
+
+            initComponent: function () {
+                Date.monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+                Date.dayNames = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+                var today = new Date();
+                this.setValue(today);
+                Ext.apply(this, {
+                    minValue: new Date(today.getFullYear() - 1, 1, 1),
+                    maxValue: new Date(today.getFullYear() + 2, 1, 1),
+                })
+            }
+        });
+
+        var settPanel = Ext.extend(Ext.Panel, {
+            disabled: false,
+            layout: 'form',
+            title: 'Доп поля',
+
+            initComponent: function () {
+                Ext.apply(this, {
+                    items: [
+                        {
+                            xtype: 'numberfield',
+                            fieldLabel: 'Резерв на ГМ',
+                            blankText: '0',
+                            disabled: true
+                        },
+                        {
+                            xtype: 'numberfield',
+                            fieldLabel: 'Документов',
+                            blankText: '0',
+                            disabled: true,
+                            minValue: 0,
+                            maxValue: 15,
+                        },
+                        {
+                            xtype: 'numberfield',
+                            fieldLabel: 'Стеллаж',
+                            blankText: '0',
+                            disabled: true
+                        },
+                    ]
+                })
+                settPanel.superclass.initComponent.call(this);
+            },
+
+        });
+
         var itemArr = [
             new comboOptypes({
                 ref: 'comboOptypes',
                 parent: this
             }),
             tree,
+            new comboCA({
+                ref: 'comboCa',
+                parent: this
+            }),
+            new opdateField({
+                ref: 'opdateField',
+                parent: this
+            }),
+            new settPanel({
+                ref: 'settPanel',
+                parent: this
+            })
         ];
         return itemArr;
     },
