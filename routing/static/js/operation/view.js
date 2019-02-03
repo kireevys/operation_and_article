@@ -130,7 +130,7 @@ addop = Ext.extend(Ext.Window, {
     title: 'creating of operation',
     modal: true,
     width: 500,
-    height: 350,
+    height: 450,
     layout: 'fit',
 
     initComponent: function () {
@@ -162,12 +162,6 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
     },
 
     buildItems: function () {
-        var testData = [
-            [1, 'JavaScript'],
-            [2, 'PHP'],
-            [3, 'RUBY']
-        ];
-
         var comboOptypes = Ext.extend(Ext.form.ComboBox, {
             typeAhead: true,
             triggerAction: 'all',
@@ -204,39 +198,45 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             },
         });
 
-        var ws_tree = new Ext.tree.TreePanel({
+        var tree = new Ext.tree.TreePanel({
             title: 'Warehouse',
             autoScroll: true,
+            collapsible: true,
             height: 150,
-            loader: new Ext.tree.TreeLoader({ url: 'get_warehouses', method: 'GET' }),
+            useArrows: true,
+            dataUrl: 'get_ws_tree',
             root: {
-                text: 'Страны СНГ',
-                expanded: false,
-            }
-            //     children:
-            //         [{
-            //             text: "Россия",
-            //             children: [{
-            //                 text: "Москва",
-            //                 leaf: true
-            //             }, {
-            //                 text: "Санкт-Петербург",
-            //                 leaf: true
-            //             }, {
-            //                 text: "Волгоград",
-            //                 leaf: true
-            //             }],
-            //             leaf: false,
-            //             "expanded": true
-            //         },
-            //         {
-            //             text: "Украина",
-            //             leaf: false
-            //         },
-            //         {
-            //             text: "Белоруссия"
-            //         }]
+                nodeType: 'async',
+                text: 'warehouse',
+                id: 'warehouse'
+            },
+            listeners: {
+                // Событие, считывающее id_op при нажатии строку
+                // Далее id должен уходить на бэк, получать данне о товарах в операции
+                // И грузить товары в стор нижнего грида
+                beforedblclick(node, e) {
+                    if (node.attributes.leaf) {
+                        var selNodeText = node.text;
+                        // Запросим товары по операции в грид опТоваров
+                        var selector = Ext.get('selWs').dom;
+                        selector.setAttribute('value', selNodeText);
+                    }
 
+                }
+            },
+            bbar: [
+                new Ext.Toolbar({
+                    layout: 'form',
+                    items: [
+                        {
+                            xtype: 'textfield',
+                            id: 'selWs',
+                            fieldLabel: 'Selected warehouse',
+                            disabled: true,
+                        }
+                    ]
+                })
+            ]
         })
 
         var itemArr = [
@@ -244,7 +244,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 ref: 'comboOptypes',
                 parent: this
             }),
-            ws_tree,
+            tree,
         ];
         return itemArr;
     },

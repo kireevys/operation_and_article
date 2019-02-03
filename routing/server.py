@@ -1,3 +1,5 @@
+from crypt import methods
+
 from routing import app
 import json
 from flask import request
@@ -68,3 +70,10 @@ def get_warehouses():
     print(warehouses)
     resp = dict(warehouses=warehouses)
     return json.dumps(resp), 200
+
+
+@app.route('/get_ws_tree', methods=['POST'])
+def get_ws_tree():
+    warehouse = Warehouse()
+    ws_tree = warehouse.get_full_tree()
+    return json.dumps(ws_tree), 200
