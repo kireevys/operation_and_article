@@ -124,7 +124,8 @@ class Base(TableRow):
         except IntegrityError as error:
             db_logger.error(f'Дубль по уникальному полю: {error}')
             raise
-        self.conn.commit()
+        finally:
+            self.conn.commit()
 
     def delete_data(self):
         db_logger.info(self)
@@ -192,9 +193,14 @@ class Base(TableRow):
         set_statement = self.kwargs_to_predicate_exp(',', **all_field)
         sql = template.render(table=self.__tablename__, set_expression=set_statement, where_expression=where)
         db_logger.info(sql)
-        self.get_new_session().execute(sql, all_field)
+        try:
+            self.get_new_session().execute(sql, all_field)
+        except IntegrityError as error:
+            db_logger.error(f'Дубль по уникальному полю при апдейте: {error}')
+            raise
+        finally:
+            self.conn.commit() 
         db_logger.info(f'{self} updated')
-        self.conn.commit()
 
     def kwargs_to_predicate_exp(self, separator, **kwargs):
         if len(kwargs) == 0:
