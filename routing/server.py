@@ -8,7 +8,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from models.tables import OpType, Contractor, Warehouse
 
 
-@app.route('/')
+@app.route('/tt')
 def index():
     return app.send_static_file('index.html'), 200
 
@@ -21,7 +21,7 @@ def test():
     return json.dumps(rq), 200
 
 
-@app.route('/tt')
+@app.route('/')
 def index2():
     return app.send_static_file('index2.html'), 200
 
