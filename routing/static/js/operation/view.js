@@ -185,7 +185,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
     initComponent: function () {
         Ext.applyIf(this, {
             items: this.buildItems(),
-            buttons: this.buildButtons()
+            buttons: this.buildButtons(),
         });
         addOpForm.superclass.initComponent.call(this);
     },
@@ -205,6 +205,43 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             valueField: 'id_type',
             displayField: 'name',
             fieldLabel: 'Тип операции',
+            allowBlank: false,
+            listeners: {
+                beforeselect: function (record, index) {
+
+                    var gmRes = Ext.getCmp('gmRes');
+                    var rack = Ext.getCmp('rack');
+                    var docCount = Ext.getCmp('docCount');
+
+                    // При выборе другого типа операции
+                    // Очищаем доп поля
+                    gmRes.setValue(null);
+                    rack.setValue(null);
+                    docCount.setValue(null);
+
+                    var gmIsDisable = true;
+                    var rackIsDisable = true;
+                    var docIsDisable = true;
+                    if (index.data.name === 'На гипермаркете') {
+                        gmIsDisable = false;
+                        rackIsDisable = true;
+                        docIsDisable = true;
+                    }
+                    else if (index.data.name === 'Складская') {
+                        gmIsDisable = true;
+                        rackIsDisable = false;
+                        docIsDisable = true;
+                    }
+                    else if (index.data.name === 'От поставщика') {
+                        gmIsDisable = true;
+                        rackIsDisable = true;
+                        docIsDisable = false;
+                    };
+                    gmRes.setDisabled(gmIsDisable);
+                    rack.setDisabled(rackIsDisable);
+                    docCount.setDisabled(docIsDisable);
+                }
+            },
 
             initComponent: function () {
                 Ext.applyIf(this, {
@@ -246,23 +283,17 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 text: 'warehouse',
                 id: 'warehouse'
             },
-
-            initValue: function () {
-                Ext.apply({
-                    value: null,
-                });
-            },
-
             listeners: {
                 // После двойного клика по листу:
                 // Выводим МХ для наглядности, и записываем его id для формы
                 beforedblclick(node, e) {
                     if (node.attributes.leaf) {
                         var selNodeText = node.text;
-                        var selector = Ext.get('selWs').dom;
-                        var myRepresentative = Ext.get('id_ws').dom;
-                        selector.setAttribute('value', selNodeText);
-                        myRepresentative.setAttribute('value', node.attributes.id_ws)
+                        var selector = Ext.getCmp('selWs');
+                        var myRepresentative = Ext.getCmp('id_ws');
+                        myRepresentative.setValue(node.attributes.id_ws);
+                        selector.setValue(selNodeText);
+
                         selector.data = { 'id_ws': node.attributes.id_ws };
                     }
 
@@ -277,6 +308,8 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                             id: 'selWs',
                             fieldLabel: 'Selected warehouse',
                             disabled: true,
+                            allowBlank: false,
+                            ref: 'selWs',
                         }
                     ]
                 })
@@ -289,7 +322,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             triggerAction: 'all',
             // lazyRender: true,
             mode: 'local',
-            valueField: 'id_type',
+            valueField: 'id_contr',
             displayField: 'name',
             fieldLabel: 'Conractor',
 
@@ -338,7 +371,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             }
         });
 
-        var settPanel = Ext.extend(Ext.Panel, {
+        var settPanel = Ext.extend(Ext.form.FieldSet, {
             disabled: false,
             layout: 'form',
             title: 'Доп поля',
@@ -374,7 +407,8 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                             blankText: '0',
                             disabled: true,
                             emptyText: 'Только для типа "Складская"',
-                            parent: this.parent
+                            parent: this.parent,
+                            ref: 'rack'
                         },
                     ]
                 })
@@ -386,7 +420,8 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
         var itemArr = [
             new comboOptypes({
                 ref: 'comboOptypes',
-                parent: this
+                parent: this,
+                allowBlank: false,
             }),
 
             new tree({
@@ -396,52 +431,28 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
 
             new comboCA({
                 ref: 'comboCa',
-                parent: this
+                parent: this,
+                allowBlank: false,
             }),
             new opdateField({
                 ref: 'opdateField',
+                parent: this,
+                allowBlank: false,
+            }),
+            new settPanel({
+                ref: 'settPanel',
                 parent: this
             }),
-            /*             new settPanel({
-                            ref: 'settPanel',
-                            parent: this
-                        }), */
 
             {
                 xtype: 'numberfield',
                 id: 'id_ws',
                 hidden: true,
-                value: null
-            },
-            {
-                xtype: 'numberfield',
-                id: 'gm_res',
-                fieldLabel: 'Резерв на ГМ',
-                blankText: '0',
-                emptyText: null,
-                hidden: true,
-                parent: this.parent
-            },
-            {
-                xtype: 'numberfield',
-                id: 'doccount',
-                fieldLabel: 'Документов',
-                blankText: '0',
-                hidden: true,
-                minValue: 0,
-                maxValue: 15,
-                emptyText: null,
-                parent: this.parent
-            },
-            {
-                xtype: 'numberfield',
-                id: 'id_rack',
-                fieldLabel: 'Стеллаж',
-                blankText: '0',
-                hidden: true,
-                emptyText: null,
-                parent: this.parent
-            },
+                value: null,
+                allowBlank: false,
+                ref: 'wsValue',
+                parent: this
+            }
         ];
         return itemArr;
     },
@@ -455,8 +466,19 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 text: 'done',
                 disabled: false,
                 handler: function () {
-                    var s = me.getForm();
-                    console.log(s)
+                    if (me.getForm().isValid()) {
+                        me.getForm().submit(
+                            {
+                                clientValidation: true,
+                                url: 'add_op',
+                                success: function (form, action) {
+                                    Ext.MessageBox.alert('Операция успешно создана', action);
+                                },
+                                failure: function (form, action) {
+                                    Ext.MessageBox.alert('Ошибка при создании операции', action);
+                                }
+                            });
+                    }
                 },
             }
         ];
