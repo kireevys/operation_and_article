@@ -123,8 +123,8 @@ class Base(TableRow):
             self.get_new_session().execute(sql, row_dict)
         except IntegrityError as error:
             db_logger.error(f'Дубль по уникальному полю: {error}')
-            raise
-        self.conn.commit()
+        finally:
+            self.conn.commit()
 
     def delete_data(self):
         db_logger.info(self)

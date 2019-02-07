@@ -222,13 +222,14 @@ class OpArt(Base):
 
 class Operation(Base):
     __tablename__ = 'operation'
+    get_code = range(1000)
 
     def __init__(self, opdate=datetime.datetime.now().date(), code=None, optype=None, id_status=None, id_ws=None,
                  id_contr=None, gm_res=None,
                  id_rack=None, opsumm=0, doccount=None):
         self.id_op = Column('id_op', primary=True)
         self.opdate = Column('opdate', opdate)
-        self.code = Column('code', code)
+        self.code = Column('code', code if code is not None else f'{opdate}{id_ws}{id_contr}{Operation.get_code.step}')
         self.optype = Column('optype', optype)
         self.id_ws = Column('id_ws', id_ws)
         self.id_contr = Column('id_contr', id_contr)

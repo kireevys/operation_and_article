@@ -1,11 +1,10 @@
-from crypt import methods
-
 from routing import app
 import json
 from flask import request
 from logick.operation_logick import OperationTools
 from werkzeug.datastructures import ImmutableMultiDict
 from models.tables import OpType, Contractor, Warehouse
+from datetime import datetime
 
 
 @app.route('/tt')
@@ -77,3 +76,14 @@ def get_ws_tree():
     warehouse = Warehouse()
     ws_tree = warehouse.get_full_tree()
     return json.dumps(ws_tree), 200
+
+
+@app.route('/add_op', methods=['POST'])
+def add_operation():
+    new_op = dict(request.values)
+    # Преобразуем формат даты в пайтоновский
+    new_op['opdate'] = datetime.strptime(new_op['opdate'], '%Y-%m-%dT%H:%M:%S').date()
+    op = OperationTools()
+    op.add_operation(**new_op)
+    print(new_op)
+    return 'OK', 200
