@@ -4,20 +4,10 @@ from logs import db_logger
 
 
 class OperationTools(Operation):
-    def add_operation(self, opdate=f'{dt.now(): %d.%m.%Y}', code=0, optype=0, id_ws=0, id_contr=0,
-                      gm_res=0, id_rack=0):
-        kwarg = dict(opdate=opdate,
-                     code=code,
-                     optype=optype,
-                     id_ws=id_ws,
-                     id_contr=id_contr,
-                     opsumm=0,
-                     gm_res=gm_res,
-                     id_rack=id_rack,
-                     id_status=1)
-        new_op = Operation(**kwarg)
+    def add_operation(self, **kwargs):
+        new_op = Operation(**kwargs)
         new_op.insert()
-        new_op = new_op.select_expression(**kwarg)
+        new_op = new_op.select_expression(**kwargs)
         return new_op
 
     def delete_operation(self, id_op):

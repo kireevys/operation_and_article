@@ -229,6 +229,7 @@ class Operation(Base):
                  id_rack=None, opsumm=0, doccount=None):
         self.id_op = Column('id_op', primary=True)
         self.opdate = Column('opdate', opdate)
+        # TODO: Что может пойти не так?
         self.code = Column('code', code if code is not None else f'{opdate}{id_ws}{id_contr}{Operation.get_code.step}')
         self.optype = Column('optype', optype)
         self.id_ws = Column('id_ws', id_ws)

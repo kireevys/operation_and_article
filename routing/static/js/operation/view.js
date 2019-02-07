@@ -67,6 +67,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     },
 
     buildToolBar: function () {
+        var me = this;
         var opToolbar = new Ext.Toolbar({
             height: 40,
             layout: 'anchor',
@@ -76,7 +77,12 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                     text: 'Create operation',
                     anchor: '100% 95%',
                     handler: function () {
-                        var adder = new addop();
+                        var adder = new addop(
+                            {
+                                ref: 'adder',
+                                parent: me
+                            }
+                        );
                         adder.show();
                     }
                 }
@@ -188,10 +194,18 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             buttons: this.buildButtons(),
         });
         addOpForm.superclass.initComponent.call(this);
+
+        this.wsTree.on('beforedblclick', this.setWs, this);
     },
     formData: {
         optype: null,
         ws: null,
+    },
+
+    setWs: function (node, e) {
+        if (node.attributes.leaf) {
+            this.wsValue.setValue(node.attributes.id_ws);
+        }
     },
 
     buildItems: function () {
@@ -209,9 +223,9 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             listeners: {
                 beforeselect: function (record, index) {
 
-                    var gmRes = Ext.getCmp('gmRes');
-                    var rack = Ext.getCmp('rack');
-                    var docCount = Ext.getCmp('docCount');
+                    var gmRes = Ext.getCmp('gm_res');
+                    var rack = Ext.getCmp('id_rack');
+                    var docCount = Ext.getCmp('doccount');
 
                     // При выборе другого типа операции
                     // Очищаем доп поля
@@ -270,7 +284,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             },
         });
         // TODO: Вынести для переиспользования в добавление МХ
-        var tree = Ext.extend(Ext.tree.TreePanel, {
+        var treeWs = Ext.extend(Ext.tree.TreePanel, {
             title: 'Warehouse',
             autoScroll: true,
             collapsible: true,
@@ -283,6 +297,14 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 text: 'warehouse',
                 id: 'warehouse'
             },
+
+            initComponent: function () {
+                Ext.apply({
+                    bbar: this.buildToolBar()
+                });
+
+                treeWs.superclass.initComponent.call(this);
+            },
             listeners: {
                 // После двойного клика по листу:
                 // Выводим МХ для наглядности, и записываем его id для формы
@@ -290,18 +312,46 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                     if (node.attributes.leaf) {
                         var selNodeText = node.text;
                         var selector = Ext.getCmp('selWs');
-                        var myRepresentative = Ext.getCmp('id_ws');
-                        myRepresentative.setValue(node.attributes.id_ws);
                         selector.setValue(selNodeText);
-
-                        selector.data = { 'id_ws': node.attributes.id_ws };
                     }
 
                 }
             },
-            bbar: [
+            buildToolBar: function () {
+                var me = this;
+                var bar = Ext.extend(Ext.Toolbar, {
+                    layout: 'form',
+                    initComponent: function () {
+                        Ext.apply({
+                            items: this.buildItems()
+                        });
+
+                        bar.superclass.initComponent.call(this);
+                    },
+                    buildItems: function () {
+                        var me = this;
+                        var wsField = new Ext.form.NumberField({
+                            id: 'selWs',
+                            fieldLabel: 'Selected warehouse',
+                            disabled: true,
+                            allowBlank: false,
+                            ref: 'selWs',
+                            parent: me
+                        })
+                        return [wsField,]
+                    },
+                });
+                return new bar(
+                    {
+                        ref: 'treeTb',
+                        parent: this
+                    });
+            },
+            // TODO: Ниработаит
+            /* bbar: [
                 new Ext.Toolbar({
                     layout: 'form',
+                    ref: 'treeTb',
                     items: [
                         {
                             xtype: 'textfield',
@@ -313,7 +363,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                         }
                     ]
                 })
-            ]
+            ] */
         });
 
         var comboCA = Ext.extend(Ext.form.ComboBox, {
@@ -382,7 +432,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                     items: [
                         {
                             xtype: 'numberfield',
-                            id: 'gmRes',
+                            id: 'gm_res',
                             fieldLabel: 'Резерв на ГМ',
                             blankText: '0',
                             emptyText: 'Только для типа "На Гипермаркете"',
@@ -391,7 +441,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                         },
                         {
                             xtype: 'numberfield',
-                            id: 'docCount',
+                            id: 'doccount',
                             fieldLabel: 'Документов',
                             blankText: '0',
                             disabled: true,
@@ -402,7 +452,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                         },
                         {
                             xtype: 'numberfield',
-                            id: 'rack',
+                            id: 'id_rack',
                             fieldLabel: 'Стеллаж',
                             blankText: '0',
                             disabled: true,
@@ -424,7 +474,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 allowBlank: false,
             }),
 
-            new tree({
+            new treeWs({
                 ref: 'wsTree',
                 parent: this,
             }),
@@ -452,6 +502,16 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 allowBlank: false,
                 ref: 'wsValue',
                 parent: this
+            },
+            {
+                xtype: 'numberfield',
+                id: 'id_status',
+                hidden: true,
+                value: null,
+                allowBlank: false,
+                ref: 'newOpStatus',
+                emptyText: 1,
+                parent: this
             }
         ];
         return itemArr;
@@ -466,18 +526,18 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 text: 'done',
                 disabled: false,
                 handler: function () {
-                    if (me.getForm().isValid()) {
-                        me.getForm().submit(
-                            {
-                                clientValidation: true,
-                                url: 'add_op',
-                                success: function (form, action) {
-                                    Ext.MessageBox.alert('Операция успешно создана', action);
-                                },
-                                failure: function (form, action) {
-                                    Ext.MessageBox.alert('Ошибка при создании операции', action);
-                                }
-                            });
+                    var myForm = me.getForm()
+                    if (myForm.isValid()) {
+                        Ext.Ajax.request({
+                            url: 'add_op',
+                            method: 'POST',
+                            params: myForm.getFieldValues(),
+                            success: function (response, options) {
+                                Ext.MessageBox.alert('Успех', 'Операция добавлена');
+                                me.parent.parent.store.load();
+                                me.parent.close();
+                            }
+                        });
                     }
                 },
             }
