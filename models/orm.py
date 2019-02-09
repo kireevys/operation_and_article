@@ -68,7 +68,7 @@ class TableRow(object):
         my_row = dict(zip(new_ws.row, values))
         for field, value in my_row.items():
             field.value = value
-        debug_logger.info(f'{new_ws}')
+        # debug_logger.info(f'{new_ws}')
         return new_ws
 
     @staticmethod

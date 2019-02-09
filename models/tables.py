@@ -131,6 +131,11 @@ class OpStatus(Base):
         self.stat_order = Column('stat_order', stat_order)
         self.on_delete = Column('on_delete', on_delete)
 
+        self.row = (self.id_status,
+                    self.name,
+                    self.stat_order,
+                    self.on_delete)
+
     def insert(self):
         self.insert_data()
 
@@ -230,7 +235,8 @@ class Operation(Base):
         self.id_op = Column('id_op', primary=True)
         self.opdate = Column('opdate', opdate)
         # TODO: Что может пойти не так?
-        self.code = Column('code', code if code is not None else f'{opdate}{id_ws}{id_contr}{Operation.get_code.step}')
+        self.code = Column(
+            'code', code if code is not None else f'{opdate}{id_ws}{id_contr}{Operation.get_code.step}')
         self.optype = Column('optype', optype)
         self.id_ws = Column('id_ws', id_ws)
         self.id_contr = Column('id_contr', id_contr)

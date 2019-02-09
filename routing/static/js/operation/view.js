@@ -31,10 +31,12 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         Ext.apply(this, {
             colModel: this.buildColModel(),
             tbar: this.buildToolBar().top,
-            bbar: this.buildToolBar().right,
+            bbar: this.buildToolBar().bottom,
             store: this.buildStore(),
+            statusStore: this.buildStatusStore()
         }),
             this.store.load();
+        this.statusStore.load();
         App.tab.operationPanel.operation.superclass.initComponent.call(this);
 
 
@@ -89,27 +91,45 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             ]
         });
 
-        var operationControl = Ext.extend(Ext.Toolbar, {
+        var operationControl = new Ext.Toolbar({
             height: 40,
-            layout: 'anchor',
+            layout: 'hbox',
+            ref: 'opControl',
+            parent: me,
             buttons: [
                 {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
-                    text: 'Create operation',
-                    anchor: '100% 95%',
+                    text: 'Up status',
+                    flex: 1,
+                    height: 35,
+                    parent: this,
                     handler: function () {
-                        var adder = new addop();
-                        adder.show();
+                        this.parent.upStatus();
+                    }
+                }, {
+                    xtype: 'button', // default for Toolbars, same as 'tbbutton'
+                    text: 'Down status',
+                    flex: 1,
+                    height: 35,
+                    parent: this,
+                    handler: function () {
+                        this.parent.downStatus();
+                    }
+                }, {
+                    xtype: 'button', // default for Toolbars, same as 'tbbutton'
+                    text: 'Delete op',
+                    flex: 1,
+                    height: 35,
+                    parent: this,
+                    handler: function () {
+                        this.parent.deleteOp()
                     }
                 }
             ]
         });
         return {
             top: opToolbar,
-            right: new operationControl({
-                ref: 'opToolbar',
-                parent: this
-            })
+            bottom: operationControl
         };
     },
 
@@ -140,6 +160,96 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             root: 'operation'
         });
         return operationStore;
+    },
+
+    buildStatusStore: function () {
+        var me = this;
+        var statusField = [
+            { name: 'id_status', mapping: 'id_status' },
+            { name: 'name', mapping: 'name' },
+            { name: 'stat_order', mapping: 'stat_order' },
+            { name: 'ondelete', mapping: 'ondelete' }
+        ];
+
+        var opStatusStore = new Ext.data.JsonStore({
+            fields: statusField,
+            parent: me,
+            idProperty: 'id_status',
+            ref: 'opStatusStore',
+            proxy: new Ext.data.HttpProxy({
+                api: {
+                    read: {
+                        url: 'get_op_status',
+                        method: 'POST'
+                    }
+                }
+            }),
+            root: 'opstatus'
+        });
+
+        return opStatusStore;
+    },
+
+    setNewStatus: function (newStatus) {
+        var me = this;
+        var currensSelection = this.getSelectedOp();
+        var currentIdStatus = currensSelection.id_status;
+        var id_op = currensSelection.id_op;
+        Ext.Ajax.request({
+            url: 'change_opstatus',
+            method: 'POST',
+            params: {
+                id_op: id_op,
+                id_status: newStatus.id
+            },
+            success: function (response, options) {
+                Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
+                me.store.load();
+            }
+        });
+    },
+
+    getSelectedOp: function () {
+        return this.selModel.getSelected().data;
+    },
+
+    upStatus: function () {
+        var currensSelection = this.getSelectedOp();
+        var currentStatus = currensSelection.id_status;
+        //TODO: ++/-- Ведет себя очень странно, такое ощущение, что nextId не очищается из скоупа
+        var nextId = this.statusStore.data.map[currentStatus].data.stat_order + 1;
+        var nextStatus = {
+            id: nextId,
+            name: this.statusStore.data.map[nextId].data.name
+        };
+        this.setNewStatus(nextStatus);
+    },
+
+    downStatus: function () {
+        var currensSelection = this.getSelectedOp();
+        var currentStatus = currensSelection.id_status;
+        var nextId = this.statusStore.data.map[currentStatus].data.stat_order - 1;
+        var nextStatus = {
+            id: nextId,
+            name: this.statusStore.data.map[nextId].data.name
+        };
+        this.setNewStatus(nextStatus);
+    },
+
+    deleteOp: function () {
+        var me = this;
+        var currenSelection = this.getSelectedOp();
+        Ext.Ajax.request({
+            url: 'delete_op',
+            method: 'POST',
+            params: {
+                id_op: currenSelection.id_op
+            },
+            success: function (response, options) {
+                Ext.MessageBox.alert('Успех', 'Операция удалена');
+                me.store.load();
+            }
+        });
     },
 
     listeners: {

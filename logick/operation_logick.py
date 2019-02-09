@@ -10,7 +10,8 @@ class OperationTools(Operation):
         new_op = new_op.select_expression(**kwargs)
         return new_op
 
-    def delete_operation(self, id_op):
+    @staticmethod
+    def delete_operation(id_op):
         deleting_op = Operation()
         deleting_op = deleting_op.select_expression(id_op=id_op)[0]
         db_logger.info(deleting_op)
@@ -48,3 +49,11 @@ class OperationTools(Operation):
         di = [k.to_dict() for k in result]
         js = dict(opart=di)
         return js
+
+    @staticmethod
+    def update_status(id_op, id_status):
+        op = Operation()
+        op = op.select_expression(id_op=id_op)[0]
+        op.id_status.value = id_status
+        op.update_data()
+        return True

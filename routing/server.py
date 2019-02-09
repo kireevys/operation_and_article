@@ -3,8 +3,9 @@ import json
 from flask import request
 from logick.operation_logick import OperationTools
 from werkzeug.datastructures import ImmutableMultiDict
-from models.tables import OpType, Contractor, Warehouse
+from models.tables import OpType, Contractor, Warehouse, OpStatus
 from datetime import datetime
+from logs import debug_logger
 
 
 @app.route('/tt')
@@ -12,12 +13,10 @@ def index():
     return app.send_static_file('index.html'), 200
 
 
-@app.route('/test', methods=['POST'])
+@app.route('/test', methods=['POST', 'GET'])
 def test():
-    form = request
-    rq = form.form.to_dict()
-    rq['test'] = 'ss'
-    return json.dumps(rq), 200
+    """Тестовый роут, просто говорит, что все хорошо"""
+    return 'OK', 200
 
 
 @app.route('/')
@@ -66,7 +65,6 @@ def get_warehouses():
     warehouse = Warehouse()
     warehouses = warehouse.select_expression()
     warehouses = warehouse.db_obj_to_dict(*warehouses)
-    print(warehouses)
     resp = dict(warehouses=warehouses)
     return json.dumps(resp), 200
 
@@ -82,8 +80,31 @@ def get_ws_tree():
 def add_operation():
     new_op = dict(request.values)
     # Преобразуем формат даты в пайтоновский
-    new_op['opdate'] = datetime.strptime(new_op['opdate'], '%Y-%m-%dT%H:%M:%S').date()
+    new_op['opdate'] = datetime.strptime(
+        new_op['opdate'], '%Y-%m-%dT%H:%M:%S').date()
     op = OperationTools()
     op.add_operation(**new_op)
-    print(new_op)
+    return 'OK', 200
+
+
+@app.route('/get_op_status', methods=['POST'])
+def get_op_status():
+    status = OpStatus()
+    statuses = status.select_expression()
+    statuses = status.db_obj_to_dict(*statuses)
+    resp = dict(opstatus=statuses)
+    return json.dumps(resp), 200
+
+
+@app.route('/change_opstatus', methods=['POST', ])
+def change_opstatus():
+    data = dict(request.form)
+    debug_logger.info(data)
+    OperationTools.update_status(**data)
+    return 'OK', 200
+
+
+@app.route('/delete_op', methods=['POST', ])
+def delete_op():
+    OperationTools.delete_operation(**dict(request.form))
     return 'OK', 200
