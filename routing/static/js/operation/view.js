@@ -100,27 +100,33 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                 {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
                     text: 'Up status',
+                    ref: 'up',
                     flex: 1,
                     height: 35,
                     parent: this,
+                    disabled: true,
                     handler: function () {
                         this.parent.upStatus();
                     }
                 }, {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
                     text: 'Down status',
+                    ref: 'down',
                     flex: 1,
                     height: 35,
                     parent: this,
+                    disabled: true,
                     handler: function () {
                         this.parent.downStatus();
                     }
                 }, {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
                     text: 'Delete op',
+                    ref: 'del',
                     flex: 1,
                     height: 35,
                     parent: this,
+                    disabled: true,
                     handler: function () {
                         this.parent.deleteOp()
                     }
@@ -168,7 +174,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             { name: 'id_status', mapping: 'id_status' },
             { name: 'name', mapping: 'name' },
             { name: 'stat_order', mapping: 'stat_order' },
-            { name: 'ondelete', mapping: 'ondelete' }
+            { name: 'on_delete', mapping: 'on_delete' }
         ];
 
         var opStatusStore = new Ext.data.JsonStore({
@@ -252,6 +258,46 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         });
     },
 
+    activateButtons: function (opRecord) {
+        var toolBarButtons = this.bottomToolbar;
+        toolBarButtons.up.setDisabled(this.checkUp(opRecord));
+        toolBarButtons.down.setDisabled(this.checkDown(opRecord));
+        toolBarButtons.del.setDisabled(this.checkDelete(opRecord));
+    },
+
+    checkUp: function (opRecord) {
+        var isDisable = true;
+        var currentStatus = opRecord.get('id_status');
+        if (this.statusStore.data.map[currentStatus].data.stat_order >= 6) {
+            isDisable = true;
+        }
+        else {
+            isDisable = false;
+        }
+        return isDisable;
+    },
+    checkDown: function (opRecord) {
+        var isDisable = true;
+        if (opRecord.get('id_status') <= 1) {
+            isDisable = true;
+        }
+        else {
+            isDisable = false;
+        }
+        return isDisable;
+    },
+    checkDelete: function (opRecord) {
+        var isDisable = true;
+        var currentStatus = opRecord.get('id_status');
+        if (this.statusStore.data.map[currentStatus].data.on_delete == 0) {
+            isDisable = true;
+        }
+        else {
+            isDisable = false;
+        }
+        return isDisable;
+    },
+
     listeners: {
         // Событие, считывающее id_op при нажатии строку
         // Далее id должен уходить на бэк, получать данне о товарах в операции
@@ -261,7 +307,9 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             currentIdOp = record.get('id_op');
             // Запросим товары по операции в грид опТоваров
             this.parent.opArtGrid.loadOp({ id_op: currentIdOp });
-        }
+            this.activateButtons(record);
+        },
+
     }
 });
 
