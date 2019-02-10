@@ -3,7 +3,7 @@ import json
 from flask import request
 from logick.operation_logick import OperationTools
 from werkzeug.datastructures import ImmutableMultiDict
-from models.tables import OpType, Contractor, Warehouse, OpStatus
+from models.tables import OpType, Contractor, Warehouse, OpStatus, Articles
 from datetime import datetime
 from logs import debug_logger
 
@@ -34,11 +34,9 @@ def send_operation():
 @app.route('/get_op_art')
 def send_op_art():
     data = request.values
-    # data = data.to_dict()
     id_op = data['id_op']
     op = OperationTools()
     all_art = op.get_all_opart(id_op)
-    print(all_art)
     return json.dumps(all_art), 200
 
 
@@ -104,7 +102,43 @@ def change_opstatus():
     return 'OK', 200
 
 
-@app.route('/delete_op', methods=['POST', ])
+@app.route('/delete_op', methods=['GET', ])
 def delete_op():
     OperationTools.delete_operation(**dict(request.form))
     return 'OK', 200
+
+
+@app.route('/get_articles', methods=['GET', ])
+def get_articles():
+    data = request.values
+    id_op = data['id_op']
+    op_art = Articles()
+    sess = op_art.get_new_session()
+    sql = '''SELECT oa.id_opart,
+                   oa.id_op, 
+                   a.id_art,
+                   a.name, 
+                   oa.price,
+                   a.price CURRENT_price,
+                   oa.quantity,
+                   oa.summ  
+                 from article a
+            left join op_art oa on oa.id_art = a.id_art and oa.id_op = :id_op
+            where oa.id_opart is null
+            order by a.id_art;'''
+    result = sess.execute(sql, dict(id_op=id_op)).fetchall()
+    opart = []
+    for row in result:
+        row_dict = dict(
+            id_opart=row[0],
+            id_op=row[1],
+            id_art=row[2],
+            name=row[3],
+            op_price=row[4],
+            price=row[5],
+            quantity=row[6],
+            summ=row[7]
+        )
+        opart.append(row_dict)
+    js = dict(articles=opart)
+    return json.dumps(js), 200

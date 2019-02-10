@@ -45,9 +45,33 @@ class OperationTools(Operation):
 
     def get_all_opart(self, id_op):
         op_art = OpArt()
-        result = op_art.select_expression(id_op=id_op)
-        di = [k.to_dict() for k in result]
-        js = dict(opart=di)
+        sess = op_art.get_new_session()
+        sql = '''SELECT oa.id_opart,
+                       oa.id_op, 
+                       a.id_art,
+                       a.name, 
+                       oa.price,
+                       a.price CURRENT_price,
+                       oa.quantity,
+                       oa.summ  
+                     from article a
+                join op_art oa on oa.id_art = a.id_art and oa.id_op = :id_op
+                order by a.id_art;'''
+        result = sess.execute(sql, dict(id_op=id_op)).fetchall()
+        opart=[]
+        for row in result:
+            row_dict = dict(
+                id_opart=row[0],
+                id_op=row[1],
+                id_art=row[2],
+                name=row[3],
+                op_price=row[4],
+                price=row[5],
+                quantity=row[6],
+                summ=row[7]
+            )
+            opart.append(row_dict)
+        js = dict(opart=opart)
         return js
 
     @staticmethod

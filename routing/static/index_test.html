@@ -13,8 +13,10 @@
 <head>
     <title>Hello World Window</title>
 
-    <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/extjs/3.4.1-1/resources/css/ext-all.css" rel="stylesheet">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/3.4.1-1/adapter/ext/ext-base-debug.js"></script>
+    <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/extjs/3.4.1-1/resources/css/ext-all.css"
+        rel="stylesheet">
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/extjs/3.4.1-1/adapter/ext/ext-base-debug.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/3.4.1-1/ext-all-debug.js"></script>
 </head>
 
@@ -159,7 +161,7 @@
 
 
             // This will make sure we only drop to the view container
-            var secondGridDropTargetEl = secondGrid.getView().el.dom.childNodes[0].childNodes[1]
+            // var secondGridDropTargetEl = secondGrid.getView().el.dom.childNodes[0].childNodes[1]
 
             var destGridDropTarget = new Ext.dd.DropTarget(secondGridDropTargetEl, {
                 ddGroup: 'secondGridDDGroup',
@@ -188,7 +190,7 @@
             });
         });
     </script>
-    <!--     <script type="text/javascript">
+    <!--    <script type="text/javascript">
         Ext.onReady(function () {
 
             new Ext.Window({

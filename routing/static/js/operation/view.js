@@ -14,18 +14,20 @@ App.tab.operationPanel = Ext.extend(Ext.Panel, {
 
     buildItems: function () {
         var op = new App.tab.operationPanel.operation({ ref: 'operationGrid', parent: this });
-        var opArt = new App.tab.operationPanel.opArticles({ ref: 'opArtGrid', parent: this });
+        var opArt = new App.tab.operationPanel.opArtPanel({ ref: 'opArtPanel', parent: this });
         mainItems = [
             op,
             opArt,
         ];
         return mainItems;
     },
+
 });
 
 App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     title: 'Operations',
     flex: 3,
+    stripeRows: true,
 
     initComponent: function () {
         Ext.apply(this, {
@@ -34,8 +36,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             bbar: this.buildToolBar().bottom,
             store: this.buildStore(),
             statusStore: this.buildStatusStore()
-        }),
-            this.store.load();
+        });
+        this.store.load();
         this.statusStore.load();
         App.tab.operationPanel.operation.superclass.initComponent.call(this);
 
@@ -306,7 +308,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             var record = grid.getStore().getAt(rowIndex);
             currentIdOp = record.get('id_op');
             // Запросим товары по операции в грид опТоваров
-            this.parent.opArtGrid.loadOp({ id_op: currentIdOp });
+            this.parent.opArtPanel.loadOp({ id_op: currentIdOp });
             this.activateButtons(record);
         },
 
@@ -704,16 +706,116 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
     },
 });
 
-App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
+App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     title: 'Articles in operation',
     flex: 2,
+    layout: 'hbox',
+    enableDragDrop: true,
 
     initComponent: function () {
         Ext.apply(this, {
+            items: this.buildItems()
+        });
+
+        App.tab.operationPanel.opArtPanel.superclass.initComponent.call(this);
+        // this.buildDD();
+    },
+
+    buildItems: function () {
+        var opArt = new App.tab.operationPanel.opArticles({ ref: 'opArtGrid', parent: this });
+        var articles = new App.tab.operationPanel.articlesGrid({ ref: 'articles', parent: this });
+        mainItems = [
+            opArt,
+            articles,
+        ];
+        return mainItems;
+    },
+
+    loadOp: function (op) {
+        this.opArtGrid.loadOp(op);
+        this.articles.loadOp(op);
+    },
+    // TODO: Not working
+    buildDD: function () {
+        var me = this;
+        // Dd group
+        // used to add records to the destination stores
+        // var blankRecord = Ext.data.Record.create(fields);
+        var firstGridDropTargetEl = me.opArtGrid.getView().el.dom.childNodes[0].childNodes[1];
+
+        var firstGridDropTarget = new Ext.dd.DropTarget(firstGridDropTargetEl, {
+            ddGroup: 'opArtDDGroup',
+            copy: true,
+            notifyDrop: function (ddSource, e, data) {
+
+                // Generic function to add records.
+                function addRow(record, index, allItems) {
+
+                    // Search for duplicates
+                    var foundItem = me.opArtGrid.findExact('name', record.data.name);
+                    // if not found
+                    if (foundItem == -1) {
+                        me.opArtGrid.add(record);
+
+                        // Call a sort dynamically
+                        me.opArtGrid.sort('name', 'ASC');
+
+                        //Remove Record from the source
+                        ddSource.grid.store.remove(record);
+                    }
+                }
+
+                // Loop through the selections
+                Ext.each(ddSource.dragData.selections, addRow);
+                return (true);
+            }
+        });
+
+
+        // This will make sure we only drop to the view container
+        var secondGridDropTargetEl = new App.tab.operationPanel.opArticles().getView().el.dom.childNodes[0].childNodes[1]
+
+        var destGridDropTarget = new Ext.dd.DropTarget(secondGridDropTargetEl, {
+            ddGroup: 'artDDGroup',
+            copy: false,
+            notifyDrop: function (ddSource, e, data) {
+
+                // Generic function to add records.
+                function addRow(record, index, allItems) {
+
+                    // Search for duplicates
+                    var foundItem = me.articles.findExact('name', record.data.name);
+                    // if not found
+                    if (foundItem == -1) {
+                        me.articles.add(record);
+                        // Call a sort dynamically
+                        me.articles.sort('name', 'ASC');
+
+                        //Remove Record from the source
+                        ddSource.grid.store.remove(record);
+                    }
+                }
+                // Loop through the selections
+                Ext.each(ddSource.dragData.selections, addRow);
+                return (true);
+            }
+        });
+    }
+});
+
+App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
+    flex: 3,
+    autoHeight: true,
+    ddGroup: 'opArtDDGroup',
+    enableDragDrop: true,
+    stripeRows: true,
+    // autoExpandColumn: 'name',
+    initComponent: function () {
+        Ext.applyIf(this, {
             colModel: this.buildColModel(),
             store: this.buildStore()
-        }),
-            App.tab.operationPanel.opArticles.superclass.initComponent.call(this);
+        });
+        App.tab.operationPanel.opArticles.superclass.initComponent.call(this);
         this.loadOp({ id_op: 1 });
 
     },
@@ -721,12 +823,14 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
     buildColModel: function () {
         var opArticleColumns = new Ext.grid.ColumnModel({
             columns: [
-                { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hideable: false },
-                { header: 'id_op', dataIndex: 'id_op' },
-                { header: 'id_art', dataIndex: 'id_art' },
-                { header: 'price', dataIndex: 'price' },
+                { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
+                { header: 'id_op', dataIndex: 'id_op', hideable: false },
+                { header: 'id_art', dataIndex: 'id_art', hidden: true },
+                { header: 'name', dataIndex: 'name' },
+                // { header: 'price', dataIndex: 'price' },
+                { header: 'price', dataIndex: 'op_price' },
                 { header: 'quantity', dataIndex: 'quantity' },
-                { header: 'summ', dataIndex: 'summ' }
+                { header: 'summ', dataIndex: 'summ' },
             ],
             defaults: {
                 sortable: true,
@@ -743,7 +847,9 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
             { name: 'id_opart', mapping: 'id_opart' },
             { name: 'id_op', mapping: 'id_op' },
             { name: 'id_art', mapping: 'id_art' },
+            { name: 'name', mapping: 'name' },
             { name: 'price', mapping: 'price' },
+            { name: 'op_price', mapping: 'op_price' },
             { name: 'quantity', mapping: 'quantity' },
             { name: 'summ', mapping: 'summ' },
         ];
@@ -777,6 +883,82 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
                 errorMessageRpc(response, responseJson);
             },
             root: 'opart',
+        });
+        return operationStore;
+    },
+
+    loadOp: function (op) {
+        var loadOption = op
+        this.store.load({ params: loadOption });
+    },
+});
+
+App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
+    flex: 1,
+    autoHeight: true,
+    ddGroup: 'opArtDDGroup',
+    enableDragDrop: true,
+    stripeRows: true,
+    // autoExpandColumn: 'id_art',
+    initComponent: function () {
+        Ext.apply(this, {
+            colModel: this.buildColModel(),
+            store: this.buildStore()
+        }),
+            App.tab.operationPanel.articlesGrid.superclass.initComponent.call(this);
+        this.loadOp({ id_op: 1 });
+
+    },
+
+    buildColModel: function () {
+        var opArticleColumns = new Ext.grid.ColumnModel({
+            columns: [
+                // { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
+                // { header: 'id_op', dataIndex: 'id_op', hidden: true },
+                { header: 'id_art', dataIndex: 'id_art', hideable: false },
+                { header: 'name', dataIndex: 'name' },
+                { header: 'price', dataIndex: 'price' },
+                // { header: 'op_price', dataIndex: 'op_price',hidden: true },
+                // { header: 'quantity', dataIndex: 'quantity',hidden: true },
+                // { header: 'summ', dataIndex: 'summ',hidden: true },
+            ],
+            defaults: {
+                sortable: true,
+                menuDisabled: false
+            },
+
+            defaultWidth: 150
+        });
+        return opArticleColumns;
+    },
+
+    buildFields: function () {
+        var opArtFields = [
+            { name: 'id_opart', mapping: 'id_opart' },
+            { name: 'id_op', mapping: 'id_op' },
+            { name: 'id_art', mapping: 'id_art' },
+            { name: 'name', mapping: 'name' },
+            { name: 'price', mapping: 'price' },
+            { name: 'op_price', mapping: 'op_price' },
+            { name: 'quantity', mapping: 'quantity' },
+            { name: 'summ', mapping: 'summ' },
+        ];
+
+        return opArtFields;
+    },
+
+    buildStore: function () {
+        var operationStore = new Ext.data.JsonStore({
+            fields: this.buildFields(),
+            proxy: new Ext.data.HttpProxy({
+                api: {
+                    read: {
+                        url: 'get_articles',
+                        method: 'GET'
+                    }
+                }
+            }),
+            root: 'articles',
         });
         return operationStore;
     },
