@@ -718,7 +718,6 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
         });
 
         App.tab.operationPanel.opArtPanel.superclass.initComponent.call(this);
-        // this.buildDD();
     },
 
     buildItems: function () {
@@ -734,10 +733,13 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     loadOp: function (op) {
         this.opArtGrid.loadOp(op);
         this.articles.loadOp(op);
+        this.buildDD();
     },
     // TODO: Not working
     buildDD: function () {
         var me = this;
+        var opArt = me.opArtGrid;
+        var art = me.articles
         // Dd group
         // used to add records to the destination stores
         // var blankRecord = Ext.data.Record.create(fields);
@@ -752,13 +754,13 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                 function addRow(record, index, allItems) {
 
                     // Search for duplicates
-                    var foundItem = me.opArtGrid.findExact('name', record.data.name);
+                    var foundItem = me.opArtGrid.store.findExact('id_art', record.data.id_art);
                     // if not found
                     if (foundItem == -1) {
-                        me.opArtGrid.add(record);
+                        me.opArtGrid.store.add(record);
 
                         // Call a sort dynamically
-                        me.opArtGrid.sort('name', 'ASC');
+                        me.opArtGrid.store.sort('id_opart', 'DESC');
 
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
@@ -773,10 +775,10 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
 
 
         // This will make sure we only drop to the view container
-        var secondGridDropTargetEl = new App.tab.operationPanel.opArticles().getView().el.dom.childNodes[0].childNodes[1]
+        var secondGridDropTargetEl = me.articles.getView().el.dom.childNodes[0].childNodes[1]
 
         var destGridDropTarget = new Ext.dd.DropTarget(secondGridDropTargetEl, {
-            ddGroup: 'artDDGroup',
+            ddGroup: 'opArtDDGroup',
             copy: false,
             notifyDrop: function (ddSource, e, data) {
 
@@ -784,12 +786,12 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                 function addRow(record, index, allItems) {
 
                     // Search for duplicates
-                    var foundItem = me.articles.findExact('name', record.data.name);
+                    var foundItem = me.articles.store.findExact('id_art', record.data.id_art);
                     // if not found
                     if (foundItem == -1) {
-                        me.articles.add(record);
+                        me.articles.store.add(record);
                         // Call a sort dynamically
-                        me.articles.sort('name', 'ASC');
+                        me.articles.store.sort('id_opart', 'ASC');
 
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
@@ -803,24 +805,33 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     }
 });
 
-App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
+App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     flex: 3,
-    autoHeight: true,
+    height: 250,
     ddGroup: 'opArtDDGroup',
     enableDragDrop: true,
     stripeRows: true,
-    // autoExpandColumn: 'name',
+    title: 'Current opart',
     initComponent: function () {
         Ext.applyIf(this, {
             colModel: this.buildColModel(),
-            store: this.buildStore()
+            store: this.buildStore(),
         });
         App.tab.operationPanel.opArticles.superclass.initComponent.call(this);
-        this.loadOp({ id_op: 1 });
+        // this.parent.loadOp({ id_op: 1 });
 
     },
 
+    listeners: {
+        afteredit: function (e) {
+            var record = e.record.data;
+            record.summ = record.price * record.quantity;
+            e.record.commit();
+        }
+    },
+
     buildColModel: function () {
+        var me = this;
         var opArticleColumns = new Ext.grid.ColumnModel({
             columns: [
                 { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
@@ -829,9 +840,15 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
                 { header: 'name', dataIndex: 'name' },
                 // { header: 'price', dataIndex: 'price' },
                 { header: 'price', dataIndex: 'op_price' },
-                { header: 'quantity', dataIndex: 'quantity' },
+                {
+                    header: 'quantity', dataIndex: 'quantity', editor: {
+                        xtype: 'numberfield',
+                        allowBlank: false,
+                    },
+                },
                 { header: 'summ', dataIndex: 'summ' },
             ],
+            // plugins: this.buildPlugins(),
             defaults: {
                 sortable: true,
                 menuDisabled: false
@@ -895,18 +912,19 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.GridPanel, {
 
 App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     flex: 1,
-    autoHeight: true,
+    height: 250,
     ddGroup: 'opArtDDGroup',
     enableDragDrop: true,
     stripeRows: true,
-    // autoExpandColumn: 'id_art',
+    title: 'Articles',
+    collapsible: true,
     initComponent: function () {
         Ext.apply(this, {
             colModel: this.buildColModel(),
             store: this.buildStore()
         }),
             App.tab.operationPanel.articlesGrid.superclass.initComponent.call(this);
-        this.loadOp({ id_op: 1 });
+        // this.loadOp({ id_op: 1 });
 
     },
 
@@ -939,7 +957,7 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
             { name: 'id_art', mapping: 'id_art' },
             { name: 'name', mapping: 'name' },
             { name: 'price', mapping: 'price' },
-            { name: 'op_price', mapping: 'op_price' },
+            { name: 'op_price', mapping: 'price' },
             { name: 'quantity', mapping: 'quantity' },
             { name: 'summ', mapping: 'summ' },
         ];
