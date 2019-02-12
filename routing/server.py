@@ -142,3 +142,12 @@ def get_articles():
         opart.append(row_dict)
     js = dict(articles=opart)
     return json.dumps(js), 200
+
+
+@app.route('/edit_opart', methods=['POST', ])
+def edit_opart():
+    data = list(request.form)[0]
+    opart_data = json.loads(data)
+    op = OperationTools()
+    op.edit_op_art(**opart_data)
+    return 'OK', 200

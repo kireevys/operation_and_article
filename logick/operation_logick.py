@@ -17,25 +17,55 @@ class OperationTools(Operation):
         db_logger.info(deleting_op)
         deleting_op.delete_data()
 
-    def add_op_art(self, id_op, **art_quantity):
+    def edit_op_art(self, **new_opart):
         """Принимает на вход заначения вида
         id_art=quantity"""
         extending_op = Operation()
+        # Проверка существования операции
+        id_op = new_opart['id_op']
+        art_quantity = new_opart['opart']
         try:
             extending_op = extending_op.select_expression(id_op=id_op)[0]
         except IndexError:
             db_logger.error(f'Операции {id_op} не существует')
             raise
-        for id_art, quantity in art_quantity.items():
-            new_art = Articles()
+
+        for opart in art_quantity:
             try:
-                new_art = new_art.select_expression(id_art=id_art)[0]
+                opart['modified']
+            except KeyError:
+                continue
+            new_art = Articles()
+            # Проверим, что ТП существует
+            try:
+                new_art = new_art.select_expression(id_art=opart['id_art'])[0]
             except IndexError:
-                db_logger.error(f'ТП {id_art} не существует')
+                db_logger.error(f'ТП {opart["id_art"]} - {opart["name"]} не существует')
                 raise
-            new_opart = OpArt(id_op=extending_op.id_op.value, id_art=new_art.id_art.value, price=new_art.price.value,
-                              quantity=quantity)
-            new_opart.insert()
+            # Вставим или обновим ТП
+            if opart['id_opart'] is None:
+                opart['id_op'] = id_op
+                self.insert_opart(**opart)
+            else:
+                self.update_opart(**opart)
+        return True
+
+    def update_opart(self, **kwargs):
+        opart = OpArt()
+        opart.update_data(id_opart=kwargs['id_opart'], id_op=kwargs['id_op'], id_art=kwargs['id_art'],
+                          price=kwargs['op_price'],
+                          quantity=kwargs['quantity'])
+
+    def insert_opart(self, **kwargs):
+        # try:
+        #     opart = OpArt()
+        #     opart = opart.select_expression(id_op=kwargs['id_op'], id_art=kwargs['id_art'])[0]
+        # except IndexError:
+        #     return False
+        # else:
+        new_opart = OpArt(id_op=kwargs['id_op'], id_art=kwargs['id_art'], price=kwargs['op_price'],
+                          quantity=kwargs['quantity'])
+        new_opart.insert()
 
     def get_all_operation(self):
         op_all = self.select_expression()
@@ -58,7 +88,7 @@ class OperationTools(Operation):
                 join op_art oa on oa.id_art = a.id_art and oa.id_op = :id_op
                 order by a.id_art;'''
         result = sess.execute(sql, dict(id_op=id_op)).fetchall()
-        opart=[]
+        opart = []
         for row in result:
             row_dict = dict(
                 id_opart=row[0],

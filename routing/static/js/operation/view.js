@@ -37,11 +37,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             store: this.buildStore(),
             statusStore: this.buildStatusStore()
         });
-        this.store.load();
-        this.statusStore.load();
         App.tab.operationPanel.operation.superclass.initComponent.call(this);
-
-
+        this.loadOp();
     },
 
     buildColModel: function () {
@@ -196,6 +193,11 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         });
 
         return opStatusStore;
+    },
+
+    loadOp: function () {
+        this.store.load();
+        this.statusStore.load();
     },
 
     setNewStatus: function (newStatus) {
@@ -813,6 +815,7 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
 App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     flex: 3,
     height: 250,
+    id_op: 0,
     ddGroup: 'opArtDDGroup',
     enableDragDrop: true,
     stripeRows: true,
@@ -827,7 +830,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         App.tab.operationPanel.opArticles.superclass.initComponent.call(this);
         // this.parent.loadOp({ id_op: 1 });
         this.on('afteredit', this.setOpSumm, this);
-        
+
     },
 
     buildToolBar: function () {
@@ -844,7 +847,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
                     region: 'west',
                     disabled: true,
                     handler: function () {
-                        Ext.MessageBox.alert('sended');
+                        me.sendNewOpArt();
                     }
                 }),
                 {
@@ -880,6 +883,10 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         };
         var record = e.record.data;
         record.summ = record.price * record.quantity;
+        e.record.json.modified = true;
+        e.record.json.price = record.price;
+        e.record.json.quantity = record.quantity;
+        e.record.json.summ = record.summ;
         e.record.commit();
     },
 
@@ -922,23 +929,28 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
             { name: 'op_price', mapping: 'op_price' },
             { name: 'quantity', mapping: 'quantity' },
             { name: 'summ', mapping: 'summ' },
+            { name: 'modified' }
         ];
 
         return opArtFields;
     },
 
     buildStore: function () {
+        var proxy = new Ext.data.HttpProxy({
+            api: {
+                read: {
+                    url: 'get_op_art',
+                    method: 'GET'
+                },
+                update: {
+                    url: 'edit_opart',
+                    method: 'POST',
+                }
+            },
+        });
         var operationStore = new Ext.data.JsonStore({
             fields: this.buildFields(),
-            proxy: new Ext.data.HttpProxy({
-                api: {
-                    read: {
-                        url: 'get_op_art',
-                        method: 'GET'
-                    }
-                }
-            }),
-
+            proxy: proxy,
             root: 'opart',
         });
         return operationStore;
@@ -949,6 +961,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         this.store.load({ params: loadOption });
         this.getBottomToolbar().items.items[0].setDisabled(false);
         // this.setOpSumm();
+        this.id_op = op.id_op;
     },
 
     setOpSumm: function () {
@@ -958,6 +971,37 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
             opsumm = opsumm + s[i].data.summ || 0;
         }
         this.getBottomToolbar().items.items[2].setValue(opsumm);
+    },
+    getJsonFromStore: function () {
+        // TODO: Можно сделать более глобальную функцию и на вход давать стор
+        var s = this.store.data.items;
+        var jsonData = {
+            id_op: this.id_op,
+            opart: []
+        };
+        var opsumm = 0;
+        for (var i = 0; i < s.length; i++) {
+            jsonData.opart.push(s[i].json);
+            // opsumm = opsumm + s[i].data.summ || 0;
+        };
+        return JSON.stringify(jsonData);
+    },
+
+    sendNewOpArt: function () {
+        var me = this;
+        var allData = me.getJsonFromStore();
+        // this.store.update();
+        Ext.Ajax.request({
+            url: 'edit_opart',
+            method: 'POST',
+            params: allData,
+            success: function (response, options) {
+                // Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
+                me.parent.loadOp({ id_op: me.id_op });
+                me.parent.parent.operationGrid.loadOp();
+                Ext.MessageBox.alert('sended');
+            }
+        });
     },
 });
 

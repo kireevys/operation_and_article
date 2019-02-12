@@ -189,8 +189,8 @@ class OpType(Base):
 class OpArt(Base):
     __tablename__ = 'op_art'
 
-    def __init__(self, id_op=None, id_art=None, price=None, quantity=0):
-        self.id_opart = Column('id_opart', primary=True)
+    def __init__(self, id_opart=None, id_op=None, id_art=None, price=None, quantity=0):
+        self.id_opart = Column('id_opart', id_opart, primary=True)
         self.id_op = Column('id_op', id_op)
         self.id_art = Column('id_art', id_art)
         self.price = Column('price', self.get_art_price())
@@ -208,7 +208,8 @@ class OpArt(Base):
         self.update_my_operation_opsumm()
 
     def update_data(self, **kwargs):
-        self.update_data(**kwargs)
+        self.__init__(**kwargs)
+        super().update_data()
         self.update_my_operation_opsumm()
 
     def update_my_operation_opsumm(self):
