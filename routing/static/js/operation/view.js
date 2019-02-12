@@ -735,7 +735,7 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
         this.articles.loadOp(op);
         this.buildDD();
     },
-    // TODO: Not working
+    // TODO: working
     buildDD: function () {
         var me = this;
         var opArt = me.opArtGrid;
@@ -764,6 +764,9 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
 
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
+                        // Recalc new opsumm
+                        me.opArtGrid.setOpSumm();
+
                     }
                 }
 
@@ -795,6 +798,8 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
 
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
+                        ddSource.grid.setOpSumm();
+
                     }
                 }
                 // Loop through the selections
@@ -816,18 +821,66 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         Ext.applyIf(this, {
             colModel: this.buildColModel(),
             store: this.buildStore(),
+            // buttons: this.buildButtons(),
+            bbar: this.buildToolBar(),
         });
         App.tab.operationPanel.opArticles.superclass.initComponent.call(this);
         // this.parent.loadOp({ id_op: 1 });
+        this.on('afteredit', this.setOpSumm, this);
+        
+    },
 
+    buildToolBar: function () {
+        var me = this;
+        var opToolbar = new Ext.Toolbar({
+            height: 40,
+            layout: 'border',
+            ref: 'opArtBar',
+            parent: me,
+            items: [
+                new Ext.Button({
+                    text: 'Update opart',
+                    // anchor: '50% 50%',
+                    region: 'west',
+                    disabled: true,
+                    handler: function () {
+                        Ext.MessageBox.alert('sended');
+                    }
+                }),
+                {
+
+                    region: 'center',     // center region is required, no width/height specified
+                    xtype: 'container',
+                    // margins: '5 5 0 0'
+                },
+                new Ext.form.NumberField({
+                    // anchor: '50% 50%',
+                    region: 'east',
+                    width: 50,
+                    height: 50,
+                    disabled: true,
+                    fieldLabel: 'Operation summ',
+                    margins: '5 5 50 50'
+                })
+            ]
+        });
+        return opToolbar
     },
 
     listeners: {
         afteredit: function (e) {
-            var record = e.record.data;
-            record.summ = record.price * record.quantity;
-            e.record.commit();
-        }
+            this.getNewOpSumm(e);
+        },
+    },
+
+    getNewOpSumm: function (e) {
+        // TODO: есть чувство, что это костыль, но не могу понять - почему при перемещении запись получает null стор
+        if (!e.record.store) {
+            e.record.store = this.store;
+        };
+        var record = e.record.data;
+        record.summ = record.price * record.quantity;
+        e.record.commit();
     },
 
     buildColModel: function () {
@@ -886,27 +939,25 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
                 }
             }),
 
-            onException: function (proxy, type, action, options, response, args) {
-                var responseJson = {};
-
-                try {
-                    responseJson = Ext.decode(response.responseText);
-                } catch (e) {
-                    ressponseJson = {
-                        error: { message: responseText }
-                    };
-                }
-
-                errorMessageRpc(response, responseJson);
-            },
             root: 'opart',
         });
         return operationStore;
     },
 
-    loadOp: function (op) {
+    loadOp: function (op, opsumm) {
         var loadOption = op
         this.store.load({ params: loadOption });
+        this.getBottomToolbar().items.items[0].setDisabled(false);
+        // this.setOpSumm();
+    },
+
+    setOpSumm: function () {
+        var s = this.store.data.items;
+        var opsumm = 0;
+        for (var i = 0; i < s.length; i++) {
+            opsumm = opsumm + s[i].data.summ || 0;
+        }
+        this.getBottomToolbar().items.items[2].setValue(opsumm);
     },
 });
 

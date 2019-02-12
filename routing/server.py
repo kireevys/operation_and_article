@@ -120,8 +120,8 @@ def get_articles():
                    a.name, 
                    oa.price,
                    a.price CURRENT_price,
-                   oa.quantity,
-                   oa.summ  
+                   0,
+                   0
                  from article a
             left join op_art oa on oa.id_art = a.id_art and oa.id_op = :id_op
             where oa.id_opart is null
