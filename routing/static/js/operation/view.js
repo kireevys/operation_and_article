@@ -45,17 +45,23 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         var operationColumns = new Ext.grid.ColumnModel({
             columns: [
                 // TODO: Сделать вывод названий - добавить джойны на бэк
-                { header: "id_op", dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
-                { header: 'code', dataIndex: 'code' },
-                { header: 'id_status', dataIndex: 'id_status' },
-                { header: 'optype', dataIndex: 'optype' },
-                { header: 'id_contr', dataIndex: 'id_contr' },
-                { header: 'id_ws', dataIndex: 'id_ws' },
+                { header: 'id_op', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
                 { header: 'opdate', dataIndex: 'opdate' },
+                { header: 'code', dataIndex: 'code' },
+                { header: 'id_status', dataIndex: 'id_status', hidden: true },
+                { header: 'status', dataIndex: 'status', width: 150 },
+                { header: 'id_type', dataIndex: 'id_type', hidden: true, },
+                { header: 'optype', dataIndex: 'optype', width: 150 },
                 { header: 'opsumm', dataIndex: 'opsumm' },
-                { header: 'id_rack', dataIndex: 'id_rack' },
-                { header: 'doccount', dataIndex: 'doccount' },
                 { header: 'gm_res', dataIndex: 'gm_res' },
+                { header: 'doccount', dataIndex: 'doccount' },
+                { header: 'id_rack', dataIndex: 'id_rack' },
+                { header: 'id_contr', dataIndex: 'id_contr', hidden: true },
+                { header: 'contr_name', dataIndex: 'contr_name', hidden: true },
+                { header: 'inn', dataIndex: 'inn', hidden: true },
+                { header: 'id_ws', dataIndex: 'id_ws', hidden: true },
+                { header: 'ws_name', dataIndex: 'ws_name', hidden: true },
+
             ],
             defaults: {
                 sortable: true,
@@ -140,17 +146,24 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
 
     buildFields: function () {
         var opFields = [
-            { name: 'code', mapping: 'code' },
-            { name: 'doccount', mapping: 'doccount' },
-            { name: 'gm_res', mapping: 'gm_res' },
-            { name: 'id_contr', mapping: 'id_contr' },
             { name: 'id_op', mapping: 'id_op' },
-            { name: 'id_rack', mapping: 'id_rack' },
-            { name: 'id_status', mapping: 'id_status' },
-            { name: 'id_ws', mapping: 'id_ws' },
             { name: 'opdate', mapping: 'opdate' },
-            { name: 'opsumm', mapping: 'opsumm' },
+            { name: 'code', mapping: 'code' },
+            { name: 'id_status', mapping: 'id_status' },
+            { name: 'status', mapping: 'status' },
             { name: 'optype', mapping: 'optype' },
+            { name: 'id_type', mapping: 'id_type' },
+            { name: 'id_ws', mapping: 'id_ws' },
+            { name: 'id_contr', mapping: 'id_contr' },
+            { name: 'opsumm', mapping: 'opsumm' },
+            { name: 'gm_res', mapping: 'gm_res' },
+            { name: 'doccount', mapping: 'doccount' },
+            { name: 'id_rack', mapping: 'id_rack' },
+            { name: 'contr_name', mapping: 'contr_name' },
+            { name: 'inn', mapping: 'inn' },
+            { name: 'ws_name', mapping: 'ws_name' },
+
+
         ];
         return opFields;
     },
@@ -916,6 +929,8 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
                     header: 'quantity', dataIndex: 'quantity', editor: {
                         xtype: 'numberfield',
                         allowBlank: false,
+                        allowNegative: false,
+                        minValue: 1,
                     },
                 },
                 { header: 'summ', dataIndex: 'summ' },

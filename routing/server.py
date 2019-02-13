@@ -27,7 +27,7 @@ def index2():
 @app.route('/getop')
 def send_operation():
     op = OperationTools()
-    s = op.get_all_operation()
+    s = op.get_operation_grid()
     return json.dumps(s), 200
 
 

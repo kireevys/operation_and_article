@@ -59,8 +59,6 @@ class OperationTools(Operation):
         self.get_new_session().execute(sql)
         self.conn.commit()
 
-
-
     def update_opart(self, **kwargs):
         opart = OpArt()
         opart.update_data(id_opart=kwargs['id_opart'], id_op=kwargs['id_op'], id_art=kwargs['id_art'],
@@ -68,12 +66,6 @@ class OperationTools(Operation):
                           quantity=kwargs['quantity'])
 
     def insert_opart(self, **kwargs):
-        # try:
-        #     opart = OpArt()
-        #     opart = opart.select_expression(id_op=kwargs['id_op'], id_art=kwargs['id_art'])[0]
-        # except IndexError:
-        #     return False
-        # else:
         new_opart = OpArt(id_op=kwargs['id_op'], id_art=kwargs['id_art'], price=kwargs['op_price'],
                           quantity=kwargs['quantity'])
         new_opart.insert()
@@ -122,3 +114,35 @@ class OperationTools(Operation):
         op.id_status.value = id_status
         op.update_data()
         return True
+
+    def get_operation_grid(self):
+        # TODO: Почему range не умеет в __next__?
+        def my_gen():
+            for i in range(16):
+                yield i
+
+        sql = self.get_template('operation_grid.sql').render()
+        grid = self.get_new_session().execute(sql).fetchall()
+        operation_grid = []
+        for row in grid:
+            gen = my_gen()
+            row_dict = dict(
+                id_op=row[gen.__next__()],
+                opdate=row[gen.__next__()],
+                code=row[gen.__next__()],
+                id_status=row[gen.__next__()],
+                status=row[gen.__next__()],
+                id_type=row[gen.__next__()],
+                optype=row[gen.__next__()],
+                id_ws=row[gen.__next__()],
+                id_contr=row[gen.__next__()],
+                opsumm=row[gen.__next__()],
+                gm_res=row[gen.__next__()],
+                doccount=row[gen.__next__()],
+                id_rack=row[gen.__next__()],
+                contr_name=row[gen.__next__()],
+                inn=row[gen.__next__()],
+                ws_name=row[gen.__next__()])
+            operation_grid.append(row_dict)
+        to_dict = dict(operation=operation_grid)
+        return to_dict
