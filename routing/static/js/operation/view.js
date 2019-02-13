@@ -714,6 +714,7 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     layout: 'hbox',
     enableDragDrop: true,
 
+
     initComponent: function () {
         Ext.apply(this, {
             items: this.buildItems()
@@ -732,11 +733,7 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
         return mainItems;
     },
 
-    loadOp: function (op) {
-        this.opArtGrid.loadOp(op);
-        this.articles.loadOp(op);
-        this.buildDD();
-    },
+
     // TODO: working
     buildDD: function () {
         var me = this;
@@ -766,6 +763,10 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
 
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
+                        // Extract from deleting array
+                        if (record.data.id_opart !== null) {
+                            me.opArtGrid.removeFromDelete(record.data.id_opart);
+                        };
                         // Recalc new opsumm
                         me.opArtGrid.setOpSumm();
 
@@ -800,6 +801,9 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
 
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
+                        if (record.data.id_opart !== null) {
+                            ddSource.grid.addOpartToDeleting(record.data.id_opart);
+                        };
                         ddSource.grid.setOpSumm();
 
                     }
@@ -809,7 +813,12 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                 return (true);
             }
         });
-    }
+    },
+    loadOp: function (op) {
+        this.opArtGrid.loadOp(op);
+        this.articles.loadOp(op);
+        this.buildDD();
+    },
 });
 
 App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
@@ -820,6 +829,8 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     enableDragDrop: true,
     stripeRows: true,
     title: 'Current opart',
+
+
     initComponent: function () {
         Ext.applyIf(this, {
             colModel: this.buildColModel(),
@@ -847,6 +858,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
                     region: 'west',
                     disabled: true,
                     handler: function () {
+                        console.log(me.forDelete);
                         me.sendNewOpArt();
                     }
                 }),
@@ -955,6 +967,20 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         });
         return operationStore;
     },
+    // Удаляемые опарты
+    forDelete: [],
+
+    addOpartToDeleting: function (id_opart) {
+        this.forDelete.push(id_opart);
+    },
+
+    removeFromDelete: function (id_opart) {
+        this.forDelete.pop(id_opart);
+    },
+
+    clearFromDelete: function () {
+        this.forDelete = [];
+    },
 
     loadOp: function (op, opsumm) {
         var loadOption = op
@@ -962,6 +988,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         this.getBottomToolbar().items.items[0].setDisabled(false);
         // this.setOpSumm();
         this.id_op = op.id_op;
+        this.clearFromDelete();
     },
 
     setOpSumm: function () {
@@ -977,7 +1004,8 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         var s = this.store.data.items;
         var jsonData = {
             id_op: this.id_op,
-            opart: []
+            opart: [],
+            forDelete: this.forDelete
         };
         var opsumm = 0;
         for (var i = 0; i < s.length; i++) {

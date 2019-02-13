@@ -30,6 +30,8 @@ class OperationTools(Operation):
             db_logger.error(f'Операции {id_op} не существует')
             raise
 
+        self.delete_opart(*new_opart['forDelete'])
+
         for opart in art_quantity:
             try:
                 opart['modified']
@@ -49,6 +51,15 @@ class OperationTools(Operation):
             else:
                 self.update_opart(**opart)
         return True
+
+    def delete_opart(self, *args):
+        opart_ids = ', '.join([str(i) for i in args])
+        db_logger.info(opart_ids)
+        sql = f'delete from op_art where id_opart in ({opart_ids})'
+        self.get_new_session().execute(sql)
+        self.conn.commit()
+
+
 
     def update_opart(self, **kwargs):
         opart = OpArt()
