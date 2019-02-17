@@ -32,34 +32,6 @@ CREATE
 
 CREATE
 	TABLE
-		operation (id_op INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		opdate DATE,
-		code text NOT NULL,
-		id_status integer NOT NULL,
-		optype integer NOT NULL,
-		id_ws integer NOT NULL,
-		id_contr integer NOT NULL,
-		opsumm integer NOT NULL,
-		gm_res integer,
-		doccount integer,
-		id_rack integer,
-		FOREIGN KEY(id_status) REFERENCES opstatus_tab(id_status),
-		FOREIGN KEY(optype) REFERENCES optype(id_type),
-		FOREIGN KEY(id_ws) REFERENCES warehouse(id_ws),
-		FOREIGN KEY(id_contr) REFERENCES contractor(id_contr));
-
-CREATE
-	INDEX op_optype_date_idx on
-	operation(opdate,
-	optype);
-
-CREATE
-	INDEX op_ws_contr_idx on
-	operation(id_ws,
-	id_contr);
-
-CREATE
-	TABLE
 		unit_tab (id_unit INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		name text UNIQUE NOT NULL,
 		fullname text UNIQUE NOT NULL);
@@ -77,24 +49,56 @@ CREATE
 	INDEX art_name_idx on
 	article(name);
 
+
 CREATE
 	TABLE
-		op_art (id_opart INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		id_op integer NOT NULL,
+		operation (
+		id_op INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		opdate DATE,
+		code text NOT NULL,
+		id_status integer NOT NULL,
+		optype integer NOT NULL,
+		id_ws integer NOT NULL,
+		id_contr integer NOT NULL,
+		opsumm float(15,2) NOT NULL,
+		gm_res integer,
+		doccount integer,
+		id_rack integer,
+		FOREIGN KEY(id_status) REFERENCES opstatus_tab(id_status),
+		FOREIGN KEY(optype) REFERENCES optype(id_type),
+		FOREIGN KEY(id_ws) REFERENCES warehouse(id_ws),
+		FOREIGN KEY(id_contr) REFERENCES contractor(id_contr)
+	);
+		--FOREIGN KEY(id_op) REFERENCES op_art(id_op) ON DELETE CASCADE;
+
+CREATE
+	INDEX op_optype_date_idx on
+	operation(opdate,
+	optype);
+
+CREATE
+	INDEX op_ws_contr_idx on
+	operation(id_ws,
+	id_contr);
+
+CREATE
+	TABLE
+		op_art (
+		id_opart INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		id_op integer REFERENCES operation(id_op) ON DELETE CASCADE,
 		id_art integer NOT NULL,
 		price integer NOT NULL,
+		--TODO: Не работает каскад от операций
 		quantity integer NOT NULL check(quantity > 0),
-		summ integer check(summ = quantity * price),
-		FOREIGN KEY(id_op) REFERENCES operation(id_op) ON DELETE CASCADE,
-		FOREIGN KEY(id_art) REFERENCES article(id_art));
+		summ float(7,2),
+		FOREIGN KEY(id_art) REFERENCES article(id_art) );
 
 CREATE
 	INDEX opart_op_idx on
-	op_art(id_op);
+	op_art(id_op, id_art);
 
-CREATE
-	INDEX opart_art_idx on
-	op_art(id_art);
+-- create CONSTRAINT op_art FOREIGN KEY(id_op) REFERENCES operation(id_op) ON DELETE CASCADE;
+
 
 --First data
 INSERT INTO opstatus_tbl (name, stat_order, on_delete) values ('Новая', 1, 1);

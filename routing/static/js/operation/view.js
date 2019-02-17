@@ -44,7 +44,6 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     buildColModel: function () {
         var operationColumns = new Ext.grid.ColumnModel({
             columns: [
-                // TODO: Сделать вывод названий - добавить джойны на бэк
                 { header: 'id_op', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
                 { header: 'opdate', dataIndex: 'opdate' },
                 { header: 'code', dataIndex: 'code' },
@@ -270,6 +269,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             },
             success: function (response, options) {
                 Ext.MessageBox.alert('Успех', 'Операция удалена');
+                // TODO: Перезагружать гриды товаров
                 me.store.load();
             }
         });
@@ -632,8 +632,8 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                             blankText: '0',
                             disabled: true,
                             emptyText: 'Только для типа "Складская"',
+                            ref: 'rack',
                             parent: this.parent,
-                            ref: 'rack'
                         },
                     ]
                 })
@@ -747,7 +747,6 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     },
 
 
-    // TODO: working
     buildDD: function () {
         var me = this;
         var opArt = me.opArtGrid;

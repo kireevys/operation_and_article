@@ -102,7 +102,7 @@ def change_opstatus():
     return 'OK', 200
 
 
-@app.route('/delete_op', methods=['GET', ])
+@app.route('/delete_op', methods=['GET', 'POST' ])
 def delete_op():
     OperationTools.delete_operation(**dict(request.form))
     return 'OK', 200
