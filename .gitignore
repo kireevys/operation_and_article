@@ -7,4 +7,4 @@
 .idea
 .vscode
 __pycache__
-testtask
+venv
