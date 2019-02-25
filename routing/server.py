@@ -1,15 +1,16 @@
 from routing import app
 import json
-from flask import request
+from flask import request, send_file
 from logick.operation_logick import OperationTools
 from werkzeug.datastructures import ImmutableMultiDict
 from models.tables import OpType, Contractor, Warehouse, OpStatus, Articles
 from datetime import datetime
 from logs import debug_logger
+from config import version
 
 
 @app.route('/tt')
-def index():
+def index2():
     return app.send_static_file('index.html'), 200
 
 
@@ -19,8 +20,18 @@ def test():
     return 'OK', 200
 
 
+@app.route('/version')
+def get_version():
+    """Возвращает текущую версию приложения для установки в заголовок"""
+    return version, 200
+
+@app.route('/favicon.ico')
+def get_icon():
+    return send_file(filename_or_fp='../static/label_magnit.png', as_attachment=True, attachment_filename='favicon.ico')
+
+
 @app.route('/')
-def index2():
+def index():
     return app.send_static_file('index.html'), 200
 
 
@@ -102,7 +113,7 @@ def change_opstatus():
     return 'OK', 200
 
 
-@app.route('/delete_op', methods=['GET', 'POST' ])
+@app.route('/delete_op', methods=['GET', 'POST'])
 def delete_op():
     OperationTools.delete_operation(**dict(request.form))
     return 'OK', 200

@@ -1,93 +1,82 @@
-Ext.ns('App.tab.operation.models');
+// TODO: Вынести для переиспользования в добавление МХ
+var treeWs = Ext.extend(Ext.tree.TreePanel, {
+    title: 'Warehouse',
+    autoScroll: true,
+    collapsible: true,
+    height: 150,
+    useArrows: true,
+    id: 'wsTree',
+    dataUrl: 'get_ws_tree',
+    root: {
+        nodeType: 'async',
+        text: 'warehouse',
+        id: 'warehouse'
+    },
 
-// Модел для операций
-// Поля операций
-// mapping с Моделью стобцов для грида
+    initComponent: function () {
+        Ext.apply({
+            bbar: this.buildToolBar()
+        });
 
-// var addOp = Ext.extend(Ext.Window, {
-//     title: 'Add operation',
-//     width: 300,
-//     height: 400,
-//     layout: 'fit',
-//     initComponent: function () {
-//         Ext.applyIf(this, {
-//             items: this.buildItems(),
-//         });
+        treeWs.superclass.initComponent.call(this);
+    },
+    listeners: {
+        // После двойного клика по листу:
+        // Выводим МХ для наглядности, и записываем его id для формы
+        beforedblclick(node, e) {
+            if (node.attributes.leaf) {
+                var selNodeText = node.text;
+                var selector = Ext.getCmp('selWs');
+                selector.setValue(selNodeText);
+            }
 
-//         opToolbar.addOp.superclass.initComponent.call(this);
+        }
+    },
+    buildToolBar: function () {
+        var me = this;
+        var bar = Ext.extend(Ext.Toolbar, {
+            layout: 'form',
+            initComponent: function () {
+                Ext.apply({
+                    items: this.buildItems()
+                });
 
-//     },
-//     buildItems: function () {
-//         var opForm = new opToolbar.addOp.opForm;
-//         var winArr = [
-//             opForm
-//         ];
-//         return winArr;
-//     }
-
-// });
-
-// opToolbar.addOp.opForm = Ext.extend(Ext.form.FormPanel, {
-//     style: {
-//         "padding": "7px 0px 10px 0px"
-//     },
-//     labelAlign: 'right',
-//     baseCls: "x-plain",
-//     // labelWidth: 150,
-
-//     initComponent: function () {
-//         Ext.applyIf(this, {
-//             items: this.buildItems(),
-//         });
-
-//         opToolbar.addOp.opForm.superclass.initComponent.call(this);
-//     },
-
-//     buildItems: function () {
-//         panelItem = [{
-//             xtype: 'textfield',
-//             id: 'user-field',
-//             fieldLabel: 'Username',
-//             emptyText: 'Your login',
-//             allowBlank: false,
-//             padding: '10'
-//         },
-//         {
-//             xtype: 'textfield',
-//             id: 'password-field',
-//             fieldLabel: 'Password',
-//             emptyText: 'Some password',
-//             inputType: 'password',
-//             allowBlank: false,
-//         },
-//         {
-//             xtype: 'button',
-//             id: 'login-button',
-//             text: 'login',
-//             width: 50,
-//             height: 25,
-//             region: 'center',
-//         }
-//         ]
-//         return panelItem
-//     }
-
-// });
-
-
-// Модель Товаров в операции
-
-
-
-
-// var opArtStore = new Ext.data.JsonStore({
-//     url: 'get_op_art/',
-//     fields: opArtFields,
-//     storeId: 'opArtStore',
-//     root: 'data',
-//     // proxy: new Ext.data.HttpProxy(
-//     //     fExt.Ajax.request({
-//     //         url: this.url + 1,
-//     //         method: 'GET',
-//     //     })),
-// });
+                bar.superclass.initComponent.call(this);
+            },
+            buildItems: function () {
+                var me = this;
+                var wsField = new Ext.form.NumberField({
+                    id: 'selWs',
+                    fieldLabel: 'Selected warehouse',
+                    disabled: true,
+                    allowBlank: false,
+                    ref: 'selWs',
+                    parent: me
+                })
+                return [wsField,]
+            },
+        });
+        return new bar(
+            {
+                ref: 'treeTb',
+                parent: this
+            });
+    },
+    // TODO: Ниработаит
+    /* bbar: [
+        new Ext.Toolbar({
+            layout: 'form',
+            ref: 'treeTb',
+            items: [
+                {
+                    xtype: 'textfield',
+                    id: 'selWs',
+                    fieldLabel: 'Selected warehouse',
+                    disabled: true,
+                    allowBlank: false,
+                    ref: 'selWs',
+                }
+            ]
+        })
+    ] */
+});

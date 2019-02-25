@@ -1,4 +1,4 @@
-Ext.ns('App');
+
 // Create main Viewport
 App = Ext.extend(Ext.Viewport, {
     maximized: true,
@@ -20,6 +20,7 @@ App = Ext.extend(Ext.Viewport, {
         return mainItems;
     },
 });
+
 // Create tab contaner: Table Panel
 App.tab = Ext.extend(Ext.TabPanel, {
     activeTab: 0,
@@ -40,9 +41,21 @@ App.tab = Ext.extend(Ext.TabPanel, {
     },
 });
 
+function setAppTitle(){
+    var header = 'Операции и товары'
+    Ext.Ajax.request({
+        url: 'version',
+        success: function(response, options){
+            document.title = header + ' v ' + response.responseText;
+        },
+        failure: function(response, options){
+           document.title =header;
+        }
+    });
+};
 
-
+// Мы готовы? Установим заголовок - и стартуем
 Ext.onReady(function () {
+    setAppTitle();
     var appRun = new App();
-    // appRun.show();
 });
