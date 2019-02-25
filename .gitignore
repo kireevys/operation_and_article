@@ -7,4 +7,9 @@
 .idea
 .vscode
 __pycache__
+.pytest_cache
 venv
+
+# Just for dev env
+refactor_targets
+ext_js_examples

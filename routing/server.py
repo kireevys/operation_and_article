@@ -21,7 +21,7 @@ def test():
 
 @app.route('/')
 def index2():
-    return app.send_static_file('index2.html'), 200
+    return app.send_static_file('index.html'), 200
 
 
 @app.route('/getop')
