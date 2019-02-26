@@ -25,6 +25,7 @@ def get_version():
     """Возвращает текущую версию приложения для установки в заголовок"""
     return version, 200
 
+
 @app.route('/favicon.ico')
 def get_icon():
     return send_file(filename_or_fp='../static/label_magnit.png', as_attachment=True, attachment_filename='favicon.ico')
@@ -87,7 +88,7 @@ def get_ws_tree():
 
 @app.route('/add_op', methods=['POST'])
 def add_operation():
-    new_op = dict(request.values)
+    new_op = request.values.to_dict()
     # Преобразуем формат даты в пайтоновский
     new_op['opdate'] = datetime.strptime(
         new_op['opdate'], '%Y-%m-%dT%H:%M:%S').date()
@@ -107,7 +108,7 @@ def get_op_status():
 
 @app.route('/change_opstatus', methods=['POST', ])
 def change_opstatus():
-    data = dict(request.form)
+    data = request.form.to_dict()
     debug_logger.info(data)
     OperationTools.update_status(**data)
     return 'OK', 200
@@ -115,7 +116,7 @@ def change_opstatus():
 
 @app.route('/delete_op', methods=['GET', 'POST'])
 def delete_op():
-    OperationTools.delete_operation(**dict(request.form))
+    OperationTools.delete_operation(**request.form.to_dict())
     return 'OK', 200
 
 
@@ -139,17 +140,9 @@ def get_articles():
             order by a.id_art;'''
     result = sess.execute(sql, dict(id_op=id_op)).fetchall()
     opart = []
+    fields = ['id_opart', 'id_op', 'id_art', 'name', 'op_price', 'price', 'quantity', 'summ']
     for row in result:
-        row_dict = dict(
-            id_opart=row[0],
-            id_op=row[1],
-            id_art=row[2],
-            name=row[3],
-            op_price=row[4],
-            price=row[5],
-            quantity=row[6],
-            summ=row[7]
-        )
+        row_dict = {k: v for k, v in zip(fields, row)}
         opart.append(row_dict)
     js = dict(articles=opart)
     return json.dumps(js), 200

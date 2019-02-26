@@ -59,13 +59,15 @@ class OperationTools(Operation):
         self.get_new_session().execute(sql)
         self.conn.commit()
 
-    def update_opart(self, **kwargs):
+    @staticmethod
+    def update_opart(**kwargs):
         opart = OpArt()
         opart.update_data(id_opart=kwargs['id_opart'], id_op=kwargs['id_op'], id_art=kwargs['id_art'],
                           price=kwargs['op_price'],
                           quantity=kwargs['quantity'])
 
-    def insert_opart(self, **kwargs):
+    @staticmethod
+    def insert_opart(**kwargs):
         new_opart = OpArt(id_op=kwargs['id_op'], id_art=kwargs['id_art'], price=kwargs['op_price'],
                           quantity=kwargs['quantity'])
         new_opart.insert()
@@ -76,7 +78,8 @@ class OperationTools(Operation):
         js = dict(operation=di)
         return js
 
-    def get_all_opart(self, id_op):
+    @staticmethod
+    def get_all_opart(id_op):
         op_art = OpArt()
         sess = op_art.get_new_session()
         sql = '''SELECT oa.id_opart,
@@ -92,17 +95,9 @@ class OperationTools(Operation):
                 order by a.id_art;'''
         result = sess.execute(sql, dict(id_op=id_op)).fetchall()
         opart = []
+        fields = ['id_opart', 'id_op', 'id_art', 'name', 'op_price', 'price', 'quantity', 'summ', ]
         for row in result:
-            row_dict = dict(
-                id_opart=row[0],
-                id_op=row[1],
-                id_art=row[2],
-                name=row[3],
-                op_price=row[4],
-                price=row[5],
-                quantity=row[6],
-                summ=row[7]
-            )
+            row_dict = {k: v for k, v in zip(fields, row)}
             opart.append(row_dict)
         js = dict(opart=opart)
         return js
@@ -116,33 +111,15 @@ class OperationTools(Operation):
         return True
 
     def get_operation_grid(self):
-        # TODO: Почему range не умеет в __next__?
-        def my_gen():
-            for i in range(16):
-                yield i
-
         sql = self.get_template('operation_grid.sql').render()
         grid = self.get_new_session().execute(sql).fetchall()
         operation_grid = []
+        fields = ['id_op', 'opdate', 'code', 'id_status',
+                  'status', 'id_type', 'optype', 'id_ws',
+                  'id_contr', 'opsumm', 'gm_res', 'doccount',
+                  'id_rack', 'contr_name', 'inn', 'ws_name']
         for row in grid:
-            gen = my_gen()
-            row_dict = dict(
-                id_op=row[gen.__next__()],
-                opdate=row[gen.__next__()],
-                code=row[gen.__next__()],
-                id_status=row[gen.__next__()],
-                status=row[gen.__next__()],
-                id_type=row[gen.__next__()],
-                optype=row[gen.__next__()],
-                id_ws=row[gen.__next__()],
-                id_contr=row[gen.__next__()],
-                opsumm=row[gen.__next__()],
-                gm_res=row[gen.__next__()],
-                doccount=row[gen.__next__()],
-                id_rack=row[gen.__next__()],
-                contr_name=row[gen.__next__()],
-                inn=row[gen.__next__()],
-                ws_name=row[gen.__next__()])
+            row_dict = {k: v for k, v in zip(fields, row)}
             operation_grid.append(row_dict)
         to_dict = dict(operation=operation_grid)
         return to_dict
