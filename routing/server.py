@@ -2,6 +2,7 @@ from routing import app
 import json
 from flask import request, send_file
 from logick.operation_logick import OperationTools
+from logick.catalogs_logick import WarehouseTools
 from werkzeug.datastructures import ImmutableMultiDict
 from models.tables import OpType, Contractor, Warehouse, OpStatus, Articles
 from datetime import datetime
@@ -24,6 +25,17 @@ def test():
 def get_version():
     """Возвращает текущую версию приложения для установки в заголовок"""
     return version, 200
+
+
+@app.route('/set_new_ws_name', methods=['POST', ])
+def set_new_ws_name():
+    ws = WarehouseTools()
+    req = request.values.to_dict()
+    try:
+        ws.set_new_name(**req)
+    except Exception:
+        return 'Bad', 418
+    return 'OK', 200
 
 
 @app.route('/favicon.ico')

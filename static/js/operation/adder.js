@@ -1,3 +1,29 @@
+addop = Ext.extend(Ext.Window, {
+    title: 'Создание операций',
+    modal: true,
+    width: 500,
+    height: 450,
+    layout: 'fit',
+
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems()
+        }),
+            addop.superclass.initComponent.call(this);
+    },
+
+    buildItems: function () {
+        // add form to array
+        var arr = [
+            new addOpForm({
+                ref: 'addOpForm',
+                parent: this
+            })
+        ];
+        return arr;
+    },
+});
+
 addOpForm = Ext.extend(Ext.form.FormPanel, {
     id: 'addOpForm',
 

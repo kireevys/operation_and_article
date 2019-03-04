@@ -15,6 +15,9 @@ class Column(object):
         self.value = value
         self.primary = primary
 
+    def set_value(self, new_value):
+        self.value = new_value
+
     def to_dict(self):
         return {self.name: self.value}
 

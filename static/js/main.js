@@ -1,6 +1,7 @@
 
 // Create main Viewport
 App = Ext.extend(Ext.Viewport, {
+
     maximized: true,
     closable: false,
     layout: 'fit',
@@ -23,7 +24,7 @@ App = Ext.extend(Ext.Viewport, {
 
 // Create tab contaner: Table Panel
 App.tab = Ext.extend(Ext.TabPanel, {
-    activeTab: 0,
+    activeTab: 1,
 
     initComponent: function () {
         Ext.apply(this, {
@@ -33,9 +34,11 @@ App.tab = Ext.extend(Ext.TabPanel, {
     },
 
     buildItems: function () {
-        var firstTab = new App.tab.operationPanel({ ref: 'operationPanel', parent: this });
+        var operations = new App.tab.operationPanel({ ref: 'operationPanel', parent: this });
+        var catalogs = new App.tab.catalogs({ ref: 'catalogsPanel', parent: this });
         tabs = [
-            firstTab,
+            operations,
+            catalogs
         ];
         return tabs;
     },
@@ -57,5 +60,5 @@ function setAppTitle(){
 // Мы готовы? Установим заголовок - и стартуем
 Ext.onReady(function () {
     setAppTitle();
-    var appRun = new App();
+    new App({ref: 'main'});
 });

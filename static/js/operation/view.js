@@ -1,6 +1,8 @@
+Ext.namespace('Ext.ux.grid');
+
 // Create first Tab container
 App.tab.operationPanel = Ext.extend(Ext.Panel, {
-    title: 'Operations',
+    title: 'Операции',
     layout: { type: 'vbox', align: 'stretch' },
 
     initComponent: function () {
@@ -21,6 +23,34 @@ App.tab.operationPanel = Ext.extend(Ext.Panel, {
     },
 
 });
+
+// var filters = new Ext.ux.grid.GridFilters({
+//     // encode and local configuration options defined previously for easier reuse
+//     encode: true, // json encode the filter query
+//     local: true,   // defaults to false (remote filtering)
+//     filters: [{
+//         type: 'numeric',
+//         dataIndex: 'id'
+//     }, {
+//         type: 'string',
+//         dataIndex: 'company',
+//         disabled: true
+//     }, {
+//         type: 'numeric',
+//         dataIndex: 'price'
+//     }, {
+//         type: 'date',
+//         dataIndex: 'date'
+//     }, {
+//         type: 'list',
+//         dataIndex: 'size',
+//         options: ['small', 'medium', 'large', 'extra large'],
+//         phpMode: true
+//     }, {
+//         type: 'boolean',
+//         dataIndex: 'visible'
+//     }]
+// });
 
 App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     title: 'Operations',
@@ -43,7 +73,12 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         var operationColumns = new Ext.grid.ColumnModel({
             columns: [
                 { header: 'id_op', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
-                { header: 'opdate', dataIndex: 'opdate' },
+                {
+                    header: 'opdate', dataIndex: 'opdate', filter: {
+                        type: 'LIST',
+                        value: ['1']
+                    }
+                },
                 { header: 'code', dataIndex: 'code' },
                 { header: 'id_status', dataIndex: 'id_status', hidden: true },
                 { header: 'status', dataIndex: 'status', width: 150 },
@@ -54,10 +89,10 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                 { header: 'doccount', dataIndex: 'doccount' },
                 { header: 'id_rack', dataIndex: 'id_rack' },
                 { header: 'id_contr', dataIndex: 'id_contr', hidden: true },
-                { header: 'contr_name', dataIndex: 'contr_name', hidden: true },
+                { header: 'contr_name', dataIndex: 'contr_name'},
                 { header: 'inn', dataIndex: 'inn', hidden: true },
                 { header: 'id_ws', dataIndex: 'id_ws', hidden: true },
-                { header: 'ws_name', dataIndex: 'ws_name', hidden: true },
+                { header: 'ws_name', dataIndex: 'ws_name'},
 
             ],
             defaults: {
@@ -172,7 +207,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                 url: 'getop',
                 method: 'GET'
             }),
-            root: 'operation'
+            root: 'operation',
         });
         return operationStore;
     },
@@ -326,33 +361,6 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
 
     }
 });
-
-addop = Ext.extend(Ext.Window, {
-    title: 'creating of operation',
-    modal: true,
-    width: 500,
-    height: 450,
-    layout: 'fit',
-
-    initComponent: function () {
-        Ext.applyIf(this, {
-            items: this.buildItems()
-        }),
-            addop.superclass.initComponent.call(this);
-    },
-
-    buildItems: function () {
-        // add form to array
-        var arr = [
-            new addOpForm({
-                ref: 'addOpForm',
-                parent: this
-            })
-        ];
-        return arr;
-    },
-});
-
 
 App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     title: 'Articles in operation',

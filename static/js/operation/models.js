@@ -1,16 +1,18 @@
-// TODO: Вынести для переиспользования в добавление МХ
 var treeWs = Ext.extend(Ext.tree.TreePanel, {
     title: 'Warehouse',
     autoScroll: true,
     collapsible: true,
     height: 150,
     useArrows: true,
+    rootVisible: false,
     id: 'wsTree',
     dataUrl: 'get_ws_tree',
+    
     root: {
         nodeType: 'async',
         text: 'warehouse',
-        id: 'warehouse'
+        id: 'warehouse',
+        draggable: false
     },
 
     initComponent: function () {
@@ -20,18 +22,18 @@ var treeWs = Ext.extend(Ext.tree.TreePanel, {
 
         treeWs.superclass.initComponent.call(this);
     },
-    listeners: {
-        // После двойного клика по листу:
-        // Выводим МХ для наглядности, и записываем его id для формы
-        beforedblclick(node, e) {
-            if (node.attributes.leaf) {
-                var selNodeText = node.text;
-                var selector = Ext.getCmp('selWs');
-                selector.setValue(selNodeText);
-            }
+    // listeners: {
+    //     // После двойного клика по листу:
+    //     // Выводим МХ для наглядности, и записываем его id для формы
+    //     beforedblclick(node, e) {
+    //         if (node.attributes.leaf) {
+    //             var selNodeText = node.text;
+    //             var selector = Ext.getCmp('selWs');
+    //             selector.setValue(selNodeText);
+    //         }
 
-        }
-    },
+    //     }
+    // },
     buildToolBar: function () {
         var me = this;
         var bar = Ext.extend(Ext.Toolbar, {
