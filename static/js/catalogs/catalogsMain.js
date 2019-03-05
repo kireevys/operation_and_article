@@ -11,6 +11,7 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
         });
 
         App.tab.catalogs.superclass.initComponent.call(this);
+        
 
     },
 
@@ -37,7 +38,8 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
 
     initComponent: function () {
         Ext.apply(this, {
-            items: this.buildItems()
+            items: this.buildItems(),
+            
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
@@ -57,19 +59,24 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
         });
 
         return [warehouseTree, pan];
-    }
+    },
+
+
 });
 
+// Заглушка
 App.tab.catalogs.contractors = Ext.extend(Ext.Panel, {
     title: 'Contractors',
     layout: { type: 'vbox', align: 'stretch' },
 
     initComponent: function () {
         Ext.apply(this, {
-            items: [{
-                xtype: 'textfield',
-                title: 'test'
-            }]
+            items: [
+                {
+                    xtype: 'textfield',
+                    title: 'test'
+                }
+            ]
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
@@ -79,9 +86,14 @@ App.tab.catalogs.contractors = Ext.extend(Ext.Panel, {
 
 centerPanel = Ext.extend(Ext.Panel, {
     title: 'Добавить/Удалить узел',
-    region: 'center',
+    flex: 1,
+    region: 'east',
+    collapsible: true,
+    collapsed: true,
     // tree: null,
     bodyPadding: 10,
+    layout: 'form',
+    height: 70,
 
     initComponent: function () {
         Ext.apply(this, {
@@ -108,7 +120,7 @@ centerPanel = Ext.extend(Ext.Panel, {
                     // получаем введенное в текстовое поле значение
                     var newNode = me.getComponent('txt').getValue();
                     // Используем метод appendChild для добавления нового объекта
-                    me.tree.getRootNode().appendChild({
+                    me.tree.getSelectionModel().getSelectedNode().appendChild({
                         text: newNode,
                         leaf: true
                     });
@@ -135,12 +147,14 @@ centerPanel = Ext.extend(Ext.Panel, {
 App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     // title: 'Warehouses',
     enableDD: true,
+    ddGroup: 'treeWs',
     autoScroll: true,
     collapsible: false,
     rootVisible: true,
     centerFrame: true,
     lines: true,
-    region: 'west',
+    region: 'center',
+    flex: 3,
     // autoHeight: true,
     // autoWidth: true,
 
@@ -158,16 +172,37 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     initComponent: function () {
         Ext.apply(this, {
             editor: this.getEditor(),
+            deleter: this.buildDeleter(),
         });
 
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
         this.getRootNode().expand();
+    },
+    buildDD: function () {
+        var me = this;
+        var deleter = me.deleter;
+        // Dd group
+        // used to add records to the destination stores
+        // var blankRecord = Ext.data.Record.create(fields);
+        var firstGridDropTargetEl = me.tree;
+               // This will make sure we only drop to the view container
+               var secondGridDropTargetEl = me.deleter.getView().el.dom.childNodes[0].childNodes[1]
+
+               var destGridDropTarget = new Ext.dd.DropTarget(secondGridDropTargetEl, {
+                   ddGroup: 'deleteZone',
+                   copy: false,
+                   notifyDrop: function (ddSource, e, data) {
+                       console.log('Deleting');
+                   }
+               });
     },
 
     listeners: {
 
         startdrag: function (node, e) {
             e.currentParent = e.parentNode;
+            this.deleter.show();
+            // this.buildDD();
         },
 
         dragdrop(node, dd, e) {
@@ -178,6 +213,10 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             var newParent = e.dragOverData.target.attributes.text;
             Ext.MessageBox.alert(`Old parent : ${oldParent} New: ${newParent}`)
             // };
+        },
+
+        enddrag(){
+            this.deleter.setVisible(false);
         },
 
         dblclick(node, e) {
@@ -228,7 +267,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 }
             }
         );
-
+        
     },
 
     getEditor: function () {
@@ -283,6 +322,32 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
 
         return editor;
     },
+
+    buildDeleter: function () {
+        var deleterWindow = Ext.extend(Ext.Window, {
+            title: 'Удалить узел',
+            width: 200,
+            height: 200,
+            bodyStyle: 'background:transparent;',
+            enableDragDrop: true,
+            ddGroup: 'treeWs',
+
+            initComponent: function(){
+                Ext.apply(this, {
+
+                });
+                deleterWindow.superclass.initComponent.call(this);
+            }
+
+        });
+
+        return new deleterWindow(
+            {
+                ref: 'deleter',
+                parent: this
+            }
+        );
+    }
 
 });
 
