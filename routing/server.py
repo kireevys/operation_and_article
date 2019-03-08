@@ -12,7 +12,7 @@ from config import version
 
 @app.route('/tt')
 def index2():
-    return app.send_static_file('index.html'), 200
+    return app.send_static_file('ext_js_examples/index.html'), 200
 
 
 @app.route('/test', methods=['POST', 'GET'])

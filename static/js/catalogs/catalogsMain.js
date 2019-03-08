@@ -11,7 +11,7 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
         });
 
         App.tab.catalogs.superclass.initComponent.call(this);
-        
+
 
     },
 
@@ -39,7 +39,7 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
     initComponent: function () {
         Ext.apply(this, {
             items: this.buildItems(),
-            
+
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
@@ -89,7 +89,6 @@ centerPanel = Ext.extend(Ext.Panel, {
     flex: 1,
     region: 'east',
     collapsible: true,
-    collapsed: true,
     // tree: null,
     bodyPadding: 10,
     layout: 'form',
@@ -155,19 +154,10 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     lines: true,
     region: 'center',
     flex: 3,
-    // autoHeight: true,
-    // autoWidth: true,
-
-
 
     useArrows: true,
     borderWidth: Ext.isBorderBox ? 0 : 2, // the combined left/right border for each cell
     cls: 'x-treegrid',
-
-    // columnResize: true,
-    // enableSort: true,
-    // reserveScrollOffset: true,
-    // enableHdMenu: true,
 
     initComponent: function () {
         Ext.apply(this, {
@@ -177,32 +167,16 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
 
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
         this.getRootNode().expand();
-    },
-    buildDD: function () {
-        var me = this;
-        var deleter = me.deleter;
-        // Dd group
-        // used to add records to the destination stores
-        // var blankRecord = Ext.data.Record.create(fields);
-        var firstGridDropTargetEl = me.tree;
-               // This will make sure we only drop to the view container
-               var secondGridDropTargetEl = me.deleter.getView().el.dom.childNodes[0].childNodes[1]
-
-               var destGridDropTarget = new Ext.dd.DropTarget(secondGridDropTargetEl, {
-                   ddGroup: 'deleteZone',
-                   copy: false,
-                   notifyDrop: function (ddSource, e, data) {
-                       console.log('Deleting');
-                   }
-               });
+        this.deleter.show(this, this.buildDD, this);
+        
+        // this.deleter.setVisible(false);
     },
 
     listeners: {
 
         startdrag: function (node, e) {
             e.currentParent = e.parentNode;
-            this.deleter.show();
-            // this.buildDD();
+            this.deleter.setDisabled(false);
         },
 
         dragdrop(node, dd, e) {
@@ -211,12 +185,15 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             // if (e.currentParent !== e.parentNode){
             var oldParent = dd.currentParent.attributes.text || null;
             var newParent = e.dragOverData.target.attributes.text;
-            Ext.MessageBox.alert(`Old parent : ${oldParent} New: ${newParent}`)
+            if (oldParent != newParent) {
+                Ext.MessageBox.alert(`Old parent : ${oldParent} New: ${newParent}`)
+            };
+
             // };
         },
 
-        enddrag(){
-            this.deleter.setVisible(false);
+        enddrag() {
+            this.deleter.setDisabled(true);
         },
 
         dblclick(node, e) {
@@ -267,7 +244,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 }
             }
         );
-        
+
     },
 
     getEditor: function () {
@@ -323,22 +300,67 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         return editor;
     },
 
+    buildDD: function () {
+        var me = this;
+
+        // Создаем новую цель для сброса ДД дерева - DOM-кишки окошка
+        var deleterDropTarget = this.deleter.dropZone.getView().scroller.dom;
+        var destGridDropTarget = new Ext.dd.DropTarget(deleterDropTarget, {
+            ddGroup: 'treeWs',
+            copy: true,
+            notifyDrop: function (ddSource, e, data) {
+                console.log(ddSource);
+            }
+        });
+    },
+
     buildDeleter: function () {
+        var me = this;
         var deleterWindow = Ext.extend(Ext.Window, {
             title: 'Удалить узел',
             width: 200,
             height: 200,
             bodyStyle: 'background:transparent;',
-            enableDragDrop: true,
-            ddGroup: 'treeWs',
+            layout: 'fit',
+            region: 'west',
+            closable: false,
 
-            initComponent: function(){
+            initComponent: function () {
                 Ext.apply(this, {
-
+                    items: this.buildItems()
                 });
                 deleterWindow.superclass.initComponent.call(this);
-            }
+            },
 
+            buildItems: function () {
+                var windowScope = this;
+                var grid = new Ext.grid.GridPanel({
+                    store: new Ext.data.ArrayStore({
+                        fields: ['name']
+                    }),
+                    columns: [
+                        {
+                            id: 'name_column',
+                            header: 'Бросать сюда',
+                            dataIndex: 'name',
+                            resizable: false,
+                            width: 200
+                        }
+                    ],
+                    viewConfig: {
+                        forceFit: true
+                    },
+                    id: 'grid',
+                    // title: 'Корзина',
+                    region: 'center',
+                    layout: 'fit',
+                    enableDragDrop: true,
+                    ddGroup: 'treeWs',
+                    parent: windowScope,
+                    ref: 'dropZone'
+                });
+                return [grid,];
+            },
         });
 
         return new deleterWindow(
@@ -350,5 +372,3 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     }
 
 });
-
-// TODO: Вынести в контроллер
