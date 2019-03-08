@@ -83,66 +83,6 @@ App.tab.catalogs.contractors = Ext.extend(Ext.Panel, {
     },
 });
 
-
-centerPanel = Ext.extend(Ext.Panel, {
-    title: 'Добавить/Удалить узел',
-    flex: 1,
-    region: 'east',
-    collapsible: true,
-    // tree: null,
-    bodyPadding: 10,
-    layout: 'form',
-    height: 70,
-
-    initComponent: function () {
-        Ext.apply(this, {
-            items: this.buildItems()
-
-        });
-
-        centerPanel.superclass.initComponent.call(this);
-    },
-
-    buildItems: function () {
-        var me = this;
-        var items = [
-            {
-                xtype: 'textfield',
-                id: 'txt',
-                height: 20,
-            }, {
-                xtype: 'button',
-                width: 60,
-                height: 20,
-                text: 'Добавить',
-                handler: function () {
-                    // получаем введенное в текстовое поле значение
-                    var newNode = me.getComponent('txt').getValue();
-                    // Используем метод appendChild для добавления нового объекта
-                    me.tree.getSelectionModel().getSelectedNode().appendChild({
-                        text: newNode,
-                        leaf: true
-                    });
-                }
-            }, {
-                xtype: 'button',
-                width: 60,
-                height: 20,
-                margin: '0 0 0 20',
-                text: 'Удалить',
-                handler: function () {
-                    // получаем выделенный узел для удаления
-                    var selectedNode = me.tree.getSelectionModel().getSelection()[0];
-                    // если таковой имеется, то удаляем
-                    if (selectedNode) {
-                        selectedNode.remove(true);
-                    }
-                }
-            }];
-        return items;
-    }
-});
-
 App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     // title: 'Warehouses',
     enableDD: true,
@@ -168,7 +108,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
         this.getRootNode().expand();
         this.deleter.show(this, this.buildDD, this);
-        
+
         // this.deleter.setVisible(false);
     },
 
@@ -315,54 +255,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     },
 
     buildDeleter: function () {
-        var me = this;
-        var deleterWindow = Ext.extend(Ext.Window, {
-            title: 'Удалить узел',
-            width: 200,
-            height: 200,
-            bodyStyle: 'background:transparent;',
-            layout: 'fit',
-            region: 'west',
-            closable: false,
-
-            initComponent: function () {
-                Ext.apply(this, {
-                    items: this.buildItems()
-                });
-                deleterWindow.superclass.initComponent.call(this);
-            },
-
-            buildItems: function () {
-                var windowScope = this;
-                var grid = new Ext.grid.GridPanel({
-                    store: new Ext.data.ArrayStore({
-                        fields: ['name']
-                    }),
-                    columns: [
-                        {
-                            id: 'name_column',
-                            header: 'Бросать сюда',
-                            dataIndex: 'name',
-                            resizable: false,
-                            width: 200
-                        }
-                    ],
-                    viewConfig: {
-                        forceFit: true
-                    },
-                    id: 'grid',
-                    // title: 'Корзина',
-                    region: 'center',
-                    layout: 'fit',
-                    enableDragDrop: true,
-                    ddGroup: 'treeWs',
-                    parent: windowScope,
-                    ref: 'dropZone'
-                });
-                return [grid,];
-            },
-        });
-
         return new deleterWindow(
             {
                 ref: 'deleter',
