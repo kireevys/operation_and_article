@@ -197,3 +197,12 @@ def add_ws():
         return traceback.format_exc(limit=1), 409
     else:
         return 'ok', 200
+
+@app.route('/move_warehouse', methods=['POST', ])
+def move_warehouse():
+    try:
+        WarehouseTools.move_warehouse(**request.form.to_dict())
+    except Exception as e:
+        return traceback.format_exc(limit=1), 409
+    else:
+        return 'ok', 200

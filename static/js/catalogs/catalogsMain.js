@@ -126,7 +126,11 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             var oldParent = dd.currentParent.attributes.text || null;
             var newParent = e.dragOverData.target.attributes.text;
             if (oldParent != newParent) {
-                Ext.MessageBox.alert(`Old parent : ${oldParent} New: ${newParent}`)
+                this.moveWs(dd, e.dragOverData.target);
+                Ext.MessageBox.alert(`Old parent : ${oldParent} New: ${newParent}`);
+            }
+            else {
+                this.getRootNode().reload();
             };
 
             // };
@@ -142,30 +146,32 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
 
         beforenodedrop(dropEvent) {
             var me = this;
-            Ext.MessageBox.prompt(
-                'Введите имя',
-                'Имя нового элемента',
-                function (btn, text, mb) {
-                    if (btn == 'ok') {
-                        var newNode = dropEvent.dropNode
-                        me.parent.centerPan.getRootNode().reload();
-                        newNode.setText(text || dropEvent.dropNode.text);
-                        me.addWs(newNode);
+            if (dropEvent.source.tree != this) {
+                Ext.MessageBox.prompt(
+                    'Введите имя',
+                    'Имя нового элемента',
+                    function (btn, text, mb) {
+                        if (btn == 'ok') {
+                            var newNode = dropEvent.dropNode
+                            me.parent.centerPan.getRootNode().reload();
+                            newNode.setText(text || dropEvent.dropNode.text);
+                            me.addWs(newNode);
+                        }
+                        else {
+                            Ext.MessageBox.show(
+                                {
+                                    title: 'Операция отменена',
+                                    msg: 'Новый элемент не создан',
+                                    icon: Ext.MessageBox.WARNING,
+                                    buttons: Ext.MessageBox.OK
+                                }
+                            );
+                            me.parent.centerPan.getRootNode().reload();
+                            me.getRootNode().reload();
+                        }
                     }
-                    else {
-                        Ext.MessageBox.show(
-                            {
-                                title: 'Операция отменена',
-                                msg: 'Новый элемент не создан',
-                                icon: Ext.MessageBox.WARNING,
-                                buttons: Ext.MessageBox.OK
-                            }
-                        );
-                        me.parent.centerPan.getRootNode().reload();
-                        me.getRootNode().reload();
-                    }
-                }
-            );
+                );
+            };
         },
     },
 
@@ -182,7 +188,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         var editData = this.editNode.attributes
         // TODO: Месседж Бокс не умеет в перевод строки?
         var message = `Старое : ${oldText}\nНовое : ${newText}`
-        console.log(message)
         // this.parent.addToChanged(this.editNode);
         var title = 'Вы уверены?'
         Ext.Msg.show(
@@ -251,7 +256,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                             }
                         );
                     },
-                    callback: function(){
+                    callback: function () {
                         me.getRootNode().reload();
                     }
                 });
@@ -308,7 +313,10 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         Ext.Ajax.request({
             url: 'add_ws',
             method: 'POST',
-            params: { id_higher: parent.attributes.id_ws || null, name: node.text },
+            params: {
+                id_higher: parent.attributes.id_ws || null,
+                name: node.text
+            },
             success: function (response, options) {
                 Ext.Msg.show(
                     {
@@ -336,8 +344,39 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         });
     },
 
-    moveWs: function (node) {
-        console.log(node.text);
+    moveWs: function (node, newParent) {
+        var me = this;
+        Ext.Ajax.request({
+            url: 'move_warehouse',
+            method: 'POST',
+            params: {
+                id_ws: node.attributes.id_ws,
+                id_higher: newParent.attributes.id_ws || null
+            },
+            success: function (response, options) {
+                Ext.Msg.show(
+                    {
+                        title: 'Операция успешна',
+                        msg: 'Родитель изменен',
+                        icon: Ext.MessageBox.INFO,
+                        buttons: Ext.MessageBox.OK
+                    }
+                );
+            },
+            failure: function (response, options) {
+                Ext.MessageBox.show(
+                    {
+                        title: 'Не удалось',
+                        msg: 'Не удалось изменить родителя',
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.OK
+                    }
+                );
+            },
+            callback: function () {
+                me.getRootNode().reload();
+            }
+        });
     },
 
     deleteWs: function (node) {

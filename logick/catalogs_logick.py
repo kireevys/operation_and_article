@@ -32,3 +32,13 @@ class WarehouseTools(Warehouse):
         ws.id_higher.set_value(id_higher)
         ws.insert()
         return True
+
+    @staticmethod
+    def move_warehouse(id_ws, id_higher):
+        if id_higher == '':
+            id_higher = None
+        ws = Warehouse()
+        ws = ws.select_expression(id_ws=id_ws)[0]
+        ws.id_higher.set_value(id_higher)
+        ws.update_data()
+        return True
