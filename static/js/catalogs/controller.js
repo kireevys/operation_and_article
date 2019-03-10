@@ -6,7 +6,8 @@ var deleterWindow = Ext.extend(Ext.Window, {
     layout: 'fit',
     region: 'west',
     closable: false,
-
+    disabled: true,
+    
     initComponent: function () {
         Ext.apply(this, {
             items: this.buildItems()
@@ -45,52 +46,34 @@ var deleterWindow = Ext.extend(Ext.Window, {
     },
 });
 
-var tree = new Ext.tree.TreePanel({
-    loader: new Ext.tree.TreeLoader({
-        preloadChildren: true
-    }),
-    enableDD: true,
-    ddGroup: 'treeWs',
-    id: 'tree',
-    region: 'east',
-    title: 'Список товаров',
-    layout: 'fit',
-    width: 300,
-    split: true,
-    collapsible: true,
-    autoScroll: true,
-});
-
 var centerPanel = Ext.extend(Ext.tree.TreePanel, {
     title: 'Добавить узел',
     flex: 1,
     region: 'east',
-    // rootVisible: false,
-    enableDD: true,
+    rootVisible: false,
+    enableDrag: true,
     copy: true,
     ddGroup: 'treeWs',
     collapsible: false,
+    useArrows: true,
     // bodyPadding: 10,
     layout: 'form',
-    // height: 70,
+    width: 150,
+    dataUrl: 'get_adder_warehouse',
     root: {
-        text: 'Товары',
+        nodeType: 'async',
+        text: 'new_ws',
         id: 'root',
-        expanded: true,
-        children: [{
-            text: 'Новая нода',
-            disable: true,
-            expanded: false,
-        }, {
-            text: 'Новый магазин',
-            leaf: true,
-            price: 7000,
-            unit: 'бут'
-        }]
+        draggable: false
     },
-    loader: new Ext.tree.TreeLoader({
-        preloadChildren: true
-    }),
+
+
+//    listeners: {
+//         enddrag(a, b, c) {
+            // this.superclass.enddrag(a, b, c);
+//             this.getRootNode().reload();
+//         },
+//     }, 
 
     initComponent: function () {
         Ext.apply(this, {

@@ -8,6 +8,7 @@ from models.tables import OpType, Contractor, Warehouse, OpStatus, Articles
 from datetime import datetime
 from logs import debug_logger
 from config import version
+import traceback
 
 
 @app.route('/tt')
@@ -152,7 +153,8 @@ def get_articles():
             order by a.id_art;'''
     result = sess.execute(sql, dict(id_op=id_op)).fetchall()
     opart = []
-    fields = ['id_opart', 'id_op', 'id_art', 'name', 'op_price', 'price', 'quantity', 'summ']
+    fields = ['id_opart', 'id_op', 'id_art', 'name',
+              'op_price', 'price', 'quantity', 'summ']
     for row in result:
         row_dict = {k: v for k, v in zip(fields, row)}
         opart.append(row_dict)
@@ -167,3 +169,31 @@ def edit_opart():
     op = OperationTools()
     op.edit_op_art(**opart_data)
     return 'OK', 200
+
+
+@app.route('/get_adder_warehouse', methods=['POST', ])
+def get_adder_warehouse():
+    data = dict(text='Новый магазин',
+                leaf=True)
+    tree = [data,]
+    return json.dumps(tree), 200
+
+@app.route('/delete_ws', methods=['POST', ])
+def delete_ws():
+    ws_tool = WarehouseTools()
+    try:
+        ws_tool.delete_warehouse(**request.form.to_dict())
+    except Exception as e:
+        return traceback.format_exc(limit=1), 409
+    else:
+        return 'OK', 200
+
+
+@app.route('/add_ws', methods=['POST', ])
+def add_ws():
+    try:
+        WarehouseTools.add_warehouse(**request.form.to_dict())
+    except Exception as e:
+        return traceback.format_exc(limit=1), 409
+    else:
+        return 'ok', 200

@@ -139,6 +139,34 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         dblclick(node, e) {
             this.onTreeNodeDblClick(node);
         },
+
+        beforenodedrop(dropEvent) {
+            var me = this;
+            Ext.MessageBox.prompt(
+                'Введите имя',
+                'Имя нового элемента',
+                function (btn, text, mb) {
+                    if (btn == 'ok') {
+                        var newNode = dropEvent.dropNode
+                        me.parent.centerPan.getRootNode().reload();
+                        newNode.setText(text || dropEvent.dropNode.text);
+                        me.addWs(newNode);
+                    }
+                    else {
+                        Ext.MessageBox.show(
+                            {
+                                title: 'Операция отменена',
+                                msg: 'Новый элемент не создан',
+                                icon: Ext.MessageBox.WARNING,
+                                buttons: Ext.MessageBox.OK
+                            }
+                        );
+                        me.parent.centerPan.getRootNode().reload();
+                        me.getRootNode().reload();
+                    }
+                }
+            );
+        },
     },
 
     onTreeNodeDblClick: function (n) {
@@ -178,8 +206,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                     }
                     else if (buttonId == 'ok') {
                         me.setNewWsName(me.editNode);
-                        // TODO: Надо понять, как выполнять эту функцию ПОСЛЕ изменений на бэке
-                        // me.parent.getRootNode().reload();
                     }
                 }
             }
@@ -214,12 +240,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                                 buttons: Ext.MessageBox.OK
                             }
                         );
-                        me.getRootNode().reload();
-                        // Так делать нельзя, 
-                        // потому что подтягиваются новые реальные состояния ноды, 
-                        // а вдруг что то переместили до того, как переименовать? 
-                        // Будут дубли
-                        // node.reload()
                     },
                     failure: function (response, options) {
                         Ext.MessageBox.show(
@@ -230,8 +250,9 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                                 buttons: Ext.MessageBox.OK
                             }
                         );
+                    },
+                    callback: function(){
                         me.getRootNode().reload();
-                        // node.reload()
                     }
                 });
             },
@@ -249,7 +270,105 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             ddGroup: 'treeWs',
             copy: true,
             notifyDrop: function (ddSource, e, data) {
-                console.log(ddSource);
+                if (ddSource.tree.ref == 'warehouses') {
+                    var data = data;
+                    Ext.Msg.show(
+                        {
+                            title: 'Удалить',
+                            msg: 'Вы хотите удалить этот элемент?',
+                            buttons: Ext.Msg.OKCANCEL,
+                            icon: Ext.MessageBox.QUESTION,
+                            animEl: 'elId',
+                            fn: function (buttonId, text) {
+                                if (buttonId == 'cancel') {
+                                    Ext.MessageBox.show(
+                                        {
+                                            title: 'Операция отменена',
+                                            msg: 'Удаление отменено',
+                                            icon: Ext.MessageBox.WARNING,
+                                            buttons: Ext.MessageBox.OK
+                                        }
+                                    );
+                                }
+                                else if (buttonId == 'ok') {
+                                    me.deleteWs(me.getSelectionModel().selNode);
+                                }
+                            }
+                        }
+                    );
+                }
+            }
+        });
+    },
+
+    addWs: function (node) {
+        var parent = node.parentNode;
+        var me = this;
+        var node = node;
+        Ext.Ajax.request({
+            url: 'add_ws',
+            method: 'POST',
+            params: { id_higher: parent.attributes.id_ws || null, name: node.text },
+            success: function (response, options) {
+                Ext.Msg.show(
+                    {
+                        title: 'Операция успешна',
+                        msg: 'Добавлено ' + node.attributes.text,
+                        icon: Ext.MessageBox.INFO,
+                        buttons: Ext.MessageBox.OK
+                    }
+                );
+            },
+            failure: function (response, options) {
+                var msg = response.responseText || 'Не удалось добавить данные'
+                Ext.MessageBox.show(
+                    {
+                        title: 'Не удалось',
+                        msg: msg,
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.OK
+                    }
+                );
+            },
+            callback: function () {
+                me.getRootNode().reload();
+            }
+        });
+    },
+
+    moveWs: function (node) {
+        console.log(node.text);
+    },
+
+    deleteWs: function (node) {
+        var me = this;
+        var parent = node.parentNode;
+        Ext.Ajax.request({
+            url: 'delete_ws',
+            method: 'POST',
+            params: { id_ws: node.attributes.id_ws, name: node.attributes.text },
+            success: function (response, options) {
+                Ext.Msg.show(
+                    {
+                        title: 'Операция успешна',
+                        msg: 'Удалено ' + node.attributes.text,
+                        icon: Ext.MessageBox.INFO,
+                        buttons: Ext.MessageBox.OK
+                    }
+                );
+            },
+            failure: function (response, options) {
+                Ext.MessageBox.show(
+                    {
+                        title: 'Не удалось удалить данные',
+                        msg: 'Удалить не удалось',
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.OK
+                    }
+                );
+            },
+            callback: function () {
+                me.getRootNode().reload();
             }
         });
     },
