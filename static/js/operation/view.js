@@ -24,38 +24,53 @@ App.tab.operationPanel = Ext.extend(Ext.Panel, {
 
 });
 
-// var filters = new Ext.ux.grid.GridFilters({
-//     // encode and local configuration options defined previously for easier reuse
-//     encode: true, // json encode the filter query
-//     local: true,   // defaults to false (remote filtering)
-//     filters: [{
-//         type: 'numeric',
-//         dataIndex: 'id'
-//     }, {
-//         type: 'string',
-//         dataIndex: 'company',
-//         disabled: true
-//     }, {
-//         type: 'numeric',
-//         dataIndex: 'price'
-//     }, {
-//         type: 'date',
-//         dataIndex: 'date'
-//     }, {
-//         type: 'list',
-//         dataIndex: 'size',
-//         options: ['small', 'medium', 'large', 'extra large'],
-//         phpMode: true
-//     }, {
-//         type: 'boolean',
-//         dataIndex: 'visible'
-//     }]
+// var store = new Ext.data.ArrayStore({
+//     // store configs
+//     autoDestroy: true,
+//     storeId: 'myStore',
+//     url: 'get_optypes_arr',
+//     // reader configs
+//     idIndex: 0,
+//     fields: [
+//         { name: 'id_types', type: 'numeric' },
+//         { name: 'name', type: 'string' },
+//     ]
 // });
+// store.load();
+
+var filters = new Ext.ux.grid.GridFilters({
+    // encode and local configuration options defined previously for easier reuse
+    // encode: true, // json encode the filter query
+    local: true,   // defaults to false (remote filtering)
+    filters: [{
+        type: 'numeric',
+        dataIndex: 'id_op'
+    }, {
+        type: 'string',
+        dataIndex: 'contr_name',
+    }, {
+        type: 'list',
+        dataIndex: 'optype',
+        options: ['От поставщика',
+            'На гипермаркете',
+            'На у дома',
+            'На косметике',
+            'На аптеке',
+            'Складская',
+            'Приход',],
+        showMenu: true
+    }, {
+        type: 'date',
+        dataIndex: 'opdate'
+    }
+    ]
+});
 
 App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     title: 'Operations',
     flex: 3,
     stripeRows: true,
+    plugins: filters,
 
     initComponent: function () {
         Ext.apply(this, {
@@ -73,12 +88,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         var operationColumns = new Ext.grid.ColumnModel({
             columns: [
                 { header: 'id_op', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
-                {
-                    header: 'opdate', dataIndex: 'opdate', filter: {
-                        type: 'LIST',
-                        value: ['1']
-                    }
-                },
+                { header: 'opdate', dataIndex: 'opdate', type: 'date', renderer: Ext.util.Format.dateRenderer('d-m-Y'), },
                 { header: 'code', dataIndex: 'code' },
                 { header: 'id_status', dataIndex: 'id_status', hidden: true },
                 { header: 'status', dataIndex: 'status', width: 150 },
@@ -89,10 +99,10 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                 { header: 'doccount', dataIndex: 'doccount' },
                 { header: 'id_rack', dataIndex: 'id_rack' },
                 { header: 'id_contr', dataIndex: 'id_contr', hidden: true },
-                { header: 'contr_name', dataIndex: 'contr_name'},
+                { header: 'contr_name', dataIndex: 'contr_name' },
                 { header: 'inn', dataIndex: 'inn', hidden: true },
                 { header: 'id_ws', dataIndex: 'id_ws', hidden: true },
-                { header: 'ws_name', dataIndex: 'ws_name'},
+                { header: 'ws_name', dataIndex: 'ws_name' },
 
             ],
             defaults: {
@@ -179,7 +189,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     buildFields: function () {
         var opFields = [
             { name: 'id_op', mapping: 'id_op' },
-            { name: 'opdate', mapping: 'opdate' },
+            { name: 'opdate', mapping: 'opdate', type: 'date' },
             { name: 'code', mapping: 'code' },
             { name: 'id_status', mapping: 'id_status' },
             { name: 'status', mapping: 'status' },
@@ -474,6 +484,20 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
     },
 });
 
+var opArtFilters = new Ext.ux.grid.GridFilters({
+    // encode and local configuration options defined previously for easier reuse
+    // encode: true, // json encode the filter query
+    local: true,   // defaults to false (remote filtering)
+    filters: [{
+        type: 'numeric',
+        dataIndex: 'id_art'
+    }, {
+        type: 'string',
+        dataIndex: 'name'
+    }
+    ]
+});
+
 App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     flex: 3,
     height: 250,
@@ -482,7 +506,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     enableDragDrop: true,
     stripeRows: true,
     title: 'Current opart',
-
+    plugins: opArtFilters,
 
     initComponent: function () {
         Ext.applyIf(this, {
@@ -688,6 +712,20 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 });
 
+var artFilters = new Ext.ux.grid.GridFilters({
+    // encode and local configuration options defined previously for easier reuse
+    // encode: true, // json encode the filter query
+    local: true,   // defaults to false (remote filtering)
+    filters: [{
+        type: 'numeric',
+        dataIndex: 'id_art'
+    }, {
+        type: 'string',
+        dataIndex: 'name'
+    }
+    ]
+});
+
 App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     flex: 1,
     height: 250,
@@ -696,6 +734,8 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     stripeRows: true,
     title: 'Articles',
     collapsible: true,
+    plugins: artFilters,
+
     initComponent: function () {
         Ext.apply(this, {
             colModel: this.buildColModel(),

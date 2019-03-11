@@ -65,8 +65,15 @@ def send_op_art():
     return json.dumps(all_art), 200
 
 
-@app.route('/get_optypes')
+@app.route('/get_optypes_arr')
 def get_optypes():
+    optype = OpType()
+    types = optype.select_expression()
+    s = [[1, 'test1'], [2, 'test2']]
+    return json.dumps(s), 200
+
+@app.route('/get_optypes')
+def get_optypes_arr():
     optype = OpType()
     types = optype.select_expression()
     types = optype.db_obj_to_dict(*types)
@@ -175,8 +182,9 @@ def edit_opart():
 def get_adder_warehouse():
     data = dict(text='Новый магазин',
                 leaf=True)
-    tree = [data,]
+    tree = [data, ]
     return json.dumps(tree), 200
+
 
 @app.route('/delete_ws', methods=['POST', ])
 def delete_ws():
@@ -197,6 +205,7 @@ def add_ws():
         return traceback.format_exc(limit=1), 409
     else:
         return 'ok', 200
+
 
 @app.route('/move_warehouse', methods=['POST', ])
 def move_warehouse():

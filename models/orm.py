@@ -1,4 +1,4 @@
-from sqlite3 import connect, IntegrityError
+from sqlite3 import connect, IntegrityError, Row
 from jinja2 import Template
 from config import db_path as config_path_db
 from logs import db_logger, debug_logger
@@ -101,6 +101,7 @@ class Base(TableRow):
     """
     db_path = config_path_db
     conn = connect(db_path)
+    conn.row_factory = Row
 
     @staticmethod
     def get_template(filename):

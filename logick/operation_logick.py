@@ -1,6 +1,7 @@
 from models.tables import Operation, OpArt, Articles
 from datetime import datetime as dt
 from logs import db_logger
+from datetime import datetime
 
 
 class OperationTools(Operation):
@@ -112,13 +113,15 @@ class OperationTools(Operation):
 
     def get_operation_grid(self):
         sql = self.get_template('operation_grid.sql').render()
-        grid = self.get_new_session().execute(sql).fetchall()
+        # grid = self.get_new_session().execute(sql).fetchall()
         operation_grid = []
         fields = ['id_op', 'opdate', 'code', 'id_status',
                   'status', 'id_type', 'optype', 'id_ws',
                   'id_contr', 'opsumm', 'gm_res', 'doccount',
                   'id_rack', 'contr_name', 'inn', 'ws_name']
-        for row in grid:
+        for row in self.get_new_session().execute(sql):
+            # row = list(row)
+            # row[1] = datetime.strptime(row[1], '%Y-%m-%d').isoformat()
             row_dict = {k: v for k, v in zip(fields, row)}
             operation_grid.append(row_dict)
         to_dict = dict(operation=operation_grid)
