@@ -70,7 +70,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 ];
 
                 for (var i in allFields) {
-                    if (i === 'remove'){break};
+                    if (i === 'remove') { break };
                     var currentField = allFields[i];
                     var fildObj = Ext.getCmp(currentField.id);
                     fildObj.setValue(null);

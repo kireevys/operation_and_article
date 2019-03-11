@@ -1,30 +1,48 @@
-var deleterWindow = Ext.extend(Ext.Window, {
-    title: 'Удалить узел',
-    width: 200,
-    height: 200,
-    bodyStyle: 'background:transparent;',
-    layout: 'fit',
+var centerPanel = Ext.extend(Ext.tree.TreePanel, {
+    title: 'Управление МХ',
+
+    enableDrag: true,
+    ddGroup: 'treeWs',
+    copy: true,
+
+    collapsible: false,
+
+    flex: 1,
+    width: 150,
     region: 'west',
-    closable: false,
-    disabled: true,
-    
+
+    dataUrl: 'get_adder_warehouse',
+    root: {
+        nodeType: 'async',
+        text: 'new_ws',
+        id: 'root',
+        draggable: false
+    },
+    rootVisible: false,
+
     initComponent: function () {
         Ext.apply(this, {
             items: this.buildItems()
+
         });
-        deleterWindow.superclass.initComponent.call(this);
+
+        centerPanel.superclass.initComponent.call(this);
     },
 
     buildItems: function () {
-        var windowScope = this;
-        var grid = new Ext.grid.GridPanel({
+        var me = this;
+        // TODO: Вынести отсюда, здесь только создавать экземпляр
+        var grid = Ext.extend(Ext.grid.GridPanel, {
+            height: 200,
+            disabled: true,
+
             store: new Ext.data.ArrayStore({
                 fields: ['name']
             }),
             columns: [
                 {
                     id: 'name_column',
-                    header: 'Бросать сюда',
+                    header: 'Удалить узел',
                     dataIndex: 'name',
                     resizable: false,
                     width: 200
@@ -34,53 +52,53 @@ var deleterWindow = Ext.extend(Ext.Window, {
                 forceFit: true
             },
             id: 'grid',
-            // title: 'Корзина',
-            region: 'center',
-            layout: 'fit',
             enableDragDrop: true,
             ddGroup: 'treeWs',
-            parent: windowScope,
-            ref: 'dropZone'
+
+            buildDD: function () {
+                var me = this;
+
+                // Создаем новую цель для сброса ДД дерева - DOM-кишки окошка удаления
+                var deleterDropTarget = me.centerPan.dropZone.getView().scroller.dom;
+                var destGridDropTarget = new Ext.dd.DropTarget(deleterDropTarget, {
+                    ddGroup: 'treeWs',
+                    copy: true,
+                    notifyDrop: function (ddSource, e, data) {
+                        if (ddSource.tree.ref == 'warehouses') {
+                            var data = data;
+                            Ext.Msg.show(
+                                {
+                                    title: 'Удалить',
+                                    msg: 'Вы хотите удалить этот элемент?',
+                                    buttons: Ext.Msg.OKCANCEL,
+                                    icon: Ext.MessageBox.QUESTION,
+                                    animEl: 'elId',
+                                    fn: function (buttonId, text) {
+                                        if (buttonId == 'cancel') {
+                                            Ext.MessageBox.show(
+                                                {
+                                                    title: 'Операция отменена',
+                                                    msg: 'Удаление отменено',
+                                                    icon: Ext.MessageBox.WARNING,
+                                                    buttons: Ext.MessageBox.OK
+                                                }
+                                            );
+                                        }
+                                        else if (buttonId == 'ok') {
+                                            me.warehouses.deleteWs(me.warehouses.getSelectionModel().selNode);
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                    }
+                });
+            },
         });
-        return [grid,];
-    },
-});
 
-var centerPanel = Ext.extend(Ext.tree.TreePanel, {
-    title: 'Добавить узел',
-    flex: 1,
-    region: 'east',
-    rootVisible: false,
-    enableDrag: true,
-    copy: true,
-    ddGroup: 'treeWs',
-    collapsible: false,
-    useArrows: true,
-    // bodyPadding: 10,
-    layout: 'form',
-    width: 150,
-    dataUrl: 'get_adder_warehouse',
-    root: {
-        nodeType: 'async',
-        text: 'new_ws',
-        id: 'root',
-        draggable: false
-    },
-
-
-//    listeners: {
-//         enddrag(a, b, c) {
-            // this.superclass.enddrag(a, b, c);
-//             this.getRootNode().reload();
-//         },
-//     }, 
-
-    initComponent: function () {
-        Ext.apply(this, {
-            // items: this.buildItems()
-
-        });
-
-        centerPanel.superclass.initComponent.call(this);
-    },
+        return [new grid({
+            parent: me.centerPan,
+            ref: 'dropZone',
+        })];
+    }
 });

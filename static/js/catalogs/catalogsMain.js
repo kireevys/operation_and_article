@@ -13,6 +13,7 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
         App.tab.catalogs.superclass.initComponent.call(this);
 
 
+
     },
 
     buildItems: function () {
@@ -22,7 +23,12 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
                 ref: 'contractors',
                 parent: this
             });
-        var warehouses = new App.tab.catalogs.warehous()
+        var warehouses = new App.tab.catalogs.warehous(
+            {
+                ref: 'warehouses',
+                parent: this
+            }
+        );
 
         var catalogsView = [
             contractors,
@@ -44,6 +50,7 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
         this.centerPan.tree = this.warehouses;
+        this.centerPan.dropZone.on('afterrender', this.centerPan.dropZone.buildDD, this);
     },
 
     buildItems: function () {
@@ -71,15 +78,39 @@ App.tab.catalogs.contractors = Ext.extend(Ext.Panel, {
 
     initComponent: function () {
         Ext.apply(this, {
-            items: [
-                {
-                    xtype: 'textfield',
-                    title: 'test'
-                }
-            ]
+            colModel: this.buildColModel(),
+            store: this.buildStore()
+            // fields: this.getFields(),
+
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
+    },
+
+    buildColModel: function () {
+        return contractorsColumn;
+    },
+
+    // getFields: function () {
+    //     return fields;
+    // },
+
+    buildStore: function () {
+        var caStore = new Ext.data.JsonStore({
+            fields: [
+                'id_contr',
+                'name',],
+            proxy: new Ext.data.HttpProxy({
+                api: {
+                    read: {
+                        url: 'get_contractors',
+                        method: 'GET'
+                    }
+                }
+            }),
+            root: 'contractors',
+        });
+        return caStore;
     },
 });
 
@@ -102,12 +133,13 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     initComponent: function () {
         Ext.apply(this, {
             editor: this.getEditor(),
-            deleter: this.buildDeleter(),
+            // deleter: this.buildDeleter(),
         });
 
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
         this.getRootNode().expand();
-        this.deleter.show(this, this.buildDD, this);
+
+        // this.deleter.show(this, this.buildDD, this);
 
         // this.deleter.setVisible(false);
     },
@@ -116,7 +148,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
 
         startdrag: function (node, e) {
             e.currentParent = e.parentNode;
-            this.deleter.setDisabled(false);
+            this.parent.centerPan.dropZone.setDisabled(false);
         },
 
         dragdrop(node, dd, e) {
@@ -137,7 +169,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         },
 
         enddrag() {
-            this.deleter.setDisabled(true);
+            this.parent.centerPan.dropZone.setDisabled(true);
         },
 
         dblclick(node, e) {
@@ -266,46 +298,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         return editor;
     },
 
-    buildDD: function () {
-        var me = this;
-
-        // Создаем новую цель для сброса ДД дерева - DOM-кишки окошка
-        var deleterDropTarget = this.deleter.dropZone.getView().scroller.dom;
-        var destGridDropTarget = new Ext.dd.DropTarget(deleterDropTarget, {
-            ddGroup: 'treeWs',
-            copy: true,
-            notifyDrop: function (ddSource, e, data) {
-                if (ddSource.tree.ref == 'warehouses') {
-                    var data = data;
-                    Ext.Msg.show(
-                        {
-                            title: 'Удалить',
-                            msg: 'Вы хотите удалить этот элемент?',
-                            buttons: Ext.Msg.OKCANCEL,
-                            icon: Ext.MessageBox.QUESTION,
-                            animEl: 'elId',
-                            fn: function (buttonId, text) {
-                                if (buttonId == 'cancel') {
-                                    Ext.MessageBox.show(
-                                        {
-                                            title: 'Операция отменена',
-                                            msg: 'Удаление отменено',
-                                            icon: Ext.MessageBox.WARNING,
-                                            buttons: Ext.MessageBox.OK
-                                        }
-                                    );
-                                }
-                                else if (buttonId == 'ok') {
-                                    me.deleteWs(me.getSelectionModel().selNode);
-                                }
-                            }
-                        }
-                    );
-                }
-            }
-        });
-    },
-
     addWs: function (node) {
         var parent = node.parentNode;
         var me = this;
@@ -412,13 +404,13 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         });
     },
 
-    buildDeleter: function () {
-        return new deleterWindow(
-            {
-                ref: 'deleter',
-                parent: this
-            }
-        );
-    }
+    // buildDeleter: function () {
+    //     return new deleterWindow(
+    //         {
+    //             ref: 'deleter',
+    //             parent: this
+    //         }
+    //     );
+    // }
 
 });
