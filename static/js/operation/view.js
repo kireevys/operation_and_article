@@ -24,20 +24,6 @@ App.tab.operationPanel = Ext.extend(Ext.Panel, {
 
 });
 
-// var store = new Ext.data.ArrayStore({
-//     // store configs
-//     autoDestroy: true,
-//     storeId: 'myStore',
-//     url: 'get_optypes_arr',
-//     // reader configs
-//     idIndex: 0,
-//     fields: [
-//         { name: 'id_types', type: 'numeric' },
-//         { name: 'name', type: 'string' },
-//     ]
-// });
-// store.load();
-
 var filters = new Ext.ux.grid.GridFilters({
     // encode and local configuration options defined previously for easier reuse
     // encode: true, // json encode the filter query
@@ -139,17 +125,18 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         });
 
         var operationControl = new Ext.Toolbar({
-            height: 40,
+            height: 50,
             layout: 'hbox',
             ref: 'opControl',
             parent: me,
             buttons: [
                 {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
-                    text: 'Up status',
+                    // text: 'Up status',
+                    iconCls: 'action-up',
                     ref: 'up',
                     flex: 1,
-                    height: 35,
+                    height: 55,
                     parent: this,
                     disabled: true,
                     handler: function () {
@@ -157,10 +144,11 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                     }
                 }, {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
-                    text: 'Down status',
+                    //  text: 'Down status',
+                    iconCls: 'action-down',
                     ref: 'down',
                     flex: 1,
-                    height: 35,
+                    height: 55,
                     parent: this,
                     disabled: true,
                     handler: function () {
@@ -168,7 +156,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                     }
                 }, {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
-                    text: 'Delete op',
+                    // text: 'Delete op',
+                    iconCls: 'action-trash',
                     ref: 'del',
                     flex: 1,
                     height: 35,
@@ -524,14 +513,15 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     buildToolBar: function () {
         var me = this;
         var opToolbar = new Ext.Toolbar({
-            height: 40,
+            height: 55,
             layout: 'border',
             ref: 'opArtBar',
             parent: me,
             items: [
                 new Ext.Button({
-                    text: 'Update opart',
+                    // text: 'Update opart',
                     // anchor: '50% 50%',
+                    iconCls: 'action-save',
                     region: 'west',
                     disabled: true,
                     handler: function () {

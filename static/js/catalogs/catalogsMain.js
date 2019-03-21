@@ -1,7 +1,7 @@
 // Вложенная таб панель справочников
 App.tab.catalogs = Ext.extend(Ext.TabPanel, {
     title: 'Справочники',
-    activeTab: 1,
+    activeTab: 0,
     tabPosition: 'top',
 
     initComponent: function () {
@@ -39,7 +39,7 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
 });
 
 App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
-    title: 'warehous',
+    title: 'Места хранения',
     layout: 'border',
 
     initComponent: function () {
@@ -49,7 +49,7 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
-        this.centerPan.tree = this.warehouses;
+        // this.centerPan.tree = this.warehouses;
         this.centerPan.dropZone.on('afterrender', this.centerPan.dropZone.buildDD, this);
     },
 
@@ -72,15 +72,18 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
 });
 
 // Заглушка
-App.tab.catalogs.contractors = Ext.extend(Ext.Panel, {
-    title: 'Contractors',
+App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
+    title: 'Контрагенты',
     layout: { type: 'vbox', align: 'stretch' },
+    stripeRows: true,
+    disableSelection : false,
+    columnLines : true,
 
     initComponent: function () {
         Ext.apply(this, {
             colModel: this.buildColModel(),
-            store: this.buildStore()
-            // fields: this.getFields(),
+            store: this.buildStore(),
+            bbar: this.buildFootBar()
 
         });
 
@@ -91,35 +94,38 @@ App.tab.catalogs.contractors = Ext.extend(Ext.Panel, {
         return contractorsColumn;
     },
 
-    // getFields: function () {
-    //     return fields;
-    // },
-
     buildStore: function () {
         var caStore = new Ext.data.JsonStore({
-            fields: [
-                'id_contr',
-                'name',],
+            fields: contrFields,
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
                         url: 'get_contractors',
-                        method: 'GET'
+                        method: 'POST'
                     }
                 }
             }),
             root: 'contractors',
         });
+        caStore.load();
         return caStore;
     },
+
+    buildFootBar: function(){
+        var me = this;
+        return new contrFootBar(
+            {
+                ref: 'contrFootBar',
+                parent: me
+            }
+            );
+    }
 });
 
 App.tab.catalogs.warehouses = Ext.extend(treeWs, {
-    // title: 'Warehouses',
     enableDD: true,
     ddGroup: 'treeWs',
     autoScroll: true,
-    collapsible: false,
     rootVisible: true,
     centerFrame: true,
     lines: true,
@@ -137,7 +143,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         });
 
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
-        this.getRootNode().expand();
+        
 
         // this.deleter.show(this, this.buildDD, this);
 

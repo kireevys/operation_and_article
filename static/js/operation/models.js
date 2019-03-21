@@ -21,6 +21,7 @@ var treeWs = Ext.extend(Ext.tree.TreePanel, {
         });
 
         treeWs.superclass.initComponent.call(this);
+        
     },
     // listeners: {
     //     // После двойного клика по листу:

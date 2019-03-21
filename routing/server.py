@@ -41,7 +41,7 @@ def set_new_ws_name():
 
 @app.route('/favicon.ico')
 def get_icon():
-    return send_file(filename_or_fp='../static/label_magnit.png', as_attachment=True, attachment_filename='favicon.ico')
+    return send_file(filename_or_fp='../static/icons/label_magnit.png', as_attachment=True, attachment_filename='favicon.ico')
 
 
 @app.route('/')
@@ -81,7 +81,7 @@ def get_optypes_arr():
     return json.dumps(result), 200
 
 
-@app.route('/get_contractors')
+@app.route('/get_contractors', methods=['POST'])
 def get_contractors():
     contr = Contractor()
     contrs = contr.select_expression()

@@ -1,26 +1,23 @@
+var textFieldEditor = Ext.extend(Ext.form.TextField, {
+    allowBlank: false,
+});
+
+var numericFieldEditor = Ext.extend(Ext.form.NumberField, {
+    allowBlank: false,
+    minLength: 10,
+    maxLength: 10,
+    allowNegative: false,
+    allowDecimals: false,
+    invalidText: 'ИНН содержит 10 чисел'
+});
+
 var contractorsColumn = new Ext.grid.ColumnModel({
     columns: [
-        { header: 'id_op', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
-        {
-            header: 'opdate', dataIndex: 'opdate', filter: {
-                type: 'LIST',
-                value: ['1']
-            }
-        },
-        { header: 'code', dataIndex: 'code' },
-        { header: 'id_status', dataIndex: 'id_status', hidden: true },
-        { header: 'status', dataIndex: 'status', width: 150 },
-        { header: 'id_type', dataIndex: 'id_type', hidden: true, },
-        { header: 'optype', dataIndex: 'optype', width: 150 },
-        { header: 'opsumm', dataIndex: 'opsumm' },
-        { header: 'gm_res', dataIndex: 'gm_res' },
-        { header: 'doccount', dataIndex: 'doccount' },
-        { header: 'id_rack', dataIndex: 'id_rack' },
-        { header: 'id_contr', dataIndex: 'id_contr', hidden: true },
-        { header: 'contr_name', dataIndex: 'contr_name', hidden: true },
-        { header: 'inn', dataIndex: 'inn', hidden: true },
-        { header: 'id_ws', dataIndex: 'id_ws', hidden: true },
-        { header: 'ws_name', dataIndex: 'ws_name', hidden: true, },
+        { header: 'Идентификатор', dataIndex: 'id_contr', id: 'id_contr', width: 75, hideable: false },
+        { header: 'Имя', dataIndex: 'name', width: 150, editor: new textFieldEditor() },
+        { header: 'Код', dataIndex: 'level', width: 75, },
+        { header: 'ИНН', dataIndex: 'inn', width: 150, editor: new numericFieldEditor() },
+        { header: 'Адрес', dataIndex: 'address', width: 175, editor: new textFieldEditor() },
     ],
     defaults: {
         sortable: true,
@@ -29,3 +26,11 @@ var contractorsColumn = new Ext.grid.ColumnModel({
 
     defaultWidth: 80
 });
+
+var contrFields = [
+    { name: 'id_contr', mapping: 'id_contr' },
+    { name: 'name', mapping: 'name' },
+    { name: 'level', mapping: 'level' },
+    { name: 'inn', mapping: 'inn' },
+    { name: 'address', mapping: 'address' },
+];
