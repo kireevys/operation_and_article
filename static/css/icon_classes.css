@@ -1,0 +1,35 @@
+.action-delete {
+    width:48px!important; height:48px!important;
+    background-image: url(/static/icons/material/48/delete.png)
+}
+
+
+.action-add {
+    width:48px!important; height:48px!important;
+    background-image: url(/static/icons/material/48/add.png)
+}
+
+
+.action-save {
+    width:48px!important; height:48px!important;
+    background-image: url(/static/icons/material/48/diskette.png)
+}
+
+.action-up {
+    width:48px!important; height:48px!important;
+    background-image: url(/static/icons/material/48/hand_thumbsup.png)
+}
+
+.action-down {
+    width:48px!important; height:48px!important;
+    background-image: url(/static/icons/material/48/hand_thumbsdown.png)
+}
+
+.action-trash {
+    width:48px!important; height:48px!important;
+    background-image: url(/static/icons/material/48/trash_can.png)
+}
+
+
+
+
