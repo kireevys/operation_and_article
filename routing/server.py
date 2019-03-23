@@ -19,6 +19,7 @@ def index2():
 @app.route('/test', methods=['POST', 'GET'])
 def test():
     """Тестовый роут, просто говорит, что все хорошо"""
+    print(request.values['contractors'])
     return 'OK', 200
 
 

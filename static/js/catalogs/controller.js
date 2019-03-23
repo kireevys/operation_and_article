@@ -102,3 +102,110 @@ var centerPanel = Ext.extend(Ext.tree.TreePanel, {
         })];
     }
 });
+
+var addToCatalog = Ext.extend(Ext.Window, {
+
+    modal: true,
+    width: 300,
+    height: 185,
+    layout: 'form',
+    catalog: null,
+    windowType: null,
+    addForm: null,
+
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems(),
+            title: `Создание ${this.catalog}ов`
+        }),
+            addToCatalog.superclass.initComponent.call(this);
+
+    },
+
+    buildItems: function () {
+        // add form to array
+        var arr = [
+            new this.addForm({
+                ref: 'asdf',
+                parent: this
+            })
+        ];
+        return arr;
+    },
+});
+
+var contrAddForm = Ext.extend(Ext.form.FormPanel, {
+    id: 'contrAddForm',
+    layout: 'form',
+
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems(),
+            buttons: this.buildButtons(),
+        });
+        contrAddForm.superclass.initComponent.call(this);
+    },
+
+    buildItems: function () {
+        var itemArr = [
+
+            {
+                xtype: 'textfield',
+                id: 'name',
+                fieldLabel: 'Имя КА',
+                text: 'tre',
+                value: null,
+                allowBlank: false,
+            },
+            {
+                xtype: 'textfield',
+                id: 'code',
+                fieldLabel: 'Код КА',
+                value: null,
+                allowBlank: false,
+            },
+            {
+                xtype: 'numberfield',
+                id: 'inn',
+                fieldLabel: 'ИНН КА',
+                allowBlank: false,
+                minLength: 10,
+                maxLength: 10,
+                allowNegative: false,
+                allowDecimals: false,
+                maxValue: 9999999999,
+                invalidText: 'ИНН содержит 10 чисел'
+            }
+            , {
+                xtype: 'textfield',
+                id: 'address',
+                fieldLabel: 'Адрес КА',
+                value: null,
+                allowBlank: false,
+            },
+
+        ];
+        return itemArr;
+    },
+
+    buildButtons: function () {
+        var me = this;
+        var buttonsArr = [
+            {
+                xtype: 'button',
+                id: 'apply',
+                // text: 'done',
+                iconCls: 'action-save-24',
+                disabled: false,
+                handler: function () {
+                    var myForm = me.getForm()
+                    if (myForm.isValid()) {
+                        console.log(me.parent.parent.store);
+                        me.parent.parent.onCreate(myForm.getValues());
+                    }
+                },
+            }
+        ];
+        return buttonsArr;
+    },
+});

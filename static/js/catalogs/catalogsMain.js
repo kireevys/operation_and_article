@@ -23,6 +23,7 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
                 ref: 'contractors',
                 parent: this
             });
+            
         var warehouses = new App.tab.catalogs.warehous(
             {
                 ref: 'warehouses',
@@ -76,8 +77,8 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
     title: 'Контрагенты',
     layout: { type: 'vbox', align: 'stretch' },
     stripeRows: true,
-    disableSelection : false,
-    columnLines : true,
+    disableSelection: false,
+    columnLines: true,
     autoExpandColumn: 'contrName',
 
 
@@ -99,28 +100,57 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
     buildStore: function () {
         var caStore = new Ext.data.JsonStore({
             fields: contrFields,
+            autoSave: false,
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
                         url: 'get_contractors',
                         method: 'POST'
-                    }
+                    },
+
+                    create: {
+                        url: 'test',
+                        method: 'POST'
+                    },
+
+                    destroy: {
+                        url: 'test',
+                        method: 'POST'
+                    },
                 }
             }),
             root: 'contractors',
+
+            writer: new Ext.data.JsonWriter({
+                encode: true,
+                encodeDelete: true,
+                // destroyRecord: function (a, b, b) {
+                //     console.log(a);
+                //     console.log(b);
+                //     console.log(c);
+                //     console.log('test');
+                // },
+
+                // createRecord: function (a, b, b) {
+                //     console.log(a);
+                //     console.log(b);
+                //     console.log(c);
+                //     console.log('test');
+                // },
+            }),
         });
         caStore.load();
         return caStore;
     },
 
-    buildFootBar: function(){
+    buildFootBar: function () {
         var me = this;
         return new contrFootBar(
             {
                 ref: 'contrFootBar',
                 parent: me
             }
-            );
+        );
     }
 });
 
@@ -145,7 +175,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         });
 
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
-        
+
 
         // this.deleter.show(this, this.buildDD, this);
 

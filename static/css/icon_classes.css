@@ -30,6 +30,10 @@
     background-image: url(/static/icons/material/48/trash_can.png)
 }
 
+/* 24 px */
 
-
+.action-save-24 {
+    width:24px!important; height:24px!important;
+    background-image: url(/static/icons/material/24/diskette.png)
+}
 

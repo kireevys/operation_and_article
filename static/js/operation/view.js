@@ -112,6 +112,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                     // text: 'Create operation',
                     iconCls: 'action-add',
                     anchor: '99.8% 95%',
+                    // TODO: не вылезают подсказки
                     tooltip: 'Добавить операцию',
                     handler: function () {
                         var adder = new addop(
@@ -144,7 +145,10 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                     handler: function () {
                         this.parent.upStatus();
                     }
-                }, {
+                },
+                '-'
+                ,
+                {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
                     //  text: 'Down status',
                     iconCls: 'action-down',
@@ -156,7 +160,9 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
                     handler: function () {
                         this.parent.downStatus();
                     }
-                }, {
+                },
+                '-'
+                , {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
                     // text: 'Delete op',
                     iconCls: 'action-trash',
@@ -410,7 +416,7 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                     var foundItem = me.opArtGrid.store.findExact('id_art', record.data.id_art);
                     // if not found
                     if (foundItem == -1) {
-                        
+
                         me.opArtGrid.store.add(record);
 
                         // Call a sort dynamically
