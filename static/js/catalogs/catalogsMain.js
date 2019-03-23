@@ -78,6 +78,8 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
     stripeRows: true,
     disableSelection : false,
     columnLines : true,
+    autoExpandColumn: 'contrName',
+
 
     initComponent: function () {
         Ext.apply(this, {

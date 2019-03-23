@@ -145,7 +145,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                         api: {
                             read: {
                                 url: 'get_contractors',
-                                method: 'GET'
+                                method: 'POST'
                             }
                         }
                     }),

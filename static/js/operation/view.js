@@ -1,5 +1,3 @@
-Ext.namespace('Ext.ux.grid');
-
 // Create first Tab container
 App.tab.operationPanel = Ext.extend(Ext.Panel, {
     title: 'Операции',
@@ -53,9 +51,11 @@ var filters = new Ext.ux.grid.GridFilters({
 });
 
 App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
-    title: 'Operations',
+    title: 'Операции',
+    autoExpandColumn: 'contrName',
     flex: 3,
     stripeRows: true,
+    columnLines: true,
     plugins: filters,
 
     initComponent: function () {
@@ -73,22 +73,22 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     buildColModel: function () {
         var operationColumns = new Ext.grid.ColumnModel({
             columns: [
-                { header: 'id_op', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
-                { header: 'opdate', dataIndex: 'opdate', type: 'date', renderer: Ext.util.Format.dateRenderer('d-m-Y'), },
-                { header: 'code', dataIndex: 'code' },
-                { header: 'id_status', dataIndex: 'id_status', hidden: true },
-                { header: 'status', dataIndex: 'status', width: 150 },
-                { header: 'id_type', dataIndex: 'id_type', hidden: true, },
-                { header: 'optype', dataIndex: 'optype', width: 150 },
-                { header: 'opsumm', dataIndex: 'opsumm' },
-                { header: 'gm_res', dataIndex: 'gm_res' },
-                { header: 'doccount', dataIndex: 'doccount' },
-                { header: 'id_rack', dataIndex: 'id_rack' },
-                { header: 'id_contr', dataIndex: 'id_contr', hidden: true },
-                { header: 'contr_name', dataIndex: 'contr_name' },
-                { header: 'inn', dataIndex: 'inn', hidden: true },
-                { header: 'id_ws', dataIndex: 'id_ws', hidden: true },
-                { header: 'ws_name', dataIndex: 'ws_name' },
+                { header: 'ИД операции', dataIndex: 'id_op', id: 'id_op', width: 50, hideable: false },
+                { header: 'Дата операции', dataIndex: 'opdate', type: 'date', renderer: Ext.util.Format.dateRenderer('d-m-Y'), },
+                { header: 'Код', dataIndex: 'code' },
+                { header: 'Код статуса', dataIndex: 'id_status', hidden: true },
+                { header: 'Статус', dataIndex: 'status', width: 150 },
+                { header: 'Код типа', dataIndex: 'id_type', hidden: true, },
+                { header: 'Тип операции', dataIndex: 'optype', width: 150 },
+                { header: 'Сумма по операции', dataIndex: 'opsumm' },
+                { header: 'На ГМ', dataIndex: 'gm_res' },
+                { header: 'Количество документов', dataIndex: 'doccount' },
+                { header: 'Номер стеллажа РЦ', dataIndex: 'id_rack' },
+                { header: 'ИД КА', dataIndex: 'id_contr', hidden: true },
+                { header: 'Имя поставщика', dataIndex: 'contr_name', id: 'contrName' },
+                { header: 'ИНН поставщика', dataIndex: 'inn', hidden: true },
+                { header: 'ИД МХ', dataIndex: 'id_ws', hidden: true },
+                { header: 'Название МХ', dataIndex: 'ws_name' },
 
             ],
             defaults: {
@@ -104,13 +104,15 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
     buildToolBar: function () {
         var me = this;
         var opToolbar = new Ext.Toolbar({
-            height: 40,
+            height: 55,
             layout: 'anchor',
             buttons: [
                 {
                     xtype: 'button', // default for Toolbars, same as 'tbbutton'
-                    text: 'Create operation',
-                    anchor: '100% 95%',
+                    // text: 'Create operation',
+                    iconCls: 'action-add',
+                    anchor: '99.8% 95%',
+                    tooltip: 'Добавить операцию',
                     handler: function () {
                         var adder = new addop(
                             {
@@ -125,7 +127,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         });
 
         var operationControl = new Ext.Toolbar({
-            height: 50,
+            height: 55,
             layout: 'hbox',
             ref: 'opControl',
             parent: me,
@@ -362,9 +364,9 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
 });
 
 App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
-    title: 'Articles in operation',
+    // title: 'Товары в операции',
     flex: 2,
-    layout: 'hbox',
+    layout: { type: 'hbox', align: 'stretch' },
     enableDragDrop: true,
 
 
@@ -408,6 +410,7 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                     var foundItem = me.opArtGrid.store.findExact('id_art', record.data.id_art);
                     // if not found
                     if (foundItem == -1) {
+                        
                         me.opArtGrid.store.add(record);
 
                         // Call a sort dynamically
@@ -489,13 +492,15 @@ var opArtFilters = new Ext.ux.grid.GridFilters({
 
 App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
     flex: 3,
-    height: 250,
+    // height: 250,
     id_op: 0,
     ddGroup: 'opArtDDGroup',
     enableDragDrop: true,
     stripeRows: true,
-    title: 'Current opart',
+    title: 'Текущие товары в операции',
     plugins: opArtFilters,
+    autoExpandColumn: 'artName',
+
 
     initComponent: function () {
         Ext.applyIf(this, {
@@ -573,21 +578,21 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         var me = this;
         var opArticleColumns = new Ext.grid.ColumnModel({
             columns: [
-                { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
-                { header: 'id_op', dataIndex: 'id_op', hideable: false },
-                { header: 'id_art', dataIndex: 'id_art', hidden: true },
-                { header: 'name', dataIndex: 'name' },
+                { header: 'ИД в базе', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
+                { header: 'Идентификатор операции', dataIndex: 'id_op', hideable: false },
+                { header: 'ИД товара', dataIndex: 'id_art', hidden: true },
+                { header: 'Название ТП', dataIndex: 'name', id: 'artName' },
                 // { header: 'price', dataIndex: 'price' },
-                { header: 'price', dataIndex: 'op_price' },
+                { header: 'Цена', dataIndex: 'op_price' },
                 {
-                    header: 'quantity', dataIndex: 'quantity', editor: {
+                    header: 'Количество', dataIndex: 'quantity', editor: {
                         xtype: 'numberfield',
                         allowBlank: false,
                         allowNegative: false,
                         minValue: 1,
                     },
                 },
-                { header: 'summ', dataIndex: 'summ' },
+                { header: 'Сумма по операции', dataIndex: 'summ' },
             ],
             // plugins: this.buildPlugins(),
             defaults: {
@@ -718,13 +723,14 @@ var artFilters = new Ext.ux.grid.GridFilters({
 
 App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     flex: 1,
-    height: 250,
+    // height: 350,
     ddGroup: 'opArtDDGroup',
     enableDragDrop: true,
     stripeRows: true,
-    title: 'Articles',
+    title: 'Товары к добавлению',
     collapsible: true,
     plugins: artFilters,
+    autoExpandColumn: 'artName',
 
     initComponent: function () {
         Ext.apply(this, {
@@ -741,9 +747,9 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
             columns: [
                 // { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
                 // { header: 'id_op', dataIndex: 'id_op', hidden: true },
-                { header: 'id_art', dataIndex: 'id_art', hideable: false },
-                { header: 'name', dataIndex: 'name' },
-                { header: 'price', dataIndex: 'price' },
+                { header: 'Идентификатор ТП', dataIndex: 'id_art', hideable: false },
+                { header: 'Название товара', dataIndex: 'name', id: 'artName' },
+                { header: 'Цена', dataIndex: 'price' },
                 // { header: 'op_price', dataIndex: 'op_price',hidden: true },
                 // { header: 'quantity', dataIndex: 'quantity',hidden: true },
                 // { header: 'summ', dataIndex: 'summ',hidden: true },
@@ -753,7 +759,7 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
                 menuDisabled: false
             },
 
-            defaultWidth: 150
+            defaultWidth: 75
         });
         return opArticleColumns;
     },

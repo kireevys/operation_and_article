@@ -13,8 +13,8 @@ var numericFieldEditor = Ext.extend(Ext.form.NumberField, {
 
 var contractorsColumn = new Ext.grid.ColumnModel({
     columns: [
-        { header: 'Идентификатор', dataIndex: 'id_contr', id: 'id_contr', width: 75, hideable: false },
-        { header: 'Имя', dataIndex: 'name', width: 150, editor: new textFieldEditor() },
+        { header: 'Идентификатор', dataIndex: 'id_contr', id: 'id_contr', width: 100, hideable: false },
+        { header: 'Имя', dataIndex: 'name', width: 150, id: 'contrName',editor: new textFieldEditor() },
         { header: 'Код', dataIndex: 'level', width: 75, },
         { header: 'ИНН', dataIndex: 'inn', width: 150, editor: new numericFieldEditor() },
         { header: 'Адрес', dataIndex: 'address', width: 175, editor: new textFieldEditor() },
