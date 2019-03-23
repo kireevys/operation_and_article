@@ -19,7 +19,18 @@ def index2():
 @app.route('/test', methods=['POST', 'GET'])
 def test():
     """Тестовый роут, просто говорит, что все хорошо"""
-    print(request.values['contractors'])
+    data = json.loads(request.values['contractors'])
+    if isinstance(data, dict):
+        data = [data, ]
+    for rec in data:
+        print(rec)
+        try:
+            rec['id_contr']
+            WarehouseTools.update_contractor(**rec)
+        except KeyError:
+            WarehouseTools.add_contractor(**rec)
+        except:
+            return traceback.format_exc(limit=1), 409
     return 'OK', 200
 
 
@@ -42,7 +53,8 @@ def set_new_ws_name():
 
 @app.route('/favicon.ico')
 def get_icon():
-    return send_file(filename_or_fp='../static/icons/label_magnit.png', as_attachment=True, attachment_filename='favicon.ico')
+    return send_file(filename_or_fp='../static/icons/label_magnit.png', as_attachment=True,
+                     attachment_filename='favicon.ico')
 
 
 @app.route('/')
@@ -72,6 +84,7 @@ def get_optypes():
     types = optype.select_expression()
     s = [[1, 'test1'], [2, 'test2']]
     return json.dumps(s), 200
+
 
 @app.route('/get_optypes')
 def get_optypes_arr():

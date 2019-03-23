@@ -7,24 +7,51 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
             items: this.buildItems()
         });
         catalogFootBar.superclass.initComponent.call(this);
+
         this.parent.on('rowclick', this.deleteButton.activateDeleter, this.deleteButton);
+
+        // Button action control
+        this.parent.on('afteredit', this.cancelButton.activate, this.cancelButton);
+        this.parent.on('afteredit', this.saveButton.activate, this.saveButton);
+
+        this.parent.on('load', this.cancelButton.deactivate, this.cancelButton);
+        this.parent.on('load', this.saveButton.deactivate, this.saveButton);
     },
 
     buildItems: function () {
+
         var me = this;
-        var save = new Ext.Button({
+
+        var editGroupButton = Ext.extend(Ext.Button, {
+            parent: me,
+            scale: 'large',
+            autoWidth: true,
+            // disabled: true,
+            autoHeight: true,
+
+            activate: function () {
+                this.setDisabled(false);
+            },
+
+            deactivate: function () {
+                this.setDisabled(true);
+            },
+        });
+
+        var save = new editGroupButton({
             ref: 'saveButton',
             parent: me,
             iconCls: 'action-save',
-            scale: 'large',
-            autoWidth: true,
-            autoHeight: true,
             tooltip: 'Сохраненение изменений',
 
             handler: function () {
                 me.parent.store.save();
-            }
+                me.parent.store.load();
+            },
+
+
         });
+
         var add = new Ext.Button({
             ref: 'addButton',
             parent: me,
@@ -36,14 +63,15 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
 
             handler: function () {
                 // var adder = new this.adder();
-                me.adder.show();
+                me.adder().show();
             }
         });
+
         var del = new Ext.Button({
             ref: 'deleteButton',
             parent: me,
             disabled: true,
-            iconCls: 'action-delete',
+            iconCls: 'action-trash',
             scale: 'large',
             autoWidth: true,
             autoHeight: true,
@@ -64,20 +92,31 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
             }
         });
 
-        var barItems = [save, '-', ' ', add, '-', '->', del]
+        var cancel = new editGroupButton({
+            ref: 'cancelButton',
+            parent: me,
+            // disabled: true,
+            iconCls: 'action-delete',
+            tooltip: 'Отменить изменения',
+
+            handler: function () {
+                me.parent.store.load();
+                // this.setDisabled(true);
+            }
+        });
+
+
+        var barItems = [save, '-', ' ', add, '-', '->', '-', cancel, '-', del]
         return barItems;
     },
 
-    onCreate: function(values){
-        this.parent.store.add(new Ext.data.Record(values));
-    }
 });
 
 var contrFootBar = Ext.extend(catalogFootBar, {
 
     initComponent: function () {
         Ext.apply(this, {
-            adder: this.buildAdder()
+            adder: this.buildAdder
         });
         contrFootBar.superclass.initComponent.call(this);
     },

@@ -1,4 +1,4 @@
-from models.tables import Warehouse
+from models.tables import Warehouse, Contractor
 from logs import db_logger
 
 
@@ -42,3 +42,14 @@ class WarehouseTools(Warehouse):
         ws.id_higher.set_value(id_higher)
         ws.update_data()
         return True
+
+    @staticmethod
+    def add_contractor(**kwargs):
+        ca = Contractor(**kwargs)
+        ca.insert()
+
+    @staticmethod
+    def update_contractor(**kwargs):
+        ca = Contractor(**kwargs)
+        # ca = ca.select_expression(id_contr=kwargs['id_contr'])[0]
+        ca.update_data()

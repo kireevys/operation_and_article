@@ -96,19 +96,16 @@ class Contractor(Base):
     __tablename__ = 'contractor'
     _column_separator_width = 6
 
-    def __init__(self, name=None, inn=None, address=None):
+    def __init__(self, id_contr=None, name=None, inn=None, code=None, address=None):
         # Columns
-        self.id_contr = Column('id_contr', primary=True)
-        self.name = Column('name')
-        self.level = Column('level', 0)  # Не помню, зачем он был нужен
-        self.inn = Column('inn')
-        self.address = Column('address')
+        self.id_contr = Column('id_contr', id_contr, primary=True)
+        self.name = Column('name', name)
+        self.code = Column('code', code)
+        self.inn = Column('inn', inn)
+        self.address = Column('address', address)
 
         self.row = (self.id_contr, self.name,
-                    self.level, self.inn, self.address)
-        self.name.value = name
-        self.inn.value = inn
-        self.address.value = address
+                    self.code, self.inn, self.address)
 
     def insert(self):
         debug_logger.info(f'{self} old row')

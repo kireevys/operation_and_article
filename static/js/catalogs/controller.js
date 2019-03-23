@@ -116,10 +116,16 @@ var addToCatalog = Ext.extend(Ext.Window, {
     initComponent: function () {
         Ext.applyIf(this, {
             items: this.buildItems(),
+            // adder: this.buildAdder(),
             title: `Создание ${this.catalog}ов`
-        }),
-            addToCatalog.superclass.initComponent.call(this);
+        });
+        addToCatalog.superclass.initComponent.call(this);
 
+    },
+
+    buildAdder: function () {
+        // Должно быть переопределено
+        throw 'Should be implemented from child'
     },
 
     buildItems: function () {
@@ -153,7 +159,6 @@ var contrAddForm = Ext.extend(Ext.form.FormPanel, {
                 xtype: 'textfield',
                 id: 'name',
                 fieldLabel: 'Имя КА',
-                text: 'tre',
                 value: null,
                 allowBlank: false,
             },
@@ -200,8 +205,10 @@ var contrAddForm = Ext.extend(Ext.form.FormPanel, {
                 handler: function () {
                     var myForm = me.getForm()
                     if (myForm.isValid()) {
-                        console.log(me.parent.parent.store);
-                        me.parent.parent.onCreate(myForm.getValues());
+                        var rec = Ext.data.Record.create(contrFields);
+                        var newRec = new rec(myForm.getFieldValues());
+                        me.parent.parent.parent.store.add(newRec);
+                        me.parent.destroy();
                     }
                 },
             }

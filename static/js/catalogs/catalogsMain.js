@@ -84,8 +84,8 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
 
     initComponent: function () {
         Ext.apply(this, {
-            colModel: this.buildColModel(),
             store: this.buildStore(),
+            colModel: this.buildColModel(),
             bbar: this.buildFootBar()
 
         });
@@ -101,6 +101,7 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
         var caStore = new Ext.data.JsonStore({
             fields: contrFields,
             autoSave: false,
+            autoLoad: true,
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
@@ -139,7 +140,7 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
                 // },
             }),
         });
-        caStore.load();
+        // caStore.load();
         return caStore;
     },
 

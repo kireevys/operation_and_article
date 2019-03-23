@@ -203,7 +203,7 @@ class Base(TableRow):
             db_logger.error(f'Дубль по уникальному полю при апдейте: {error}')
             raise
         finally:
-            self.conn.commit() 
+            self.conn.commit()
         db_logger.info(f'{self} updated')
 
     def kwargs_to_predicate_exp(self, separator, **kwargs):

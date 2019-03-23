@@ -15,7 +15,7 @@ var contractorsColumn = new Ext.grid.ColumnModel({
     columns: [
         { header: 'Идентификатор', dataIndex: 'id_contr', id: 'id_contr', width: 100, hideable: false },
         { header: 'Имя', dataIndex: 'name', width: 150, id: 'contrName', editor: new textFieldEditor() },
-        { header: 'Код', dataIndex: 'level', width: 75, },
+        { header: 'Код', dataIndex: 'code', width: 75, },
         { header: 'ИНН', dataIndex: 'inn', width: 150, editor: new numericFieldEditor() },
         { header: 'Адрес', dataIndex: 'address', width: 175, editor: new textFieldEditor() },
     ],
@@ -30,7 +30,7 @@ var contractorsColumn = new Ext.grid.ColumnModel({
 var contrFields = [
     { name: 'id_contr', mapping: 'id_contr' },
     { name: 'name', mapping: 'name' },
-    { name: 'level', mapping: 'level' },
+    { name: 'code', mapping: 'code' },
     { name: 'inn', mapping: 'inn' },
     { name: 'address', mapping: 'address' },
 ];
