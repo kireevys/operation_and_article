@@ -52,7 +52,7 @@ def change_art():
     return 'OK', 200
 
 
-@app.route('/version')
+@app.route('/test')
 def test():
     """Тестовый роут, просто говорит, что все хорошо"""
     return 'OK', 200
