@@ -23,7 +23,7 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
                 ref: 'contractors',
                 parent: this
             });
-            
+
         var warehouses = new App.tab.catalogs.warehous(
             {
                 ref: 'warehouses',
@@ -31,9 +31,15 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
             }
         );
 
+        var articles = new App.tab.catalogs.articles({
+            ref: 'articles',
+            parent: this
+        });
+
         var catalogsView = [
             contractors,
-            warehouses
+            warehouses,
+            articles
         ]
         return catalogsView;
     }
@@ -72,7 +78,84 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
 
 });
 
-// Заглушка
+// Articles
+App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
+    title: 'Товары',
+    layout: { type: 'vbox', align: 'stretch' },
+    stripeRows: true,
+    disableSelection: false,
+    columnLines: true,
+
+    autoExpandColumn: 'artName',
+
+
+    initComponent: function () {
+        Ext.apply(this, {
+            store: this.buildStore(),
+            colModel: this.buildColModel(),
+            bbar: this.buildFootBar()
+
+        });
+
+        App.tab.catalogs.contractors.superclass.initComponent.call(this);
+    },
+
+    buildColModel: function () {
+        return articleColumn;
+    },
+
+    buildStore: function () {
+        var artStore = new Ext.data.JsonStore({
+            fields: articleFields,
+            autoSave: false,
+            autoLoad: true,
+
+            listeners: {
+                save: function () { this.load() }
+            },
+
+            proxy: new Ext.data.HttpProxy({
+                api: {
+                    read: {
+                        url: 'get_articles',
+                        method: 'POST'
+                    },
+
+                    create: {
+                        url: 'change_art',
+                        method: 'POST',
+                    },
+
+                    destroy: {
+                        url: 'test',
+                        method: 'POST'
+                    },
+                }
+            }),
+            root: 'articles',
+
+            writer: new Ext.data.JsonWriter({
+                encode: true,
+                encodeDelete: true,
+                writeAllFields: true
+            }),
+        });
+        // caStore.load();
+        return artStore;
+    },
+
+    buildFootBar: function () {
+        var me = this;
+        return new articleFootBar(
+            {
+                ref: 'articleFootBar',
+                parent: me
+            }
+        );
+    }
+});
+
+// Contractors
 App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
     title: 'Контрагенты',
     layout: { type: 'vbox', align: 'stretch' },
@@ -102,6 +185,11 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
             fields: contrFields,
             autoSave: false,
             autoLoad: true,
+
+            listeners: {
+                save: function () { this.load() }
+            },
+
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
@@ -110,12 +198,12 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
                     },
 
                     create: {
-                        url: 'test',
+                        url: 'contr_add',
                         method: 'POST'
                     },
 
                     destroy: {
-                        url: 'test',
+                        url: 'contr_del',
                         method: 'POST'
                     },
                 }
@@ -125,19 +213,6 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
             writer: new Ext.data.JsonWriter({
                 encode: true,
                 encodeDelete: true,
-                // destroyRecord: function (a, b, b) {
-                //     console.log(a);
-                //     console.log(b);
-                //     console.log(c);
-                //     console.log('test');
-                // },
-
-                // createRecord: function (a, b, b) {
-                //     console.log(a);
-                //     console.log(b);
-                //     console.log(c);
-                //     console.log('test');
-                // },
             }),
         });
         // caStore.load();

@@ -10,15 +10,16 @@ from logs import debug_logger
 from config import version
 import traceback
 
+# TODO: ОПТИМИЗАЦИЯ!!!! РЕФАКТИРИНГ!!! ЗДЕСЬ ЧТО ТО УЖАСНОЕ!!!
+
 
 @app.route('/tt')
 def index2():
     return app.send_static_file('ext_js_examples/index.html'), 200
 
 
-@app.route('/test', methods=['POST', 'GET'])
-def test():
-    """Тестовый роут, просто говорит, что все хорошо"""
+@app.route('/contr_add', methods=['POST', 'GET'])
+def contr_add():
     data = json.loads(request.values['contractors'])
     if isinstance(data, dict):
         data = [data, ]
@@ -31,6 +32,29 @@ def test():
             WarehouseTools.add_contractor(**rec)
         except:
             return traceback.format_exc(limit=1), 409
+    return 'OK', 200
+
+@app.route('/change_art', methods=['POST', 'GET'])
+def change_art():
+    data = json.loads(request.values['articles'])
+    print(data)
+    if isinstance(data, dict):
+        data = [data, ]
+    for rec in data:
+        print(rec)
+        try:
+            rec['id_art']
+            WarehouseTools.update_article(**rec)
+        except KeyError:
+            WarehouseTools.add_article(**rec)
+        except:
+            return traceback.format_exc(limit=1), 409
+    return 'OK', 200
+
+
+@app.route('/version')
+def test():
+    """Тестовый роут, просто говорит, что все хорошо"""
     return 'OK', 200
 
 
@@ -154,33 +178,54 @@ def delete_op():
     return 'OK', 200
 
 
-@app.route('/get_articles', methods=['GET', ])
+@app.route('/get_articles', methods=['GET', 'POST'])
 def get_articles():
-    data = request.values
-    id_op = data['id_op']
+    # ОПТИМИЗАЦИЯ
     op_art = Articles()
-    sess = op_art.get_new_session()
-    sql = '''SELECT oa.id_opart,
-                   oa.id_op, 
-                   a.id_art,
-                   a.name, 
-                   oa.price,
-                   a.price CURRENT_price,
-                   0,
-                   0
-                 from article a
-            left join op_art oa on oa.id_art = a.id_art and oa.id_op = :id_op
-            where oa.id_opart is null
-            order by a.id_art;'''
-    result = sess.execute(sql, dict(id_op=id_op)).fetchall()
-    opart = []
-    fields = ['id_opart', 'id_op', 'id_art', 'name',
-              'op_price', 'price', 'quantity', 'summ']
-    for row in result:
-        row_dict = {k: v for k, v in zip(fields, row)}
-        opart.append(row_dict)
-    js = dict(articles=opart)
-    return json.dumps(js), 200
+    if request.method == 'GET':
+        data = request.values
+        id_op = data['id_op']
+        sess = op_art.get_new_session()
+        sql = '''SELECT oa.id_opart,
+                       oa.id_op, 
+                       a.id_art,
+                       a.name, 
+                       oa.price,
+                       a.price CURRENT_price,
+                       0,
+                       0
+                     from article a
+                left join op_art oa on oa.id_art = a.id_art and oa.id_op = :id_op
+                where oa.id_opart is null
+                order by a.id_art;'''
+        result = sess.execute(sql, dict(id_op=id_op)).fetchall()
+        opart = []
+        fields = ['id_opart', 'id_op', 'id_art', 'name',
+                  'op_price', 'price', 'quantity', 'summ']
+        for row in result:
+            row_dict = {k: v for k, v in zip(fields, row)}
+            opart.append(row_dict)
+        js = dict(articles=opart)
+        return json.dumps(js), 200
+    else:
+        sess = op_art.get_new_session()
+        sql = '''SELECT a.id_art,
+                        a.name,
+                        a.price CURRENT_price,
+                        a.code,
+                       -- u.fullname unit
+                        a.unit
+                     from article a
+                     --join unit_tab u on id_unit = unit
+                order by a.id_art;'''
+        result = sess.execute(sql).fetchall()
+        opart = []
+        fields = ['id_art', 'name', 'price', 'code', 'unit']
+        for row in result:
+            row_dict = {k: v for k, v in zip(fields, row)}
+            opart.append(row_dict)
+        js = dict(articles=opart)
+        return json.dumps(js), 200
 
 
 @app.route('/edit_opart', methods=['POST', ])

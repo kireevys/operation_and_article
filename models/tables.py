@@ -151,8 +151,8 @@ class Unit(Base):
 class Articles(Base):
     __tablename__ = 'article'
 
-    def __init__(self, code=None, name=None, price=None, unit=None, ):
-        self.id_art = Column('id_art', primary=True)
+    def __init__(self, id_art=None, code=None, name=None, price=None, unit=None, ):
+        self.id_art = Column('id_art', id_art, primary=True)
         self.code = Column('code', code)
         self.name = Column('name', name)
         self.price = Column('price', price)

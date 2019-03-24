@@ -143,6 +143,7 @@ var addToCatalog = Ext.extend(Ext.Window, {
 var contrAddForm = Ext.extend(Ext.form.FormPanel, {
     id: 'contrAddForm',
     layout: 'form',
+    fields: contrFields,
 
     initComponent: function () {
         Ext.applyIf(this, {
@@ -205,7 +206,7 @@ var contrAddForm = Ext.extend(Ext.form.FormPanel, {
                 handler: function () {
                     var myForm = me.getForm()
                     if (myForm.isValid()) {
-                        var rec = Ext.data.Record.create(contrFields);
+                        var rec = Ext.data.Record.create(me.fields);
                         var newRec = new rec(myForm.getFieldValues());
                         me.parent.parent.parent.store.add(newRec);
                         me.parent.destroy();
@@ -214,5 +215,53 @@ var contrAddForm = Ext.extend(Ext.form.FormPanel, {
             }
         ];
         return buttonsArr;
+    },
+});
+
+var articleAddForm = Ext.extend(contrAddForm, {
+    id: 'articleAddForm',
+    layout: 'form',
+    fields: articleFields,
+
+    initComponent: function () {
+        Ext.applyIf(this, {
+            items: this.buildItems(),
+            buttons: this.buildButtons(),
+        });
+        articleAddForm.superclass.initComponent.call(this);
+    },
+
+    buildItems: function () {
+        var itemArr = [
+            {
+                xtype: 'textfield',
+                id: 'name',
+                fieldLabel: 'Название ТП',
+                value: null,
+                allowBlank: false,
+            }, {
+                xtype: 'textfield',
+                id: 'code',
+                fieldLabel: 'Код ТП',
+                value: null,
+                allowBlank: false,
+            }, {
+                xtype: 'numberfield',
+                id: 'price',
+                fieldLabel: 'Цена ТП',
+                allowBlank: false,
+                allowNegative: false,
+                allowDecimals: true,
+            }, {
+                // TODO: Сделать комбобокс
+                xtype: 'textfield',
+                id: 'unit',
+                fieldLabel: 'Единица измерения',
+                value: null,
+                allowBlank: false,
+            },
+
+        ];
+        return itemArr;
     },
 });

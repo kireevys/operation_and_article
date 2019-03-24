@@ -1,4 +1,4 @@
-from models.tables import Warehouse, Contractor
+from models.tables import Warehouse, Contractor, Articles
 from logs import db_logger
 
 
@@ -53,3 +53,15 @@ class WarehouseTools(Warehouse):
         ca = Contractor(**kwargs)
         # ca = ca.select_expression(id_contr=kwargs['id_contr'])[0]
         ca.update_data()
+
+    @staticmethod
+    def add_article(**kwargs):
+        ca = Articles(**kwargs)
+        ca.insert()
+
+    @staticmethod
+    def update_article(**kwargs):
+        ca = Articles(**kwargs)
+        # ca = ca.select_expression(id_contr=kwargs['id_contr'])[0]
+        ca.update_data()
+    

@@ -46,10 +46,7 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
 
             handler: function () {
                 me.parent.store.save();
-                me.parent.store.load();
             },
-
-
         });
 
         var add = new Ext.Button({
@@ -135,3 +132,28 @@ var contrFootBar = Ext.extend(catalogFootBar, {
     },
 
 });
+
+var articleFootBar = Ext.extend(catalogFootBar, {
+
+    initComponent: function () {
+        Ext.apply(this, {
+            adder: this.buildAdder
+        });
+        articleFootBar.superclass.initComponent.call(this);
+    },
+
+    buildAdder: function () {
+        var me = this;
+        var adder = new addToCatalog({
+            ref: 'articleAdder',
+            parent: me,
+            catalog: 'Товар',
+            windowType: 'article',
+            addForm: articleAddForm
+        });
+
+        return adder;
+    },
+
+});
+
