@@ -11,6 +11,11 @@ var numericFieldEditor = Ext.extend(Ext.form.NumberField, {
     invalidText: 'ИНН содержит 10 чисел'
 });
 
+var numFieldEditor = Ext.extend(Ext.form.NumberField, {
+    allowBlank: false,
+    allowNegative: false,
+});
+
 var contractorsColumn = new Ext.grid.ColumnModel({
     columns: [
         { header: 'Идентификатор', dataIndex: 'id_contr', id: 'id_contr', width: 100, hideable: false },
@@ -48,7 +53,7 @@ var articleColumn = new Ext.grid.ColumnModel({
         { header: 'id_art', dataIndex: 'id_art', id: 'id_art', width: 100, hideable: false },
         { header: 'name', dataIndex: 'name', width: 150, id: 'artName', editor: new textFieldEditor() },
         { header: 'code', dataIndex: 'code', width: 75, },
-        { header: 'price', dataIndex: 'price', width: 150, editor: new numericFieldEditor() },
+        { header: 'price', dataIndex: 'price', width: 150, editor: new numFieldEditor() },
         { header: 'unit', dataIndex: 'unit', width: 175},
     ],
     defaults: {
