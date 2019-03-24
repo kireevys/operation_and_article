@@ -81,7 +81,6 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
             deleteSelectedRow: function () {
                 var record = me.parent.getSelectionModel().selection.record;
                 me.parent.store.remove(record);
-
             },
 
             handler: function () {
