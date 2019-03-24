@@ -7,4 +7,4 @@ application_log = 'application_log.log'
 
 # Enviroments
 debug = True
-version = '0.0.1'
+version = '0.1.3'
