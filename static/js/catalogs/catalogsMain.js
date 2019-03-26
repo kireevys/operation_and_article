@@ -24,12 +24,10 @@ App.tab.catalogs = Ext.extend(Ext.TabPanel, {
                 parent: this
             });
 
-        var warehouses = new App.tab.catalogs.warehous(
-            {
-                ref: 'warehouses',
-                parent: this
-            }
-        );
+        var warehouses = new App.tab.catalogs.warehous({
+            ref: 'warehouses',
+            parent: this
+        });
 
         var articles = new App.tab.catalogs.articles({
             ref: 'articles',
@@ -61,11 +59,10 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
     },
 
     buildItems: function () {
-        var warehouseTree = new App.tab.catalogs.warehouses(
-            {
-                ref: 'warehouses',
-                parent: this
-            });
+        var warehouseTree = new App.tab.catalogs.warehouses({
+            ref: 'warehouses',
+            parent: this
+        });
 
         var pan = new centerPanel({
             ref: 'centerPan',
@@ -78,10 +75,15 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
 
 });
 
+
+// FIXME: Все гриды должны наследоваться от кастомного родителя
 // Articles
 App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
     title: 'Товары',
-    layout: { type: 'vbox', align: 'stretch' },
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
     stripeRows: true,
     disableSelection: false,
     columnLines: true,
@@ -111,7 +113,9 @@ App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
             autoLoad: true,
 
             listeners: {
-                save: function () { this.load() }
+                save: function () {
+                    this.load()
+                }
             },
 
             proxy: new Ext.data.HttpProxy({
@@ -128,7 +132,7 @@ App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
 
                     destroy: {
                         url: 'test',
-                        method: 'POST'
+                        method: 'DELETE'
                     },
                 }
             }),
@@ -136,8 +140,8 @@ App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
 
             writer: new Ext.data.JsonWriter({
                 encode: true,
-                encodeDelete: true,
-                writeAllFields: true
+                encodeDelete: false,
+                listful: true
             }),
         });
         // caStore.load();
@@ -146,19 +150,20 @@ App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
 
     buildFootBar: function () {
         var me = this;
-        return new articleFootBar(
-            {
-                ref: 'articleFootBar',
-                parent: me
-            }
-        );
+        return new articleFootBar({
+            ref: 'articleFootBar',
+            parent: me
+        });
     }
 });
 
 // Contractors
 App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
     title: 'Контрагенты',
-    layout: { type: 'vbox', align: 'stretch' },
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
     stripeRows: true,
     disableSelection: false,
     columnLines: true,
@@ -182,15 +187,23 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
 
     buildStore: function () {
         var caStore = new Ext.data.JsonStore({
-            fields: contrFields,
             autoSave: false,
             autoLoad: true,
+            root: 'contractors',
+            fields: contrFields,
 
             listeners: {
-                save: function () { this.load() }
+                save: function () {
+                    this.load()
+                }
             },
 
             proxy: new Ext.data.HttpProxy({
+                idProperty: 'id_contr',
+                url: 'get_contractors',
+                // TODO: Понять, почему при store.remove(rec) не уходит запрос к серверу
+                // Далее сделать норм методы
+                // На стороне сервера - сделать единый метод, и действия в зависимости от метода
                 api: {
                     read: {
                         url: 'get_contractors',
@@ -206,14 +219,24 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
                         url: 'contr_del',
                         method: 'POST'
                     },
+
+                    update: {
+                        url: 'contr_del',
+                        method: 'POST'
+                    },
                 }
             }),
-            root: 'contractors',
-
+            
             writer: new Ext.data.JsonWriter({
                 encode: true,
-                encodeDelete: true,
+                encodeDelete: false,
+                listful: true
             }),
+            
+            reader: new Ext.data.JsonReader({
+                idProperty: 'id_contr',
+            }),
+
         });
         // caStore.load();
         return caStore;
@@ -221,12 +244,10 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
 
     buildFootBar: function () {
         var me = this;
-        return new contrFootBar(
-            {
-                ref: 'contrFootBar',
-                parent: me
-            }
-        );
+        return new contrFootBar({
+            ref: 'contrFootBar',
+            parent: me
+        });
     }
 });
 
@@ -274,8 +295,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             if (oldParent != newParent) {
                 this.moveWs(dd, e.dragOverData.target);
                 Ext.MessageBox.alert(`Old parent : ${oldParent} New: ${newParent}`);
-            }
-            else {
+            } else {
                 this.getRootNode().reload();
             };
 
@@ -302,16 +322,13 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                             me.parent.centerPan.getRootNode().reload();
                             newNode.setText(text || dropEvent.dropNode.text);
                             me.addWs(newNode);
-                        }
-                        else {
-                            Ext.MessageBox.show(
-                                {
-                                    title: 'Операция отменена',
-                                    msg: 'Новый элемент не создан',
-                                    icon: Ext.MessageBox.WARNING,
-                                    buttons: Ext.MessageBox.OK
-                                }
-                            );
+                        } else {
+                            Ext.MessageBox.show({
+                                title: 'Операция отменена',
+                                msg: 'Новый элемент не создан',
+                                icon: Ext.MessageBox.WARNING,
+                                buttons: Ext.MessageBox.OK
+                            });
                             me.parent.centerPan.getRootNode().reload();
                             me.getRootNode().reload();
                         }
@@ -336,31 +353,26 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         var message = `Старое : ${oldText}\nНовое : ${newText}`
         // this.parent.addToChanged(this.editNode);
         var title = 'Вы уверены?'
-        Ext.Msg.show(
-            {
-                title: title,
-                msg: message,
-                buttons: Ext.Msg.OKCANCEL,
-                icon: Ext.MessageBox.QUESTION,
-                animEl: 'elId',
-                fn: function (buttonId, text) {
-                    if (buttonId == 'cancel') {
-                        me.editNode.setText(oldText);
-                        Ext.MessageBox.show(
-                            {
-                                title: 'Операция отменена',
-                                msg: 'Оставили название: ' + oldText,
-                                icon: Ext.MessageBox.WARNING,
-                                buttons: Ext.MessageBox.OK
-                            }
-                        );
-                    }
-                    else if (buttonId == 'ok') {
-                        me.setNewWsName(me.editNode);
-                    }
+        Ext.Msg.show({
+            title: title,
+            msg: message,
+            buttons: Ext.Msg.OKCANCEL,
+            icon: Ext.MessageBox.QUESTION,
+            animEl: 'elId',
+            fn: function (buttonId, text) {
+                if (buttonId == 'cancel') {
+                    me.editNode.setText(oldText);
+                    Ext.MessageBox.show({
+                        title: 'Операция отменена',
+                        msg: 'Оставили название: ' + oldText,
+                        icon: Ext.MessageBox.WARNING,
+                        buttons: Ext.MessageBox.OK
+                    });
+                } else if (buttonId == 'ok') {
+                    me.setNewWsName(me.editNode);
                 }
             }
-        );
+        });
 
     },
 
@@ -381,26 +393,25 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 Ext.Ajax.request({
                     url: 'set_new_ws_name',
                     method: 'POST',
-                    params: { id_ws: node.attributes.id_ws, name: node.attributes.text },
+                    params: {
+                        id_ws: node.attributes.id_ws,
+                        name: node.attributes.text
+                    },
                     success: function (response, options) {
-                        Ext.Msg.show(
-                            {
-                                title: 'Операция успешна',
-                                msg: 'Установили название: ' + node.attributes.text,
-                                icon: Ext.MessageBox.INFO,
-                                buttons: Ext.MessageBox.OK
-                            }
-                        );
+                        Ext.Msg.show({
+                            title: 'Операция успешна',
+                            msg: 'Установили название: ' + node.attributes.text,
+                            icon: Ext.MessageBox.INFO,
+                            buttons: Ext.MessageBox.OK
+                        });
                     },
                     failure: function (response, options) {
-                        Ext.MessageBox.show(
-                            {
-                                title: 'Не удалось записать данные',
-                                msg: 'Оставили текущее название',
-                                icon: Ext.MessageBox.ERROR,
-                                buttons: Ext.MessageBox.OK
-                            }
-                        );
+                        Ext.MessageBox.show({
+                            title: 'Не удалось записать данные',
+                            msg: 'Оставили текущее название',
+                            icon: Ext.MessageBox.ERROR,
+                            buttons: Ext.MessageBox.OK
+                        });
                     },
                     callback: function () {
                         me.getRootNode().reload();
@@ -424,25 +435,21 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 name: node.text
             },
             success: function (response, options) {
-                Ext.Msg.show(
-                    {
-                        title: 'Операция успешна',
-                        msg: 'Добавлено ' + node.attributes.text,
-                        icon: Ext.MessageBox.INFO,
-                        buttons: Ext.MessageBox.OK
-                    }
-                );
+                Ext.Msg.show({
+                    title: 'Операция успешна',
+                    msg: 'Добавлено ' + node.attributes.text,
+                    icon: Ext.MessageBox.INFO,
+                    buttons: Ext.MessageBox.OK
+                });
             },
             failure: function (response, options) {
                 var msg = response.responseText || 'Не удалось добавить данные'
-                Ext.MessageBox.show(
-                    {
-                        title: 'Не удалось',
-                        msg: msg,
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.OK
-                    }
-                );
+                Ext.MessageBox.show({
+                    title: 'Не удалось',
+                    msg: msg,
+                    icon: Ext.MessageBox.ERROR,
+                    buttons: Ext.MessageBox.OK
+                });
             },
             callback: function () {
                 me.getRootNode().reload();
@@ -460,24 +467,20 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 id_higher: newParent.attributes.id_ws || null
             },
             success: function (response, options) {
-                Ext.Msg.show(
-                    {
-                        title: 'Операция успешна',
-                        msg: 'Родитель изменен',
-                        icon: Ext.MessageBox.INFO,
-                        buttons: Ext.MessageBox.OK
-                    }
-                );
+                Ext.Msg.show({
+                    title: 'Операция успешна',
+                    msg: 'Родитель изменен',
+                    icon: Ext.MessageBox.INFO,
+                    buttons: Ext.MessageBox.OK
+                });
             },
             failure: function (response, options) {
-                Ext.MessageBox.show(
-                    {
-                        title: 'Не удалось',
-                        msg: 'Не удалось изменить родителя',
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.OK
-                    }
-                );
+                Ext.MessageBox.show({
+                    title: 'Не удалось',
+                    msg: 'Не удалось изменить родителя',
+                    icon: Ext.MessageBox.ERROR,
+                    buttons: Ext.MessageBox.OK
+                });
             },
             callback: function () {
                 me.getRootNode().reload();
@@ -491,26 +494,25 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         Ext.Ajax.request({
             url: 'delete_ws',
             method: 'POST',
-            params: { id_ws: node.attributes.id_ws, name: node.attributes.text },
+            params: {
+                id_ws: node.attributes.id_ws,
+                name: node.attributes.text
+            },
             success: function (response, options) {
-                Ext.Msg.show(
-                    {
-                        title: 'Операция успешна',
-                        msg: 'Удалено ' + node.attributes.text,
-                        icon: Ext.MessageBox.INFO,
-                        buttons: Ext.MessageBox.OK
-                    }
-                );
+                Ext.Msg.show({
+                    title: 'Операция успешна',
+                    msg: 'Удалено ' + node.attributes.text,
+                    icon: Ext.MessageBox.INFO,
+                    buttons: Ext.MessageBox.OK
+                });
             },
             failure: function (response, options) {
-                Ext.MessageBox.show(
-                    {
-                        title: 'Не удалось удалить данные',
-                        msg: 'Удалить не удалось',
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.OK
-                    }
-                );
+                Ext.MessageBox.show({
+                    title: 'Не удалось удалить данные',
+                    msg: 'Удалить не удалось',
+                    icon: Ext.MessageBox.ERROR,
+                    buttons: Ext.MessageBox.OK
+                });
             },
             callback: function () {
                 me.getRootNode().reload();

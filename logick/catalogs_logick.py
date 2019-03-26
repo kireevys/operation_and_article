@@ -49,6 +49,12 @@ class WarehouseTools(Warehouse):
         ca.insert()
 
     @staticmethod
+    def delete_contractor(**kwargs):
+        ca = Contractor()
+        ca = ca.select_expression(id_contr=kwargs['id_contr'])[0]
+        ca.delete_data()
+
+    @staticmethod
     def update_contractor(**kwargs):
         ca = Contractor(**kwargs)
         # ca = ca.select_expression(id_contr=kwargs['id_contr'])[0]
@@ -64,4 +70,9 @@ class WarehouseTools(Warehouse):
         ca = Articles(**kwargs)
         # ca = ca.select_expression(id_contr=kwargs['id_contr'])[0]
         ca.update_data()
-    
+
+    @staticmethod
+    def delete_article(**kwargs):
+        ca = Articles()
+        ca = ca.select_expression(id_art=kwargs['id_art'])[0]
+        ca.delete_data()

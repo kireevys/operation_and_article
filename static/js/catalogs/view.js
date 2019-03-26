@@ -1,6 +1,7 @@
 var catalogFootBar = Ext.extend(Ext.Toolbar, {
     height: 75,
     layout: 'form',
+    url: 'Should be implicement!',
 
     initComponent: function () {
         Ext.apply(this, {
@@ -79,13 +80,33 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
             },
 
             deleteSelectedRow: function () {
-                var record = me.parent.getSelectionModel().selection.record;
-                me.parent.store.remove(record);
+                try {
+                    var record = me.parent.getSelectionModel().selection.record;
+                } catch (TypeError) {
+                    return false;
+                };
+                // me.parent.getStore().remove(record);
+                this.removeRecFromDB(record.json);
+            },
+            // FIXME: Костыль, надо убрать
+
+            removeRecFromDB: function (json_rec) {
+                Ext.Ajax.request({
+                    url: this.parent.url,
+                    method: 'POST',
+                    params: json_rec,
+                    success: function (response, options) {
+                        // Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
+                        me.parent.getStore().load();
+                        Ext.MessageBox.alert('Успех', 'Удалено из базы');
+                    }
+                });
             },
 
             handler: function () {
                 this.deleteSelectedRow();
-            }
+                this.setDisabled(true);
+            },
         });
 
         var cancel = new editGroupButton({
@@ -109,7 +130,7 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
 });
 
 var contrFootBar = Ext.extend(catalogFootBar, {
-
+    url: 'del_contr',
     initComponent: function () {
         Ext.apply(this, {
             adder: this.buildAdder
@@ -133,7 +154,7 @@ var contrFootBar = Ext.extend(catalogFootBar, {
 });
 
 var articleFootBar = Ext.extend(catalogFootBar, {
-
+    url: 'del_article',
     initComponent: function () {
         Ext.apply(this, {
             adder: this.buildAdder
@@ -155,4 +176,3 @@ var articleFootBar = Ext.extend(catalogFootBar, {
     },
 
 });
-

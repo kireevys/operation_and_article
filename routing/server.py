@@ -10,7 +10,7 @@ from logs import debug_logger
 from config import version
 import traceback
 
-# TODO: ОПТИМИЗАЦИЯ!!!! РЕФАКТИРИНГ!!! ЗДЕСЬ ЧТО ТО УЖАСНОЕ!!!
+# FIXME: ОПТИМИЗАЦИЯ!!!! РЕФАКТИРИНГ!!! ЗДЕСЬ ЧТО ТО УЖАСНОЕ!!!
 
 
 @app.route('/tt')
@@ -21,10 +21,7 @@ def index2():
 @app.route('/contr_add', methods=['POST', 'GET'])
 def contr_add():
     data = json.loads(request.values['contractors'])
-    if isinstance(data, dict):
-        data = [data, ]
     for rec in data:
-        print(rec)
         try:
             rec['id_contr']
             WarehouseTools.update_contractor(**rec)
@@ -34,10 +31,24 @@ def contr_add():
             return traceback.format_exc(limit=1), 409
     return 'OK', 200
 
+
+@app.route('/del_contr', methods=['POST', 'GET'])
+def del_contr():
+    data = request.values.to_dict()
+    WarehouseTools.delete_contractor(**data)
+    return 'ok', 200
+
+
+@app.route('/del_article', methods=['POST', 'GET'])
+def del_article():
+    data = request.values.to_dict()
+    WarehouseTools.delete_article(**data)
+    return 'ok', 200
+
+
 @app.route('/change_art', methods=['POST', 'GET'])
 def change_art():
     data = json.loads(request.values['articles'])
-    print(data)
     if isinstance(data, dict):
         data = [data, ]
     for rec in data:
