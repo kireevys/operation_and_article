@@ -24,7 +24,7 @@ App = Ext.extend(Ext.Viewport, {
 
 // Create tab contaner: Table Panel
 App.tab = Ext.extend(Ext.TabPanel, {
-    activeTab: 1,
+    activeTab: 0,
 
     initComponent: function () {
         Ext.apply(this, {
