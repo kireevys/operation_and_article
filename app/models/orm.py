@@ -97,7 +97,7 @@ class TableRow(object):
 class Base(TableRow):
     """
     Базовый класс для работы с таблицами.
-    Позваляет добавлять, изменять, удалять данные из БД.
+    Позволяет добавлять, изменять, удалять данные из БД.
     """
     db_path = config_path_db
     conn = connect(db_path)
@@ -105,7 +105,7 @@ class Base(TableRow):
 
     @staticmethod
     def get_template(filename):
-        with open(f'models/static_sql/{filename}') as template_file:
+        with open(f'app/models/static_sql/{filename}') as template_file:
             sql = template_file.read()
             template_file.close()
         template = Template(sql)

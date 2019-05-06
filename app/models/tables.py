@@ -1,4 +1,4 @@
-from models.orm import Column, Base
+from app.models.orm import Column, Base
 from sqlite3 import IntegrityError
 
 from logs import db_logger, debug_logger

@@ -5,6 +5,7 @@ full_path = 'logs/'
 db_log, application_log = full_path + db_log, full_path + application_log
 end = '||'
 
+
 def setup_logger(logger_name, log_file, level=logging.INFO,
                  format='%(name)-6s: [%(module)s/%(funcName)-20s |LINE:%(lineno)-3d]# %(levelname)-8s [%(asctime)s]:  %(message)-90s ||'):
     """

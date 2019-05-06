@@ -1,7 +1,5 @@
-from models.tables import Operation, OpArt, Articles
-from datetime import datetime as dt
+from app.models.tables import Operation, OpArt, Articles
 from logs import db_logger
-from datetime import datetime
 
 
 class OperationTools(Operation):

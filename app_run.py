@@ -1,4 +1,5 @@
-from routing.server import app
+# Стартер приложения
+from app import flask_app
 
 if __name__ == '__main__':
-    app.run()
+    flask_app.run()

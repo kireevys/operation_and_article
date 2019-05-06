@@ -1,7 +1,7 @@
-from models.dbapi_tools import execute_sql_file
-from models.tables import Base
+from app.models.dbapi_tools import execute_sql_file
+from app.models.orm import Base
 from sqlite3 import OperationalError
-from models.tables import OpArt, Operation, OpType, OpStatus, Articles
+from app.models.tables import OpArt, Operation
 import random
 from logs import db_logger
 from datetime import datetime

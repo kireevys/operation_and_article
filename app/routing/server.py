@@ -1,24 +1,28 @@
-from routing import app
 import json
+import traceback
+
 from flask import request, send_file
-from logick.operation_logick import OperationTools
-from logick.catalogs_logick import WarehouseTools
-from werkzeug.datastructures import ImmutableMultiDict
-from models.tables import OpType, Contractor, Warehouse, OpStatus, Articles
 from datetime import datetime
+
+from app import flask_app
+from app.models.tables import OpType, Contractor, Warehouse, OpStatus, Articles
+
+from app.logick.catalogs_logick import WarehouseTools
+from app.logick.operation_logick import OperationTools
+
 from logs import debug_logger
 from config import version
-import traceback
+
 
 # FIXME: ОПТИМИЗАЦИЯ!!!! РЕФАКТИРИНГ!!! ЗДЕСЬ ЧТО ТО УЖАСНОЕ!!!
 
 
-@app.route('/tt')
+@flask_app.route('/tt')
 def index2():
-    return app.send_static_file('ext_js_examples/index.html'), 200
+    return flask_app.send_static_file('ext_js_examples/index.html'), 200
 
 
-@app.route('/contr_add', methods=['POST', 'GET'])
+@flask_app.route('/contr_add', methods=['POST', 'GET'])
 def contr_add():
     data = json.loads(request.values['contractors'])
     for rec in data:
@@ -32,21 +36,21 @@ def contr_add():
     return 'OK', 200
 
 
-@app.route('/del_contr', methods=['POST', 'GET'])
+@flask_app.route('/del_contr', methods=['POST', 'GET'])
 def del_contr():
     data = request.values.to_dict()
     WarehouseTools.delete_contractor(**data)
     return 'ok', 200
 
 
-@app.route('/del_article', methods=['POST', 'GET'])
+@flask_app.route('/del_article', methods=['POST', 'GET'])
 def del_article():
     data = request.values.to_dict()
     WarehouseTools.delete_article(**data)
     return 'ok', 200
 
 
-@app.route('/change_art', methods=['POST', 'GET'])
+@flask_app.route('/change_art', methods=['POST', 'GET'])
 def change_art():
     data = json.loads(request.values['articles'])
     if isinstance(data, dict):
@@ -63,19 +67,19 @@ def change_art():
     return 'OK', 200
 
 
-@app.route('/test')
+@flask_app.route('/test')
 def test():
     """Тестовый роут, просто говорит, что все хорошо"""
     return 'OK', 200
 
 
-@app.route('/version')
+@flask_app.route('/version')
 def get_version():
     """Возвращает текущую версию приложения для установки в заголовок"""
     return version, 200
 
 
-@app.route('/set_new_ws_name', methods=['POST', ])
+@flask_app.route('/set_new_ws_name', methods=['POST', ])
 def set_new_ws_name():
     ws = WarehouseTools()
     req = request.values.to_dict()
@@ -86,25 +90,25 @@ def set_new_ws_name():
     return 'OK', 200
 
 
-@app.route('/favicon.ico')
+@flask_app.route('/favicon.ico')
 def get_icon():
-    return send_file(filename_or_fp='../static/icons/label_magnit.png', as_attachment=True,
+    return send_file(filename_or_fp='static/icons/label_magnit.png', as_attachment=True,
                      attachment_filename='favicon.ico')
 
 
-@app.route('/')
+@flask_app.route('/')
 def index():
-    return app.send_static_file('index.html'), 200
+    return flask_app.send_static_file('index.html'), 200
 
 
-@app.route('/getop')
+@flask_app.route('/getop')
 def send_operation():
     op = OperationTools()
     s = op.get_operation_grid()
     return json.dumps(s), 200
 
 
-@app.route('/get_op_art')
+@flask_app.route('/get_op_art')
 def send_op_art():
     data = request.values
     id_op = data['id_op']
@@ -113,7 +117,7 @@ def send_op_art():
     return json.dumps(all_art), 200
 
 
-@app.route('/get_optypes_arr')
+@flask_app.route('/get_optypes_arr')
 def get_optypes():
     optype = OpType()
     types = optype.select_expression()
@@ -121,7 +125,7 @@ def get_optypes():
     return json.dumps(s), 200
 
 
-@app.route('/get_optypes')
+@flask_app.route('/get_optypes')
 def get_optypes_arr():
     optype = OpType()
     types = optype.select_expression()
@@ -130,7 +134,7 @@ def get_optypes_arr():
     return json.dumps(result), 200
 
 
-@app.route('/get_contractors', methods=['POST'])
+@flask_app.route('/get_contractors', methods=['POST'])
 def get_contractors():
     contr = Contractor()
     contrs = contr.select_expression()
@@ -139,7 +143,7 @@ def get_contractors():
     return json.dumps(resp), 200
 
 
-@app.route('/get_warehouses', methods=['POST'])
+@flask_app.route('/get_warehouses', methods=['POST'])
 def get_warehouses():
     warehouse = Warehouse()
     warehouses = warehouse.select_expression()
@@ -148,14 +152,14 @@ def get_warehouses():
     return json.dumps(resp), 200
 
 
-@app.route('/get_ws_tree', methods=['POST'])
+@flask_app.route('/get_ws_tree', methods=['POST'])
 def get_ws_tree():
     warehouse = Warehouse()
     ws_tree = warehouse.get_full_tree()
     return json.dumps(ws_tree), 200
 
 
-@app.route('/add_op', methods=['POST'])
+@flask_app.route('/add_op', methods=['POST'])
 def add_operation():
     new_op = request.values.to_dict()
     # Преобразуем формат даты в пайтоновский
@@ -166,7 +170,7 @@ def add_operation():
     return 'OK', 200
 
 
-@app.route('/get_op_status', methods=['POST'])
+@flask_app.route('/get_op_status', methods=['POST'])
 def get_op_status():
     status = OpStatus()
     statuses = status.select_expression()
@@ -175,7 +179,7 @@ def get_op_status():
     return json.dumps(resp), 200
 
 
-@app.route('/change_opstatus', methods=['POST', ])
+@flask_app.route('/change_opstatus', methods=['POST', ])
 def change_opstatus():
     data = request.form.to_dict()
     debug_logger.info(data)
@@ -183,13 +187,13 @@ def change_opstatus():
     return 'OK', 200
 
 
-@app.route('/delete_op', methods=['GET', 'POST'])
+@flask_app.route('/delete_op', methods=['GET', 'POST'])
 def delete_op():
     OperationTools.delete_operation(**request.form.to_dict())
     return 'OK', 200
 
 
-@app.route('/get_articles', methods=['GET', 'POST'])
+@flask_app.route('/get_articles', methods=['GET', 'POST'])
 def get_articles():
     # ОПТИМИЗАЦИЯ
     op_art = Articles()
@@ -239,7 +243,7 @@ def get_articles():
         return json.dumps(js), 200
 
 
-@app.route('/edit_opart', methods=['POST', ])
+@flask_app.route('/edit_opart', methods=['POST', ])
 def edit_opart():
     data = list(request.form)[0]
     opart_data = json.loads(data)
@@ -248,7 +252,7 @@ def edit_opart():
     return 'OK', 200
 
 
-@app.route('/get_adder_warehouse', methods=['POST', ])
+@flask_app.route('/get_adder_warehouse', methods=['POST', ])
 def get_adder_warehouse():
     data = dict(text='Новый магазин',
                 leaf=True)
@@ -256,7 +260,7 @@ def get_adder_warehouse():
     return json.dumps(tree), 200
 
 
-@app.route('/delete_ws', methods=['POST', ])
+@flask_app.route('/delete_ws', methods=['POST', ])
 def delete_ws():
     ws_tool = WarehouseTools()
     try:
@@ -267,7 +271,7 @@ def delete_ws():
         return 'OK', 200
 
 
-@app.route('/add_ws', methods=['POST', ])
+@flask_app.route('/add_ws', methods=['POST', ])
 def add_ws():
     try:
         WarehouseTools.add_warehouse(**request.form.to_dict())
@@ -277,7 +281,7 @@ def add_ws():
         return 'ok', 200
 
 
-@app.route('/move_warehouse', methods=['POST', ])
+@flask_app.route('/move_warehouse', methods=['POST', ])
 def move_warehouse():
     try:
         WarehouseTools.move_warehouse(**request.form.to_dict())

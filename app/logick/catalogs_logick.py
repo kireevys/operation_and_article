@@ -1,5 +1,4 @@
-from models.tables import Warehouse, Contractor, Articles
-from logs import db_logger
+from app.models.tables import Warehouse, Contractor, Articles
 
 
 class WarehouseTools(Warehouse):
