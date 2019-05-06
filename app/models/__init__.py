@@ -1,19 +1,29 @@
-from app.models.dbapi_tools import execute_sql_file
-from app.models.orm import Base
-from sqlite3 import OperationalError
-from app.models.tables import OpArt, Operation
 import random
+
+from os.path import isfile
+
+from app.models.orm import Base
+from app.models.tables import OpArt, Operation
 from logs import db_logger
 from datetime import datetime
 
+all_tables = [('warehouse',), ('sqlite_sequence',), ('contractor',), ('opstatus_tbl',), ('optype',), ('unit_tab',),
+              ('article',), ('operation',), ('op_art',)]
+
 
 def db_exists():
-    try:
-        db = Base()
-        db.get_new_session().execute('select * from warehouse w;')
-        return True
-    except OperationalError:
-        return False
+    """
+    Проверяет существование файла БД и наличие всех ожидаемых таблиц
+    Указанных в all_tables
+    :return: bool
+    """
+    db = Base()
+    sql = """
+          select s.name
+              from sqlite_master s
+            where s.type = 'table'
+          """
+    return isfile(db.db_path) and all_tables == db.get_new_session().execute(sql).fetchall()
 
 
 def create_operations():
@@ -48,15 +58,17 @@ def create_operations():
             id_op += 1
 
 
-def test():
-    s = 0
-    ws = [25, 26, 27, 28, 21, 22, 23, 24, 17, 18, 19, 20, 3, 4, 6, 7, ]
-    while s != 7:
-        s = ws[random.randrange(0, len(ws))]
-        print(s)
+def execute_sql_file(sql_path):
+    db = Base()
+    with open(sql_path, 'r') as sql_file:
+        query = sql_file.read()
+    db.get_new_session().executescript(query)
+    db_logger.info(f'DB {db.db_path} ready')
+
+    sql_file.close()
 
 
-create_db_sql_path = f'models/static_sql/create_db.sql'
+create_db_sql_path = f'app/models/static_sql/create_db.sql'
 if not db_exists():
     start = datetime.now()
     db_logger.info(f'Первоначальное наполнение БД...')
