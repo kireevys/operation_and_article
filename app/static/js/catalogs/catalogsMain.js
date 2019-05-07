@@ -476,8 +476,8 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             },
             failure: function (response, options) {
                 Ext.MessageBox.show({
-                    title: 'Не удалось',
-                    msg: 'Не удалось изменить родителя',
+                    title: 'Не удалось изменить родителя',
+                    msg: response.responseText,
                     icon: Ext.MessageBox.ERROR,
                     buttons: Ext.MessageBox.OK
                 });

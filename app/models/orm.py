@@ -1,8 +1,10 @@
+import re
+import os
+
 from sqlite3 import connect, IntegrityError, Row
 from jinja2 import Template
 from config import db_path as config_path_db
 from logs import db_logger, debug_logger
-import re
 
 
 class Column(object):
@@ -18,6 +20,9 @@ class Column(object):
     def set_value(self, new_value):
         self.value = new_value
 
+    def get_value(self):
+        return self.value
+
     def to_dict(self):
         return {self.name: self.value}
 
@@ -25,7 +30,7 @@ class Column(object):
         return f'[{self.name} = {self.value}]'
 
     def __repr__(self):
-        return f'[{self.name} = {self.value}]'
+        return self.__str__()
 
     def __format__(self, format_spec):
         s = f'[{self.name} = {self.value}]'
@@ -35,48 +40,45 @@ class Column(object):
 class TableRow(object):
     """
     Класс cтроки таблицы
-    По сути - фабрикой создает объект строки
+    По сути - создает объект строки
     Также - служит формочкой
     """
     _column_separator_width = 5
-
-    def _factory(self, table_name, **kwargs):
-        """Собирает переданную строку переданной таблицы"""
-        self.__tablename__ = table_name
-        self.column = None
-        self.row = []
-        added_primary = False
-        for field, value in kwargs.items():
-            new_str = f'self.{field} = Column("{field}", {value})'
-            if added_primary:
-                added_primary = True
-                new_str = f'{new_str[:-1]}, {added_primary})'
-            exec(f'self.column = {new_str}')
-            debug_logger.info(self.column)
-            self.row.append(self.column)
-        del self.column
+    __tablename__ = None
+    row = []
 
     def to_dict(self):
         d = {column.name: column.value for column in self.row}
         return d
 
     def to_dict_without_primary(self):
-        d = {column.name: column.value for column in self.row if not column.primary}
-        return d
+        """
+        Возвращает словарь таблицы без первичного ключа
+        :return:
+        """
+        return {column.name: column.value for column in self.row if not column.primary}
+
+    def get_primary(self):
+        """
+        Возвращает первичный ключ
+        :return:
+        """
+        return {column.name: column.value for column in self.row if column.primary}
 
     @classmethod
     def __construct__(cls, values):
-        """Собирает строку переданного класса таблицы"""
-        new_ws = cls()
-        my_row = dict(zip(new_ws.row, values))
+        """
+        Собирает строку переданного класса таблицы
+        """
+        table = cls()
+        my_row = dict(zip(table.row, values))
         for field, value in my_row.items():
             field.value = value
-        return new_ws
+        return table
 
     @staticmethod
     def db_obj_to_dict(*args):
-        di = [k.to_dict() for k in args]
-        return di
+        return [column.to_dict() for column in args]
 
     def __repr__(self):
         table_str = f'<{self.__tablename__.title()}: '
@@ -104,24 +106,23 @@ class Base(TableRow):
 
     @staticmethod
     def get_template(filename):
-        with open(f'app/models/static_sql/{filename}') as template_file:
+        with open(os.path.join('app/models/static_sql', filename)) as template_file:
             sql = template_file.read()
-            template_file.close()
-        template = Template(sql)
-        return template
+        return Template(sql)
 
     def get_new_session(self):
         self.conn = connect(self.db_path)
-        session = self.conn.cursor()
-        return session
+        return self.conn.cursor()
 
     def insert_data(self):
         db_logger.info(self)
         template = self.get_template('insert_into.sql')
         row_dict = self.to_dict_without_primary()
+
         sql = template.render(tablename=self.__tablename__, fields=list(row_dict.keys()))
         debug_logger.info(sql)
         debug_logger.info(row_dict)
+
         try:
             self.get_new_session().execute(sql, row_dict)
         except IntegrityError as error:
@@ -132,12 +133,15 @@ class Base(TableRow):
 
     def delete_data(self):
         db_logger.info(self)
+
         template = self.get_template('delete_exp.sql')
-        id_field = self.row[0].to_dict()
+        id_field = self.get_primary()
         where = self.kwargs_to_predicate_exp('and', **id_field)
         sql = template.render(table=self.__tablename__, where_expression=where)
+
         db_logger.info(sql)
         db_logger.info(id_field)
+
         self.get_new_session().execute(sql, id_field)
         db_logger.info(f'{self} deleted')
         self.conn.commit()
@@ -147,21 +151,6 @@ class Base(TableRow):
         error_text = error.__repr__()[:-3]
         return re.findall(r'UNIQUE constraint failed: (\S+)',
                           error_text)
-
-    @staticmethod
-    def values_to_sql_type(data: dict):
-        values_string_list = []
-        for value in data.values():
-            if value == str:
-                values_string_list.append(f'\'{str(value)}\'')
-            elif value is None:
-                values_string_list.append('null')
-            elif value == int:
-                values_string_list.append(value)
-            else:
-                values_string_list.append(f'\'{str(value)}\'')
-
-        return values_string_list
 
     def get_max_field_value(self, tablename, field):
         template = self.get_template('get_max_value.sql')
@@ -174,7 +163,7 @@ class Base(TableRow):
 
     def select_expression(self, **kwargs):
         template = self.get_template('select_exp.sql')
-        data = self.kwargs_to_predicate_exp('and', **kwargs)
+        data = self.kwargs_to_predicate_exp('and', True, **kwargs)
         sql = template.render(table=self.__tablename__, data=data)
         db_logger.info(sql)
         db_logger.info(kwargs)
@@ -192,7 +181,7 @@ class Base(TableRow):
         all_field = self.to_dict_without_primary()
         # Добавляем к общему словарю последний элемент - тот, что будет в предикате
         all_field.update(**id_field)
-        where = self.kwargs_to_predicate_exp('and', **id_field)
+        where = self.kwargs_to_predicate_exp('and', True, **id_field)
         set_statement = self.kwargs_to_predicate_exp(',', **all_field)
         sql = template.render(table=self.__tablename__, set_expression=set_statement, where_expression=where)
         db_logger.info(sql)
@@ -205,14 +194,14 @@ class Base(TableRow):
             self.conn.commit()
         db_logger.info(f'{self} updated')
 
-    def kwargs_to_predicate_exp(self, separator, **kwargs):
-        if len(kwargs) == 0:
-            return '1 = 1'
+    def kwargs_to_predicate_exp(self, separator, isnull=False, **kwargs):
+        if len(kwargs) == 0: return '1 = 1'
+        symbols = {True: 'is', False: '='}
         values = list(kwargs.keys())
-        fields = self.values_to_sql_type(kwargs)
+        fields = list(kwargs.values())
         expression = str()
         pack = zip(fields, values)
         for value, field in pack:
-            expression = f'{expression} {field} = :{field} {separator}'
+            expression = f'{expression} {field} {symbols[isnull and value is None]} :{field} {separator}'
         expression = expression[:-len(separator)]
         return expression

@@ -12,84 +12,45 @@ class Warehouse(Base):
     def __init__(self, level=None, name=None, id_higher=None):
         # Columns
         self.id_ws = Column('id_ws', primary=True)
-        self.code = Column('code')
-        self.id_higher = Column('id_higher')
-        self.level = Column('level')
-        self.name = Column('name')
+        self.code = Column('code', self.generate_code())
+        self.id_higher = Column('id_higher', id_higher)
+        self.level = Column('level', level)
+        self.name = Column('name', name)
         self.row = (self.id_ws,
                     self.code,
                     self.name,
                     self.level,
                     self.id_higher,)
 
-        # Set value
-        self.level.value = level
-        self.code.value = self.generate_code()
-        self.name.value = name
-        self.id_higher.value = id_higher
-
     def insert(self):
         self.insert_data()
 
     def generate_code(self):
         """
-        Рассчитывает код для МХ по правилу:
-        :return: str(level + id_ws)
+        Рассчитывает код для МХ
         """
         # now_ws = self.get_max_field_value(self.__tablename__, "id_ws") + 1
         # return f'{self.level.value}{now_ws}'
         return 'test'
 
-    # TODO: Сделать тру рекурсивный запрос
+    def get_child(self, parent_id, root):
+        all_head = self.select_expression(id_higher=parent_id)
+        for row in all_head:
+            node = dict(
+                id_ws=None,
+                text=None,
+                leaf=False,
+                children=[]
+            )
+            node['children'] = self.get_child(row.id_ws.get_value(), node['children'])
+            node['id_ws'] = row.id_ws.get_value()
+            node['text'] = row.name.get_value()
+            node['leaf'] = row.level.get_value() == 3
+            root.append(node)
+        return root
+
     def get_full_tree(self):
-        sess = self.get_new_session()
-        header = ('id_ws', 'code', 'name', 'level', 'id_higher')
-        # Get root ws
-        sql = 'select * from warehouse w where w.id_higher is null;'
-        sql_equal = 'select * from warehouse w where w.id_higher = :id_ws;'
-        res = sess.execute(sql).fetchall()
-
-        def to_dict(*args):
-            dict_arr = []
-            for i in args:
-                d = dict(zip(header, i))
-                dict_arr.append(d)
-            return dict_arr
-
-        tree = []
-        root_ws = to_dict(*res)
-        for parent in root_ws:
-            node = []
-            # print(f'-{parent["name"]}')
-            sess = self.get_new_session()
-            res = sess.execute(sql_equal, dict(
-                id_ws=parent['id_ws'])).fetchall()
-            second_level = to_dict(*res)
-            parent_node = dict(id_ws=parent['id_ws'],
-                               text=parent['name'],
-                               leaf=False,
-                               children=[])
-            for sec in second_level:
-                # print(f'--{sec["name"]}')
-                res = sess.execute(sql_equal, dict(
-                    id_ws=sec['id_ws'])).fetchall()
-                second_level = to_dict(*res)
-                second_node = dict(id_ws=sec['id_ws'],
-                                   text=sec['name'],
-                                   leaf=False,
-                                   children=[])
-
-                for child in second_level:
-                    # print(f'---{child["name"]}')
-                    sheet_node = dict(id_ws=child['id_ws'],
-                                      text=child['name'],
-                                      leaf=True)
-                    second_node['children'].append(sheet_node)
-                parent_node['children'].append(second_node)
-            tree.append(parent_node)
-
-        # tr = dict(warehouse=tree)
-        return tree
+        return self.get_child(None, list())
 
 
 class Contractor(Base):

@@ -285,7 +285,7 @@ def add_ws():
 def move_warehouse():
     try:
         WarehouseTools.move_warehouse(**request.form.to_dict())
-    except Exception as e:
+    except Exception:
         return traceback.format_exc(limit=1), 409
     else:
         return 'ok', 200
