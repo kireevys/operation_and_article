@@ -106,7 +106,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                     proxy: new Ext.data.HttpProxy({
                         api: {
                             read: {
-                                url: 'get_optypes',
+                                url: 'optypes',
                                 method: 'GET'
                             }
                         }
@@ -144,8 +144,8 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                     proxy: new Ext.data.HttpProxy({
                         api: {
                             read: {
-                                url: 'get_contractors',
-                                method: 'POST'
+                                url: 'contractor',
+                                method: 'GET'
                             }
                         }
                     }),
@@ -275,14 +275,14 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             {
                 xtype: 'button',
                 id: 'apply',
-                text: 'done',
+                text: 'Сохранить',
                 disabled: false,
                 handler: function () {
                     var myForm = me.getForm()
                     if (myForm.isValid()) {
                         Ext.Ajax.request({
-                            url: 'add_op',
-                            method: 'POST',
+                            url: 'operation',
+                            method: 'ADD',
                             params: myForm.getFieldValues(),
                             success: function (response, options) {
                                 Ext.MessageBox.alert('Успех', 'Операция добавлена');

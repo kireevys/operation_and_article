@@ -211,7 +211,7 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         var operationStore = new Ext.data.JsonStore({
             fields: this.buildFields(),
             proxy: new Ext.data.HttpProxy({
-                url: 'getop',
+                url: 'operation',
                 method: 'GET'
             }),
             root: 'operation',
@@ -236,8 +236,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
-                        url: 'get_op_status',
-                        method: 'POST'
+                        url: 'op_status',
+                        method: 'GET'
                     }
                 }
             }),
@@ -258,8 +258,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         var currentIdStatus = currensSelection.id_status;
         var id_op = currensSelection.id_op;
         Ext.Ajax.request({
-            url: 'change_opstatus',
-            method: 'POST',
+            url: 'op_status',
+            method: 'CHANGE',
             params: {
                 id_op: id_op,
                 id_status: newStatus.id
@@ -301,8 +301,8 @@ App.tab.operationPanel.operation = Ext.extend(Ext.grid.GridPanel, {
         var me = this;
         var currenSelection = this.getSelectedOp();
         Ext.Ajax.request({
-            url: 'delete_op',
-            method: 'POST',
+            url: 'operation',
+            method: 'DELETE',
             params: {
                 id_op: currenSelection.id_op
             },
@@ -631,12 +631,12 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         var proxy = new Ext.data.HttpProxy({
             api: {
                 read: {
-                    url: 'get_op_art',
+                    url: 'op_art',
                     method: 'GET'
                 },
                 update: {
-                    url: 'edit_opart',
-                    method: 'POST',
+                    url: 'op_art',
+                    method: 'EDIT',
                 }
             },
         });
@@ -700,8 +700,8 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         var allData = me.getJsonFromStore();
         // this.store.update();
         Ext.Ajax.request({
-            url: 'edit_opart',
-            method: 'POST',
+            url: 'op_art',
+            method: 'EDIT',
             params: allData,
             success: function (response, options) {
                 // Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
@@ -791,8 +791,8 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
-                        url: 'get_articles',
-                        method: 'GET'
+                        url: 'article',
+                        method: 'GETARTOP'
                     }
                 }
             }),

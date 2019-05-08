@@ -1,4 +1,3 @@
-
 // Create main Viewport
 App = Ext.extend(Ext.Viewport, {
 
@@ -14,7 +13,10 @@ App = Ext.extend(Ext.Viewport, {
     },
 
     buildItems: function () {
-        var tab = new App.tab({ ref: 'tab', parent: this });
+        var tab = new App.tab({
+            ref: 'tab',
+            parent: this
+        });
         mainItems = [
             tab,
         ];
@@ -34,8 +36,14 @@ App.tab = Ext.extend(Ext.TabPanel, {
     },
 
     buildItems: function () {
-        var operations = new App.tab.operationPanel({ ref: 'operationPanel', parent: this });
-        var catalogs = new App.tab.catalogs({ ref: 'catalogsPanel', parent: this });
+        var operations = new App.tab.operationPanel({
+            ref: 'operationPanel',
+            parent: this
+        });
+        var catalogs = new App.tab.catalogs({
+            ref: 'catalogsPanel',
+            parent: this
+        });
         tabs = [
             operations,
             catalogs
@@ -44,15 +52,15 @@ App.tab = Ext.extend(Ext.TabPanel, {
     },
 });
 
-function setAppTitle(){
+function setAppTitle() {
     var header = 'Операции и товары'
     Ext.Ajax.request({
         url: 'version',
-        success: function(response, options){
-            document.title = header + ' v ' + response.responseText;
+        success: function (response, options) {
+            document.title = `${header} v.${JSON.parse(response.responseText)}`;
         },
-        failure: function(response, options){
-           document.title =header;
+        failure: function (response, options) {
+            document.title = header;
         }
     });
 };
@@ -60,5 +68,7 @@ function setAppTitle(){
 // Мы готовы? Установим заголовок - и стартуем
 Ext.onReady(function () {
     setAppTitle();
-    new App({ref: 'main'});
+    new App({
+        ref: 'main'
+    });
 });

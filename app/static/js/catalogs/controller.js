@@ -11,7 +11,8 @@ var centerPanel = Ext.extend(Ext.tree.TreePanel, {
     width: 150,
     region: 'west',
 
-    dataUrl: 'get_adder_warehouse',
+    dataUrl: 'warehouse',
+    requestMethod: 'ADDER',
     root: {
         nodeType: 'async',
         text: 'new_ws',

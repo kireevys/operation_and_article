@@ -17,14 +17,16 @@ class OperationTools(Operation):
         deleting_op.delete_data()
 
     def edit_op_art(self, **new_opart):
-        """Принимает на вход заначения вида
-        id_art=quantity"""
+        """
+        Принимает на вход заначения вида
+        id_art=quantity
+        """
         extending_op = Operation()
         # Проверка существования операции
         id_op = new_opart['id_op']
         art_quantity = new_opart['opart']
         try:
-            extending_op = extending_op.select_expression(id_op=id_op)[0]
+            extending_op.select_expression(id_op=id_op)[0]
         except IndexError:
             db_logger.error(f'Операции {id_op} не существует')
             raise
@@ -39,7 +41,7 @@ class OperationTools(Operation):
             new_art = Articles()
             # Проверим, что ТП существует
             try:
-                new_art = new_art.select_expression(id_art=opart['id_art'])[0]
+                new_art.select_expression(id_art=opart['id_art'])[0]
             except IndexError:
                 db_logger.error(f'ТП {opart["id_art"]} - {opart["name"]} не существует')
                 raise
@@ -111,15 +113,12 @@ class OperationTools(Operation):
 
     def get_operation_grid(self):
         sql = self.get_template('operation_grid.sql').render()
-        # grid = self.get_new_session().execute(sql).fetchall()
         operation_grid = []
         fields = ['id_op', 'opdate', 'code', 'id_status',
                   'status', 'id_type', 'optype', 'id_ws',
                   'id_contr', 'opsumm', 'gm_res', 'doccount',
                   'id_rack', 'contr_name', 'inn', 'ws_name']
         for row in self.get_new_session().execute(sql):
-            # row = list(row)
-            # row[1] = datetime.strptime(row[1], '%Y-%m-%d').isoformat()
             row_dict = {k: v for k, v in zip(fields, row)}
             operation_grid.append(row_dict)
         to_dict = dict(operation=operation_grid)

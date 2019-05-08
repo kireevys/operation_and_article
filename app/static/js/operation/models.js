@@ -6,8 +6,9 @@ var treeWs = Ext.extend(Ext.tree.TreePanel, {
     useArrows: true,
     rootVisible: false,
     id: 'wsTree',
-    dataUrl: 'get_ws_tree',
-    
+    dataUrl: 'warehouse',
+    requestMethod: 'GET',
+
     root: {
         nodeType: 'async',
         text: 'warehouse',
@@ -21,20 +22,9 @@ var treeWs = Ext.extend(Ext.tree.TreePanel, {
         });
 
         treeWs.superclass.initComponent.call(this);
-        
-    },
-    // listeners: {
-    //     // После двойного клика по листу:
-    //     // Выводим МХ для наглядности, и записываем его id для формы
-    //     beforedblclick(node, e) {
-    //         if (node.attributes.leaf) {
-    //             var selNodeText = node.text;
-    //             var selector = Ext.getCmp('selWs');
-    //             selector.setValue(selNodeText);
-    //         }
 
-    //     }
-    // },
+    },
+
     buildToolBar: function () {
         var me = this;
         var bar = Ext.extend(Ext.Toolbar, {
@@ -56,30 +46,12 @@ var treeWs = Ext.extend(Ext.tree.TreePanel, {
                     ref: 'selWs',
                     parent: me
                 })
-                return [wsField,]
+                return [wsField, ]
             },
         });
-        return new bar(
-            {
-                ref: 'treeTb',
-                parent: this
-            });
-    },
-    // TODO: Ниработаит
-    /* bbar: [
-        new Ext.Toolbar({
-            layout: 'form',
+        return new bar({
             ref: 'treeTb',
-            items: [
-                {
-                    xtype: 'textfield',
-                    id: 'selWs',
-                    fieldLabel: 'Selected warehouse',
-                    disabled: true,
-                    allowBlank: false,
-                    ref: 'selWs',
-                }
-            ]
-        })
-    ] */
+            parent: this
+        });
+    },
 });

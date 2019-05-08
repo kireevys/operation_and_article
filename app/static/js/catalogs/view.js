@@ -88,12 +88,11 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
                 // me.parent.getStore().remove(record);
                 this.removeRecFromDB(record.json);
             },
-            // FIXME: Костыль, надо убрать
 
             removeRecFromDB: function (json_rec) {
                 Ext.Ajax.request({
                     url: this.parent.url,
-                    method: 'POST',
+                    method: 'DELETE',
                     params: json_rec,
                     success: function (response, options) {
                         // Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
@@ -130,7 +129,7 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
 });
 
 var contrFootBar = Ext.extend(catalogFootBar, {
-    url: 'del_contr',
+    url: 'contractor',
     initComponent: function () {
         Ext.apply(this, {
             adder: this.buildAdder
@@ -154,7 +153,7 @@ var contrFootBar = Ext.extend(catalogFootBar, {
 });
 
 var articleFootBar = Ext.extend(catalogFootBar, {
-    url: 'del_article',
+    url: 'article',
     initComponent: function () {
         Ext.apply(this, {
             adder: this.buildAdder

@@ -121,17 +121,17 @@ App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
             proxy: new Ext.data.HttpProxy({
                 api: {
                     read: {
-                        url: 'get_articles',
-                        method: 'POST'
+                        url: 'article',
+                        method: 'GET'
                     },
 
                     create: {
-                        url: 'change_art',
-                        method: 'POST',
+                        url: 'article',
+                        method: 'ADD',
                     },
 
                     destroy: {
-                        url: 'test',
+                        url: 'article',
                         method: 'DELETE'
                     },
                 }
@@ -200,39 +200,39 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
 
             proxy: new Ext.data.HttpProxy({
                 idProperty: 'id_contr',
-                url: 'get_contractors',
+                url: 'contractor',
                 // TODO: Понять, почему при store.remove(rec) не уходит запрос к серверу
                 // Далее сделать норм методы
                 // На стороне сервера - сделать единый метод, и действия в зависимости от метода
                 api: {
                     read: {
-                        url: 'get_contractors',
-                        method: 'POST'
+                        url: 'contractor',
+                        method: 'GET'
                     },
 
                     create: {
-                        url: 'contr_add',
-                        method: 'POST'
+                        url: 'contractor',
+                        method: 'ADD'
                     },
 
                     destroy: {
-                        url: 'contr_del',
-                        method: 'POST'
+                        url: 'contractor',
+                        method: 'DELETE'
                     },
 
                     update: {
-                        url: 'contr_del',
-                        method: 'POST'
+                        url: 'contractor',
+                        method: 'DELETE'
                     },
                 }
             }),
-            
+
             writer: new Ext.data.JsonWriter({
                 encode: true,
                 encodeDelete: false,
                 listful: true
             }),
-            
+
             reader: new Ext.data.JsonReader({
                 idProperty: 'id_contr',
             }),
@@ -391,8 +391,8 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
 
             setNewWsName: function (node) {
                 Ext.Ajax.request({
-                    url: 'set_new_ws_name',
-                    method: 'POST',
+                    url: 'warehouse',
+                    method: 'RENAME',
                     params: {
                         id_ws: node.attributes.id_ws,
                         name: node.attributes.text
@@ -428,8 +428,8 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         var me = this;
         var node = node;
         Ext.Ajax.request({
-            url: 'add_ws',
-            method: 'POST',
+            url: 'warehouse',
+            method: 'ADD',
             params: {
                 id_higher: parent.attributes.id_ws || null,
                 name: node.text
@@ -460,8 +460,8 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     moveWs: function (node, newParent) {
         var me = this;
         Ext.Ajax.request({
-            url: 'move_warehouse',
-            method: 'POST',
+            url: 'warehouse',
+            method: 'MOVE',
             params: {
                 id_ws: node.attributes.id_ws,
                 id_higher: newParent.attributes.id_ws || null
@@ -492,8 +492,8 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
         var me = this;
         var parent = node.parentNode;
         Ext.Ajax.request({
-            url: 'delete_ws',
-            method: 'POST',
+            url: 'warehouse',
+            method: 'DELETE',
             params: {
                 id_ws: node.attributes.id_ws,
                 name: node.attributes.text
