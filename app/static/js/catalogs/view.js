@@ -85,7 +85,6 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
                 } catch (TypeError) {
                     return false;
                 };
-                // me.parent.getStore().remove(record);
                 this.removeRecFromDB(record.json);
             },
 
@@ -95,9 +94,11 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
                     method: 'DELETE',
                     params: json_rec,
                     success: function (response, options) {
-                        // Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
                         me.parent.getStore().load();
                         Ext.MessageBox.alert('Успех', 'Удалено из базы');
+                    },
+                    failure: function (response) {
+                        Ext.MessageBox.alert('Ошибка', JSON.parse(response.responseText))
                     }
                 });
             },
@@ -111,13 +112,11 @@ var catalogFootBar = Ext.extend(Ext.Toolbar, {
         var cancel = new editGroupButton({
             ref: 'cancelButton',
             parent: me,
-            // disabled: true,
             iconCls: 'action-delete',
             tooltip: 'Отменить изменения',
 
             handler: function () {
                 me.parent.store.load();
-                // this.setDisabled(true);
             }
         });
 

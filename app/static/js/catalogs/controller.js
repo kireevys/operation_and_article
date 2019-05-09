@@ -32,7 +32,6 @@ var centerPanel = Ext.extend(Ext.tree.TreePanel, {
 
     buildItems: function () {
         var me = this;
-        // TODO: Вынести отсюда, здесь только создавать экземпляр
         var grid = Ext.extend(Ext.grid.GridPanel, {
             height: 200,
             disabled: true,
@@ -40,15 +39,13 @@ var centerPanel = Ext.extend(Ext.tree.TreePanel, {
             store: new Ext.data.ArrayStore({
                 fields: ['name']
             }),
-            columns: [
-                {
-                    id: 'name_column',
-                    header: 'Удалить узел',
-                    dataIndex: 'name',
-                    resizable: false,
-                    width: 200
-                }
-            ],
+            columns: [{
+                id: 'name_column',
+                header: 'Удалить узел',
+                dataIndex: 'name',
+                resizable: false,
+                width: 200
+            }],
             viewConfig: {
                 forceFit: true
             },
@@ -67,30 +64,25 @@ var centerPanel = Ext.extend(Ext.tree.TreePanel, {
                     notifyDrop: function (ddSource, e, data) {
                         if (ddSource.tree.ref == 'warehouses') {
                             var data = data;
-                            Ext.Msg.show(
-                                {
-                                    title: 'Удалить',
-                                    msg: 'Вы хотите удалить этот элемент?',
-                                    buttons: Ext.Msg.OKCANCEL,
-                                    icon: Ext.MessageBox.QUESTION,
-                                    animEl: 'elId',
-                                    fn: function (buttonId, text) {
-                                        if (buttonId == 'cancel') {
-                                            Ext.MessageBox.show(
-                                                {
-                                                    title: 'Операция отменена',
-                                                    msg: 'Удаление отменено',
-                                                    icon: Ext.MessageBox.WARNING,
-                                                    buttons: Ext.MessageBox.OK
-                                                }
-                                            );
-                                        }
-                                        else if (buttonId == 'ok') {
-                                            me.warehouses.deleteWs(me.warehouses.getSelectionModel().selNode);
-                                        }
+                            Ext.Msg.show({
+                                title: 'Удалить',
+                                msg: 'Вы хотите удалить этот элемент?',
+                                buttons: Ext.Msg.OKCANCEL,
+                                icon: Ext.MessageBox.QUESTION,
+                                animEl: 'elId',
+                                fn: function (buttonId, text) {
+                                    if (buttonId == 'cancel') {
+                                        Ext.MessageBox.show({
+                                            title: 'Операция отменена',
+                                            msg: 'Удаление отменено',
+                                            icon: Ext.MessageBox.WARNING,
+                                            buttons: Ext.MessageBox.OK
+                                        });
+                                    } else if (buttonId == 'ok') {
+                                        me.warehouses.deleteWs(me.warehouses.getSelectionModel().selNode);
                                     }
                                 }
-                            );
+                            });
                         }
                     }
                 });
@@ -182,8 +174,7 @@ var contrAddForm = Ext.extend(Ext.form.FormPanel, {
                 allowDecimals: false,
                 maxValue: 9999999999,
                 invalidText: 'ИНН содержит 10 чисел'
-            }
-            , {
+            }, {
                 xtype: 'textfield',
                 id: 'address',
                 fieldLabel: 'Адрес КА',
@@ -197,24 +188,22 @@ var contrAddForm = Ext.extend(Ext.form.FormPanel, {
 
     buildButtons: function () {
         var me = this;
-        var buttonsArr = [
-            {
-                xtype: 'button',
-                id: 'apply',
-                // text: 'done',
-                iconCls: 'action-save-24',
-                disabled: false,
-                handler: function () {
-                    var myForm = me.getForm()
-                    if (myForm.isValid()) {
-                        var rec = Ext.data.Record.create(me.fields);
-                        var newRec = new rec(myForm.getFieldValues());
-                        me.parent.parent.parent.store.add(newRec);
-                        me.parent.destroy();
-                    }
-                },
-            }
-        ];
+        var buttonsArr = [{
+            xtype: 'button',
+            id: 'apply',
+            // text: 'done',
+            iconCls: 'action-save-24',
+            disabled: false,
+            handler: function () {
+                var myForm = me.getForm()
+                if (myForm.isValid()) {
+                    var rec = Ext.data.Record.create(me.fields);
+                    var newRec = new rec(myForm.getFieldValues());
+                    me.parent.parent.parent.store.add(newRec);
+                    me.parent.destroy();
+                }
+            },
+        }];
         return buttonsArr;
     },
 });
@@ -233,8 +222,7 @@ var articleAddForm = Ext.extend(contrAddForm, {
     },
 
     buildItems: function () {
-        var itemArr = [
-            {
+        var itemArr = [{
                 xtype: 'textfield',
                 id: 'name',
                 fieldLabel: 'Название ТП',

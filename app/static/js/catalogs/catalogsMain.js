@@ -74,9 +74,6 @@ App.tab.catalogs.warehous = Ext.extend(Ext.Panel, {
 
 
 });
-
-
-// FIXME: Все гриды должны наследоваться от кастомного родителя
 // Articles
 App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
     title: 'Товары',
@@ -93,59 +90,12 @@ App.tab.catalogs.articles = Ext.extend(Ext.grid.EditorGridPanel, {
 
     initComponent: function () {
         Ext.apply(this, {
-            store: this.buildStore(),
-            colModel: this.buildColModel(),
+            store: artStore,
+            colModel: articleColumn,
             bbar: this.buildFootBar()
-
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
-    },
-
-    buildColModel: function () {
-        return articleColumn;
-    },
-
-    buildStore: function () {
-        var artStore = new Ext.data.JsonStore({
-            fields: articleFields,
-            autoSave: false,
-            autoLoad: true,
-
-            listeners: {
-                save: function () {
-                    this.load()
-                }
-            },
-
-            proxy: new Ext.data.HttpProxy({
-                api: {
-                    read: {
-                        url: 'article',
-                        method: 'GET'
-                    },
-
-                    create: {
-                        url: 'article',
-                        method: 'ADD',
-                    },
-
-                    destroy: {
-                        url: 'article',
-                        method: 'DELETE'
-                    },
-                }
-            }),
-            root: 'articles',
-
-            writer: new Ext.data.JsonWriter({
-                encode: true,
-                encodeDelete: false,
-                listful: true
-            }),
-        });
-        // caStore.load();
-        return artStore;
     },
 
     buildFootBar: function () {
@@ -172,74 +122,13 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
 
     initComponent: function () {
         Ext.apply(this, {
-            store: this.buildStore(),
-            colModel: this.buildColModel(),
+            store: caStore,
+            colModel: contractorsColumn,
             bbar: this.buildFootBar()
 
         });
 
         App.tab.catalogs.contractors.superclass.initComponent.call(this);
-    },
-
-    buildColModel: function () {
-        return contractorsColumn;
-    },
-
-    buildStore: function () {
-        var caStore = new Ext.data.JsonStore({
-            autoSave: false,
-            autoLoad: true,
-            root: 'contractors',
-            fields: contrFields,
-
-            listeners: {
-                save: function () {
-                    this.load()
-                }
-            },
-
-            proxy: new Ext.data.HttpProxy({
-                idProperty: 'id_contr',
-                url: 'contractor',
-                // TODO: Понять, почему при store.remove(rec) не уходит запрос к серверу
-                // Далее сделать норм методы
-                // На стороне сервера - сделать единый метод, и действия в зависимости от метода
-                api: {
-                    read: {
-                        url: 'contractor',
-                        method: 'GET'
-                    },
-
-                    create: {
-                        url: 'contractor',
-                        method: 'ADD'
-                    },
-
-                    destroy: {
-                        url: 'contractor',
-                        method: 'DELETE'
-                    },
-
-                    update: {
-                        url: 'contractor',
-                        method: 'DELETE'
-                    },
-                }
-            }),
-
-            writer: new Ext.data.JsonWriter({
-                encode: true,
-                encodeDelete: false,
-                listful: true
-            }),
-
-            reader: new Ext.data.JsonReader({
-                idProperty: 'id_contr',
-            }),
-
-        });
-        // caStore.load();
-        return caStore;
     },
 
     buildFootBar: function () {
@@ -251,6 +140,7 @@ App.tab.catalogs.contractors = Ext.extend(Ext.grid.EditorGridPanel, {
     }
 });
 
+// Warehouses
 App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     enableDD: true,
     ddGroup: 'treeWs',
@@ -268,15 +158,9 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
     initComponent: function () {
         Ext.apply(this, {
             editor: this.getEditor(),
-            // deleter: this.buildDeleter(),
         });
 
         App.tab.catalogs.warehouses.superclass.initComponent.call(this);
-
-
-        // this.deleter.show(this, this.buildDD, this);
-
-        // this.deleter.setVisible(false);
     },
 
     listeners: {
@@ -298,8 +182,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             } else {
                 this.getRootNode().reload();
             };
-
-            // };
         },
 
         enddrag() {
@@ -348,10 +230,8 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             return;
         };
         var me = this;
-        var editData = this.editNode.attributes
-        // TODO: Месседж Бокс не умеет в перевод строки?
+        // ? TODO: Месседж Бокс не умеет в перевод строки?
         var message = `Старое : ${oldText}\nНовое : ${newText}`
-        // this.parent.addToChanged(this.editNode);
         var title = 'Вы уверены?'
         Ext.Msg.show({
             title: title,
@@ -364,7 +244,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                     me.editNode.setText(oldText);
                     Ext.MessageBox.show({
                         title: 'Операция отменена',
-                        msg: 'Оставили название: ' + oldText,
+                        msg: `Оставили название: ${oldText}`,
                         icon: Ext.MessageBox.WARNING,
                         buttons: Ext.MessageBox.OK
                     });
@@ -378,7 +258,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
 
     getEditor: function () {
         var me = this;
-        var editor = new Ext.tree.TreeEditor(this, {}, {
+        return new Ext.tree.TreeEditor(this, {}, {
             cancelOnEsc: true,
             completeOnEnter: true,
             selectOnFocus: true,
@@ -388,7 +268,6 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             },
             ref: 'editor',
             parent: me,
-
             setNewWsName: function (node) {
                 Ext.Ajax.request({
                     url: 'warehouse',
@@ -419,10 +298,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 });
             },
         });
-
-        return editor;
     },
-
     addWs: function (node) {
         var parent = node.parentNode;
         var me = this;
@@ -437,7 +313,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             success: function (response, options) {
                 Ext.Msg.show({
                     title: 'Операция успешна',
-                    msg: 'Добавлено ' + node.attributes.text,
+                    msg: `Добавлено ${node.attributes.text}`,
                     icon: Ext.MessageBox.INFO,
                     buttons: Ext.MessageBox.OK
                 });
@@ -519,14 +395,4 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
             }
         });
     },
-
-    // buildDeleter: function () {
-    //     return new deleterWindow(
-    //         {
-    //             ref: 'deleter',
-    //             parent: this
-    //         }
-    //     );
-    // }
-
 });
