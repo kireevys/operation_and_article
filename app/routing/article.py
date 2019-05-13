@@ -54,23 +54,8 @@ def get_articles():
 @add_route(url, 'GET')
 def get_all_article():
     op_art = Articles()
-    sess = op_art.get_new_session()
-    sql = '''SELECT a.id_art,
-                    a.name,
-                    a.price CURRENT_price,
-                    a.code,
-                   -- u.fullname unit
-                    a.unit
-                 from article a
-                 --join unit_tab u on id_unit = unit
-            order by a.id_art;'''
-    result = sess.execute(sql).fetchall()
-    opart = []
-    fields = ['id_art', 'name', 'price', 'code', 'unit']
-    for row in result:
-        row_dict = {k: v for k, v in zip(fields, row)}
-        opart.append(row_dict)
-    return dict(articles=opart)
+    result = op_art.select_expression()
+    return dict(articles=[i.to_dict() for i in result])
 
 
 @add_route(url, 'DELETE')

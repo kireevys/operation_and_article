@@ -66,20 +66,22 @@ def operation():
         raise MethodNotAllowed(f'Method {request.method} not allowed here')
 
 
-@flask_app.route('/op_art', methods=['GET', 'EDIT', ])
+@flask_app.route('/op_art', methods=['GET', 'EDIT', 'DELETE'])
 @json_decorator
 @exceptions_decorator
 def op_art():
+    op = OperationTools()
     if request.method == 'EDIT':
-        opart_data = json.loads(list(request.form)[0])
-        op = OperationTools()
-        op.edit_op_art(**opart_data)
+        opart_data = json.loads(request.form.to_dict()['opart'])
+        op.edit_op_art(*opart_data)
         return True
     elif request.method == 'GET':
         data = request.values
         id_op = data['id_op']
-        op = OperationTools()
         all_art = op.get_all_opart(id_op)
         return all_art
+    elif request.method == 'DELETE':
+        op.delete_opart(json.loads(request.values['opart']))
+        return True
     else:
         raise MethodNotAllowed(f'Method {request.method} not allowed here')

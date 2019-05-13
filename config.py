@@ -7,7 +7,7 @@ application_log = 'application_log.log'
 
 # Enviroments
 debug = True
-version = '0.1.3'
+version = '0.2.0'
 
 #  Flask
 DEBUG = True

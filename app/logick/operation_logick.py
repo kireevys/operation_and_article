@@ -16,11 +16,26 @@ class OperationTools(Operation):
         db_logger.info(deleting_op)
         deleting_op.delete_data()
 
-    def edit_op_art(self, **new_opart):
+    def edit_op_art(self, *oparts):
+        """
+        Редактирует опарты
+        :param oparts:
+        :return:
+        """
+        for opart in oparts:
+            if 'id_opart' not in opart.keys():
+                self.insert_opart(**opart)
+            else:
+                self.update_opart(**opart)
+
+    def edit_opart(self, *new_opart):
         """
         Принимает на вход заначения вида
         id_art=quantity
         """
+        for i in new_opart:
+            if new_opart['id_op'] is None:
+                pass
         extending_op = Operation()
         # Проверка существования операции
         id_op = new_opart['id_op']
@@ -54,7 +69,7 @@ class OperationTools(Operation):
         return True
 
     def delete_opart(self, *args):
-        opart_ids = ', '.join([str(i) for i in args])
+        opart_ids = ', '.join([str(i) for i in args[0]])
         db_logger.info(opart_ids)
         sql = f'delete from op_art where id_opart in ({opart_ids})'
         self.get_new_session().execute(sql)

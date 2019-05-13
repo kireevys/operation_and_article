@@ -56,6 +56,7 @@ var treeWs = Ext.extend(Ext.tree.TreePanel, {
     },
 });
 
+// Operations
 var operationColumns = new Ext.grid.ColumnModel({
     columns: [{
             header: 'ИД операции',
@@ -211,6 +212,16 @@ var opFields = [{
     },
 ];
 
+var operationStore = new Ext.data.JsonStore({
+    fields: opFields,
+    proxy: new Ext.data.HttpProxy({
+        url: 'operation',
+        method: 'GET'
+    }),
+    root: 'operation',
+});
+
+// Statuses
 var statusField = [{
         name: 'id_status',
         mapping: 'id_status'
@@ -273,6 +284,11 @@ var opArticleColumns = new Ext.grid.ColumnModel({
             dataIndex: 'op_price'
         },
         {
+            header: 'Текущая Цена',
+            dataIndex: 'price',
+            hidden: true,
+        },
+        {
             header: 'Количество',
             dataIndex: 'quantity',
             editor: {
@@ -296,6 +312,7 @@ var opArticleColumns = new Ext.grid.ColumnModel({
     defaultWidth: 150
 });
 
+// OpArt
 var opArtFields = [{
         name: 'id_opart',
         mapping: 'id_opart'
@@ -333,25 +350,54 @@ var opArtFields = [{
     }
 ];
 
-var operationStore = new Ext.data.JsonStore({
-    fields: opArtFields,
+var opArtStore = new Ext.data.JsonStore({
+    autoSave: false,
+    autoLoad: false,
     proxy: new Ext.data.HttpProxy({
         api: {
             read: {
-                url: 'article',
-                method: 'GETARTOP'
-            }
-        }
+                url: 'op_art',
+                method: 'GET'
+            },
+            destroy: {
+                url: 'op_art',
+                method: 'DELETE',
+            },
+            create: {
+                url: 'op_art',
+                method: 'EDIT',
+            },
+            update: {
+                url: 'op_art',
+                method: 'EDIT',
+            },
+        },
     }),
-    root: 'articles',
+
+    listeners: {
+        save: function () {
+            this.parent.store.load({params: {id_op: this.parent.id_op}});
+        }
+    },
+
+    writer: new Ext.data.JsonWriter({
+        encode: true,
+        encodeDelete: false,
+        listful: true,
+        writeAllFields: true
+    }),
+    root: 'opart',
+    fields: opArtFields,
+    idProperty: 'id_opart',
 });
 
-var opArticleColumns = new Ext.grid.ColumnModel({
+// Articles
+var articleColumns = new Ext.grid.ColumnModel({
     columns: [
         // { header: 'id_opart', dataIndex: 'id_opart', id: 'id_opart', width: 70, hidden: true },
         // { header: 'id_op', dataIndex: 'id_op', hidden: true },
         {
-            header: 'Идентификатор ТП',
+            header: 'ИД ТП',
             dataIndex: 'id_art',
             hideable: false
         },
@@ -364,7 +410,7 @@ var opArticleColumns = new Ext.grid.ColumnModel({
             header: 'Цена',
             dataIndex: 'price'
         },
-        // { header: 'op_price', dataIndex: 'op_price',hidden: true },
+        // { header: 'Цена в операции', dataIndex: 'op_price', hidden: false },
         // { header: 'quantity', dataIndex: 'quantity',hidden: true },
         // { header: 'summ', dataIndex: 'summ',hidden: true },
     ],
@@ -376,11 +422,15 @@ var opArticleColumns = new Ext.grid.ColumnModel({
     defaultWidth: 75
 });
 
-var operationStore = new Ext.data.JsonStore({
-    fields: opFields,
+var articlesStore = new Ext.data.JsonStore({
+    fields: opArtFields,
     proxy: new Ext.data.HttpProxy({
-        url: 'operation',
-        method: 'GET'
+        api: {
+            read: {
+                url: 'article',
+                method: 'GETARTOP'
+            }
+        }
     }),
-    root: 'operation',
+    root: 'articles',
 });

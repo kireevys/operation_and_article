@@ -95,8 +95,6 @@ var caStore = new Ext.data.JsonStore({
         idProperty: 'id_contr',
         url: 'contractor',
         // TODO: Понять, почему при store.remove(rec) не уходит запрос к серверу
-        // Далее сделать норм методы
-        // На стороне сервера - сделать единый метод, и действия в зависимости от метода
         api: {
             read: {
                 url: 'contractor',
@@ -156,32 +154,32 @@ var articleFields = [{
 
 var articleColumn = new Ext.grid.ColumnModel({
     columns: [{
-            header: 'id_art',
+            header: 'ИД ТП',
             dataIndex: 'id_art',
             id: 'id_art',
             width: 100,
             hideable: false
         },
         {
-            header: 'name',
+            header: 'Название',
             dataIndex: 'name',
             width: 150,
             id: 'artName',
             editor: new textFieldEditor()
         },
         {
-            header: 'code',
+            header: 'Код ТП',
             dataIndex: 'code',
             width: 75,
         },
         {
-            header: 'price',
+            header: 'Цена',
             dataIndex: 'price',
             width: 150,
             editor: new numFieldEditor()
         },
         {
-            header: 'unit',
+            header: 'ИД Единицы хранения',
             dataIndex: 'unit',
             width: 175
         },

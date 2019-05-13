@@ -348,18 +348,11 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                     var foundItem = me.opArtGrid.store.findExact('id_art', record.data.id_art);
                     // if not found
                     if (foundItem == -1) {
-
                         me.opArtGrid.store.add(record);
-
                         // Call a sort dynamically
                         me.opArtGrid.store.sort('id_opart', 'DESC');
-
                         //Remove Record from the source
                         ddSource.grid.store.remove(record);
-                        // Extract from deleting array
-                        if (record.data.id_opart !== null) {
-                            me.opArtGrid.removeFromDelete(record.data.id_opart);
-                        };
                         // Recalc new opsumm
                         me.opArtGrid.setOpSumm();
 
@@ -392,10 +385,8 @@ App.tab.operationPanel.opArtPanel = Ext.extend(Ext.Panel, {
                         me.articles.store.sort('id_opart', 'ASC');
 
                         //Remove Record from the source
+                        record.phantom = false;
                         ddSource.grid.store.remove(record);
-                        if (record.data.id_opart !== null) {
-                            ddSource.grid.addOpartToDeleting(record.data.id_opart);
-                        };
                         ddSource.grid.setOpSumm();
 
                     }
@@ -432,9 +423,7 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
             plugins: this.buildFilters(),
         });
         App.tab.operationPanel.opArticles.superclass.initComponent.call(this);
-        // this.parent.loadOp({ id_op: 1 });
         this.on('afteredit', this.setOpSumm, this);
-
     },
 
     buildFilters: function () {
@@ -504,55 +493,21 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
             e.record.store = this.store;
         };
         var record = e.record.data;
-        record.summ = record.price * record.quantity;
-        e.record.json.modified = true;
-        e.record.json.price = record.price;
-        e.record.json.quantity = record.quantity;
-        e.record.json.summ = record.summ;
-        e.record.commit();
+        e.record.set('summ', (record.op_price || record.price) * record.quantity);
+        e.record.set('modified', true);
+        e.record.set('op_price', record.op_price || record.price);
+        e.record.set('quantity', record.quantity);
+        e.record.set('id_op', e.record.id_op || this.id_op);
+        // e.record.commit();
     },
 
     buildColModel: function () {
         return opArticleColumns;
     },
 
-    buildFields: function () {
-        return opArtFields;
-    },
-
     buildStore: function () {
-        var proxy = new Ext.data.HttpProxy({
-            api: {
-                read: {
-                    url: 'op_art',
-                    method: 'GET'
-                },
-                update: {
-                    url: 'op_art',
-                    method: 'EDIT',
-                }
-            },
-        });
-        var operationStore = new Ext.data.JsonStore({
-            fields: this.buildFields(),
-            proxy: proxy,
-            root: 'opart',
-        });
-        return operationStore;
-    },
-    // Удаляемые опарты
-    forDelete: [],
-
-    addOpartToDeleting: function (id_opart) {
-        this.forDelete.push(id_opart);
-    },
-
-    removeFromDelete: function (id_opart) {
-        this.forDelete.pop(id_opart);
-    },
-
-    clearFromDelete: function () {
-        this.forDelete = [];
+        opArtStore.parent = this;
+        return opArtStore;
     },
 
     loadOp: function (op, opsumm) {
@@ -563,7 +518,6 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         this.getBottomToolbar().items.items[0].setDisabled(false);
         // this.setOpSumm();
         this.id_op = op.id_op;
-        this.clearFromDelete();
     },
 
     setOpSumm: function () {
@@ -574,54 +528,12 @@ App.tab.operationPanel.opArticles = Ext.extend(Ext.grid.EditorGridPanel, {
         }
         this.getBottomToolbar().items.items[2].setValue(opsumm);
     },
-    getJsonFromStore: function () {
-        // TODO: Можно сделать более глобальную функцию и на вход давать стор
-        var s = this.store.data.items;
-        var jsonData = {
-            id_op: this.id_op,
-            opart: [],
-            forDelete: this.forDelete
-        };
-        var opsumm = 0;
-        for (var i = 0; i < s.length; i++) {
-            jsonData.opart.push(s[i].json);
-            // opsumm = opsumm + s[i].data.summ || 0;
-        };
-        return JSON.stringify(jsonData);
-    },
 
     sendNewOpArt: function () {
-        var me = this;
-        var allData = me.getJsonFromStore();
-        // this.store.update();
-        Ext.Ajax.request({
-            url: 'op_art',
-            method: 'EDIT',
-            params: allData,
-            success: function (response, options) {
-                // Ext.MessageBox.alert('Успех', 'Статус обновлен на : ' + newStatus.name);
-                me.parent.loadOp({
-                    id_op: me.id_op
-                });
-                me.parent.parent.operationGrid.loadOp();
-                Ext.MessageBox.alert('Сохранено', 'Изменения сохранены');
-            }
-        });
+        this.store.save();
     },
 });
 
-var artFilters = new Ext.ux.grid.GridFilters({
-    // encode and local configuration options defined previously for easier reuse
-    // encode: true, // json encode the filter query
-    local: true, // defaults to false (remote filtering)
-    filters: [{
-        type: 'numeric',
-        dataIndex: 'id_art'
-    }, {
-        type: 'string',
-        dataIndex: 'name'
-    }]
-});
 
 App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     flex: 1,
@@ -631,13 +543,14 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     stripeRows: true,
     title: 'Товары к добавлению',
     collapsible: true,
-    plugins: artFilters,
+
     autoExpandColumn: 'artName',
 
     initComponent: function () {
         Ext.apply(this, {
                 colModel: this.buildColModel(),
-                store: this.buildStore()
+                store: this.buildStore(),
+                plugins: this.buildFilters(),
             }),
             App.tab.operationPanel.articlesGrid.superclass.initComponent.call(this);
         // this.loadOp({ id_op: 1 });
@@ -645,15 +558,26 @@ App.tab.operationPanel.articlesGrid = Ext.extend(Ext.grid.GridPanel, {
     },
 
     buildColModel: function () {
-        return opArticleColumns;
+        return articleColumns;
     },
 
-    buildFields: function () {
-        return opArtFields;
+    buildFilters: function () {
+        return new Ext.ux.grid.GridFilters({
+            // encode and local configuration options defined previously for easier reuse
+            // encode: true, // json encode the filter query
+            local: true, // defaults to false (remote filtering)
+            filters: [{
+                type: 'numeric',
+                dataIndex: 'id_art'
+            }, {
+                type: 'string',
+                dataIndex: 'name'
+            }]
+        });
     },
 
     buildStore: function () {
-        return operationStore;
+        return articlesStore;
     },
 
     loadOp: function (op) {
