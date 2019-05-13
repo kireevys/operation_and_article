@@ -1,4 +1,4 @@
-addop = Ext.extend(Ext.Window, {
+var addop = Ext.extend(Ext.Window, {
     title: 'Создание операций',
     modal: true,
     width: 500,
@@ -7,8 +7,8 @@ addop = Ext.extend(Ext.Window, {
 
     initComponent: function () {
         Ext.applyIf(this, {
-            items: this.buildItems()
-        }),
+                items: this.buildItems()
+            }),
             addop.superclass.initComponent.call(this);
     },
 
@@ -24,12 +24,8 @@ addop = Ext.extend(Ext.Window, {
     },
 });
 
-addOpForm = Ext.extend(Ext.form.FormPanel, {
+var addOpForm = Ext.extend(Ext.form.FormPanel, {
     id: 'addOpForm',
-
-    getChildValues: function () {
-        var me = this;
-    },
 
     initComponent: function () {
         Ext.applyIf(this, {
@@ -40,6 +36,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
 
         this.wsTree.on('beforedblclick', this.setWs, this);
     },
+
     formData: {
         optype: null,
         ws: null,
@@ -52,7 +49,6 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
     },
 
     buildItems: function () {
-        var me = this;
         var comboOptypes = Ext.extend(Ext.form.ComboBox, {
             id: 'optype',
             typeAhead: true,
@@ -63,22 +59,31 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
             allowBlank: false,
 
             setStatusAdditionalField: function (data) {
-                var allFields = [
-                    { id: 'gm_res', expected: 'На гипермаркете' },
-                    { id: 'id_rack', expected: 'Складская' },
-                    { id: 'doccount', expected: 'От поставщика' },
+                var allFields = [{
+                        id: 'gm_res',
+                        expected: 'На гипермаркете'
+                    },
+                    {
+                        id: 'id_rack',
+                        expected: 'Складская'
+                    },
+                    {
+                        id: 'doccount',
+                        expected: 'От поставщика'
+                    },
                 ];
 
                 for (var i in allFields) {
-                    if (i === 'remove') { break };
+                    if (i === 'remove') {
+                        break
+                    };
                     var currentField = allFields[i];
-                    var fildObj = Ext.getCmp(currentField.id);
-                    fildObj.setValue(null);
+                    var fieldObj = Ext.getCmp(currentField.id);
+                    fieldObj.setValue(null);
                     if (data.name === currentField.expected) {
-                        fildObj.setDisabled(false);
-                    }
-                    else {
-                        fildObj.setDisabled(true);
+                        fieldObj.setDisabled(false);
+                    } else {
+                        fieldObj.setDisabled(true);
                     };
 
                 };
@@ -95,82 +100,11 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                     store: this.buildStore(),
                 });
                 comboOptypes.superclass.initComponent.call(this);
-                this.store.load()
             },
 
             buildStore: function () {
-                var optypeStore = new Ext.data.JsonStore({
-                    fields: [
-                        'id_type',
-                        'name',],
-                    proxy: new Ext.data.HttpProxy({
-                        api: {
-                            read: {
-                                url: 'optypes',
-                                method: 'GET'
-                            }
-                        }
-                    }),
-                    root: 'optype',
-                });
                 return optypeStore;
             },
-        });
-
-
-        var comboCA = Ext.extend(Ext.form.ComboBox, {
-            id: 'id_contr',
-            typeAhead: true,
-            triggerAction: 'all',
-            // lazyRender: true,
-            mode: 'local',
-            valueField: 'id_contr',
-            displayField: 'name',
-            fieldLabel: 'Conractor',
-
-            initComponent: function () {
-                Ext.applyIf(this, {
-                    store: this.buildStore(),
-                });
-                comboCA.superclass.initComponent.call(this);
-                this.store.load()
-            },
-
-            buildStore: function () {
-                var caStore = new Ext.data.JsonStore({
-                    fields: [
-                        'id_contr',
-                        'name',],
-                    proxy: new Ext.data.HttpProxy({
-                        api: {
-                            read: {
-                                url: 'contractor',
-                                method: 'GET'
-                            }
-                        }
-                    }),
-                    root: 'contractors',
-                });
-                return caStore;
-            },
-        });
-
-        var opdateField = Ext.extend(Ext.form.DateField, {
-            fieldLabel: 'opdate',
-            format: 'd.m.Y',
-            id: 'opdate',
-            allowBlank: false,
-
-            initComponent: function () {
-                Date.monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-                Date.dayNames = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-                var today = new Date();
-                this.setValue(today);
-                Ext.apply(this, {
-                    minValue: new Date(today.getFullYear() - 1, 1, 1),
-                    maxValue: new Date(today.getFullYear() + 2, 1, 1),
-                })
-            }
         });
 
         var settPanel = Ext.extend(Ext.form.FieldSet, {
@@ -181,8 +115,7 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
 
             initComponent: function () {
                 Ext.apply(this, {
-                    items: [
-                        {
+                    items: [{
                             xtype: 'numberfield',
                             id: 'gm_res',
                             fieldLabel: 'Резерв на ГМ',
@@ -231,16 +164,24 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
                 parent: this,
             }),
 
-            new comboCA({
+            new Ext.form.ComboBox({
                 ref: 'comboCa',
                 parent: this,
                 allowBlank: false,
+                mode: 'local',
+                valueField: 'id_contr',
+                displayField: 'name',
+                fieldLabel: 'Контрагент',
+                store: caStore,
+
             }),
-            new opdateField({
+
+            new customDateField({
                 ref: 'opdateField',
-                parent: this,
-                allowBlank: false,
+                fieldLabel: 'Дата Операции',
+                id: 'opdate',
             }),
+
             new settPanel({
                 ref: 'settPanel',
                 parent: this
@@ -271,29 +212,27 @@ addOpForm = Ext.extend(Ext.form.FormPanel, {
 
     buildButtons: function () {
         var me = this;
-        var buttonsArr = [
-            {
-                xtype: 'button',
-                id: 'apply',
-                text: 'Сохранить',
-                disabled: false,
-                handler: function () {
-                    var myForm = me.getForm()
-                    if (myForm.isValid()) {
-                        Ext.Ajax.request({
-                            url: 'operation',
-                            method: 'ADD',
-                            params: myForm.getFieldValues(),
-                            success: function (response, options) {
-                                Ext.MessageBox.alert('Успех', 'Операция добавлена');
-                                me.parent.parent.store.load();
-                                me.parent.close();
-                            }
-                        });
-                    }
-                },
-            }
-        ];
+        var buttonsArr = [{
+            xtype: 'button',
+            id: 'apply',
+            text: 'Сохранить',
+            disabled: false,
+            handler: function () {
+                var myForm = me.getForm()
+                if (myForm.isValid()) {
+                    Ext.Ajax.request({
+                        url: 'operation',
+                        method: 'ADD',
+                        params: myForm.getFieldValues(),
+                        success: function (response, options) {
+                            Ext.MessageBox.alert('Успех', 'Операция добавлена');
+                            me.parent.parent.store.load();
+                            me.parent.close();
+                        }
+                    });
+                }
+            },
+        }];
         return buttonsArr;
     },
 });

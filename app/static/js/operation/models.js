@@ -376,7 +376,11 @@ var opArtStore = new Ext.data.JsonStore({
 
     listeners: {
         save: function () {
-            this.parent.store.load({params: {id_op: this.parent.id_op}});
+            this.parent.store.load({
+                params: {
+                    id_op: this.parent.id_op
+                }
+            });
         }
     },
 
@@ -433,4 +437,20 @@ var articlesStore = new Ext.data.JsonStore({
         }
     }),
     root: 'articles',
+});
+
+var optypeStore = new Ext.data.JsonStore({
+    fields: [
+        'id_type',
+        'name',
+    ],
+    proxy: new Ext.data.HttpProxy({
+        api: {
+            read: {
+                url: 'optypes',
+                method: 'GET'
+            }
+        }
+    }),
+    root: 'optype',
 });

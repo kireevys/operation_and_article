@@ -279,7 +279,7 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                     success: function (response, options) {
                         Ext.Msg.show({
                             title: 'Операция успешна',
-                            msg: 'Установили название: ' + node.attributes.text,
+                            msg: `Установили название: ${node.attributes.text}`,
                             icon: Ext.MessageBox.INFO,
                             buttons: Ext.MessageBox.OK
                         });
@@ -319,10 +319,9 @@ App.tab.catalogs.warehouses = Ext.extend(treeWs, {
                 });
             },
             failure: function (response, options) {
-                var msg = response.responseText || 'Не удалось добавить данные'
                 Ext.MessageBox.show({
                     title: 'Не удалось',
-                    msg: msg,
+                    msg: response.responseText || 'Не удалось добавить данные',
                     icon: Ext.MessageBox.ERROR,
                     buttons: Ext.MessageBox.OK
                 });

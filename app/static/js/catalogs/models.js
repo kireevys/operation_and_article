@@ -16,6 +16,21 @@ var numFieldEditor = Ext.extend(Ext.form.NumberField, {
     allowNegative: false,
 });
 
+// Локализованный ДатаФилд
+var customDateField = Ext.extend(Ext.form.DateField, {
+    fieldLabel: 'DateField',
+    format: 'd.m.Y',
+    allowBlank: false,
+    minValue: new Date(),
+    maxValue: new Date(new Date().getFullYear() + 2, 1, 1),
+    startDay: 1,
+    value: new Date(),
+
+    initComponent: function () {
+        customDateField.superclass.initComponent.call(this);
+    }
+});
+
 var contractorsColumn = new Ext.grid.ColumnModel({
     columns: [{
             header: 'Идентификатор',
