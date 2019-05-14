@@ -168,6 +168,7 @@ var addOpForm = Ext.extend(Ext.form.FormPanel, {
                 ref: 'comboCa',
                 parent: this,
                 allowBlank: false,
+                id: 'id_contr',
                 mode: 'local',
                 valueField: 'id_contr',
                 displayField: 'name',
